@@ -1,6 +1,6 @@
 package sn.axa.apiaxacnaas.util;
 
-public enum TypeInvaliditeEnum {
+public enum TypeInvalidityEnum {
     PARTIELLE,
     PERMANENTE
 }

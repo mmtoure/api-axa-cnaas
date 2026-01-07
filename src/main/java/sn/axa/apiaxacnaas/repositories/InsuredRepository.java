@@ -1,4 +1,7 @@
 package sn.axa.apiaxacnaas.repositories;
 
-public class InsuredRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import sn.axa.apiaxacnaas.entities.Insured;
+
+public interface InsuredRepository extends JpaRepository<Insured, Long> {
 }

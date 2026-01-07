@@ -1,4 +1,4 @@
-package sn.axa.apiaxacnaas;
+package sn.axa.apiaxacnaas.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,6 @@ public class AuthController {
     public ResponseEntity<UserDTO> createChefAgence(@RequestBody UserDTO userDTO) {
         UserDTO newUser = userService.createUser(userDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
-
     }
 
     @PostMapping("/login")
@@ -36,7 +35,6 @@ public class AuthController {
     public ResponseEntity<UserDTO> getCurrentUser(){
         UserDTO currentUser = userService.getPublicUser(null);
         return ResponseEntity.ok(currentUser);
-
     }
 
     @GetMapping("/users")

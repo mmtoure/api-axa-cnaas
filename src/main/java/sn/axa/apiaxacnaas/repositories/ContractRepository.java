@@ -1,4 +1,7 @@
 package sn.axa.apiaxacnaas.repositories;
 
-public interface ContractRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import sn.axa.apiaxacnaas.entities.Contract;
+
+public interface ContractRepository extends JpaRepository<Contract, Long> {
 }

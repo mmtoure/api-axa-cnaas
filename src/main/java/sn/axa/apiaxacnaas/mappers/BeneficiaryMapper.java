@@ -1,10 +1,12 @@
 package sn.axa.apiaxacnaas.mappers;
 
-import sn.axa.apiaxacnaas.dto.BeneficiaireDTO;
-import sn.axa.apiaxacnaas.dto.GroupDTO;
-import sn.axa.apiaxacnaas.entities.Group;
+import org.mapstruct.Mapper;
+import sn.axa.apiaxacnaas.dto.BeneficiaryDTO;
+import sn.axa.apiaxacnaas.entities.Beneficiary;
 
-public interface BeneficiaireMapper {
-   BeneficiaireDTO toDTO(Group entity);
-    Group toEntity(GroupDTO dto);
+
+@Mapper(componentModel = "spring")
+public interface BeneficiaryMapper {
+   BeneficiaryDTO toDTO(Beneficiary entity);
+    Beneficiary toEntity(BeneficiaryDTO dto);
 }

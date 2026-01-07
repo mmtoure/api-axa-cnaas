@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "tbl_contract_coverages")
-public class ContractCoverage {
+@Table(name = "tbl_contract_garanties")
+public class ContractGarantie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,10 +22,10 @@ public class ContractCoverage {
     private Contract contract;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Coverage coverage;
+    private Garantie garantie;
+
     private Double capitalMax; // 350 000
     private Double capitalDejaVerse;
-
 
     private Integer plafondNuitsParAn; // 30
     private Integer nuitsRestantes;

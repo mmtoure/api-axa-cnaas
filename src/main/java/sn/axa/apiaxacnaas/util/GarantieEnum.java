@@ -1,4 +1,7 @@
 package sn.axa.apiaxacnaas.util;
 
-public class GarantieName {
+public enum GarantieEnum {
+    HOSPICASH,
+    INVALIDITE,
+    CAPITAL_FUNERAIRE
 }

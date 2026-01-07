@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "tbl_coverages")
-public class Coverage {
+@Table(name = "tbl_garanties")
+public class Garantie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
