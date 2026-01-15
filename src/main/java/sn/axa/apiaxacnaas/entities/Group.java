@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,6 +25,7 @@ public class Group {
     private String firstNameRepresentant;
     private String lastNameRepresentant;
     private String phoneNumberRepresentant;
+    private LocalDate dateOfBirthRepresentant;
 
     @OneToMany(
             mappedBy = "group",

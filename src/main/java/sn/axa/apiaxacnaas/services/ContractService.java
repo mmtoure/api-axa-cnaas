@@ -18,10 +18,7 @@ import sn.axa.apiaxacnaas.util.StatusContract;
 import sn.axa.apiaxacnaas.util.TypeContractEnum;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -117,6 +114,17 @@ public class ContractService {
 
     private String generatePoliceContract() {
         return "CTR-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
+
+    public List<ContractDTO> getAllContracts(){
+        List<Contract> allContracts = contractRepository.findAll();
+        return  allContracts.stream().map(contractMapper::toDTO).toList();
+    }
+
+    public ContractDTO getContractById(Long id){
+        Contract contract = contractRepository.findById(id)
+                .orElseThrow(()->new RuntimeException("Contract not found"));
+        return contractMapper.toDTO(contract);
     }
 
 

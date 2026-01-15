@@ -31,23 +31,18 @@ public class User {
     private LocalDateTime updatedAt;
 
     private Boolean isActive;
+
     private String activationToken;
     private String profileImageUrl;
 
-    @PrePersist
-    public void prePersist() {
-        if (this.isActive == null) {
-            this.isActive = false;
-        }
-    }
-
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private Role role;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "agence_id")
+
+    @ManyToOne
+    @JoinColumn(name = "agence_id", referencedColumnName = "id")
     private Agence agence;
 
 }

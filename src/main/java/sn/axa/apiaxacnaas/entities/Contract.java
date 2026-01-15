@@ -38,7 +38,7 @@ public class Contract {
     private Double montantPrime;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id", nullable = true)
     private Group group;
 

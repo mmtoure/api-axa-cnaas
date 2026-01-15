@@ -3,6 +3,7 @@ package sn.axa.apiaxacnaas.dto;
 import lombok.*;
 import sn.axa.apiaxacnaas.util.GarantieEnum;
 import sn.axa.apiaxacnaas.util.StatusContract;
+import sn.axa.apiaxacnaas.util.TypeContractEnum;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ import java.util.Set;
 @Builder
 public class ContractDTO {
     private Long id;
-    private GarantieEnum typeContrat;
+    private TypeContractEnum typeContract;
     private String policeNumber;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -28,4 +29,8 @@ public class ContractDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<ContractGarantieDTO> garanties;
+    private Long groupId;
+    private String groupName;
+
+    private Set<InsuredSimpleDTO> insureds;
 }

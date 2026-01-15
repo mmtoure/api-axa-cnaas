@@ -3,6 +3,7 @@ package sn.axa.apiaxacnaas.dto;
 
 import lombok.*;
 import sn.axa.apiaxacnaas.entities.Group;
+import sn.axa.apiaxacnaas.util.InsuredStatus;
 
 
 import java.time.LocalDate;
@@ -18,9 +19,11 @@ public class InsuredDTO {
     private String firstName;
     private String lastName;
     private String phoneNumber;
+    private InsuredStatus status;
     private LocalDate dateOfBirth;
     private BeneficiaryDTO beneficiary;
-    private Long group_id;
+    private Long groupId;
+    private String groupName;
     private UserDTO user;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

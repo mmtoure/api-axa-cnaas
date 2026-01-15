@@ -4,6 +4,7 @@ import lombok.*;
 import sn.axa.apiaxacnaas.entities.Insured;
 import sn.axa.apiaxacnaas.entities.User;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -18,6 +19,7 @@ public class GroupDTO {
     private String firstNameRepresentant;
     private String lastNameRepresentant;
     private String phoneNumberRepresentant;
+    private LocalDate dateOfBirthRepresentant;
     private Set<InsuredDTO> insureds;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

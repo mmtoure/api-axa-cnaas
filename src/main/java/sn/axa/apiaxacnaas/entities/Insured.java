@@ -1,10 +1,12 @@
 package sn.axa.apiaxacnaas.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import sn.axa.apiaxacnaas.util.InsuredStatus;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,6 +25,9 @@ public class Insured {
     private String phoneNumber;
     private String email;
     private String address;
+    private LocalDate dateOfBirth;
+    @Enumerated(EnumType.STRING)
+    private InsuredStatus status = InsuredStatus.ACTIVE;
 
     private String firstNameBeneficiaire;
     private String lastNameBeneficiaire;
@@ -30,7 +35,7 @@ public class Insured {
     private String lienParente;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
+    @JoinColumn(name = "group_id", referencedColumnName = "id")
     private Group group;
 
     @ManyToOne(fetch = FetchType.LAZY)

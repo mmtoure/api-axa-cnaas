@@ -15,7 +15,7 @@ public class AppUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User existingUser = userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("Not Found"));
+        User existingUser = userRepository.findByEmailAndIsActiveTrue(email).orElseThrow(()->new UsernameNotFoundException("Compte désactivé ou inexistant"));
         // Convert user roles to GrantedAuthority
         return new UserDetailsImpl(existingUser);
     }

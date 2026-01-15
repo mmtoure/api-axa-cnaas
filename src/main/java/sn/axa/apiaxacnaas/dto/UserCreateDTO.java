@@ -1,26 +1,21 @@
 package sn.axa.apiaxacnaas.dto;
 
 import lombok.*;
-import sn.axa.apiaxacnaas.entities.Agence;
-import sn.axa.apiaxacnaas.entities.Role;
 
 import java.time.LocalDateTime;
-
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserDTO {
+public class UserCreateDTO {
     private Long id;
     private String fullName;
     private String email;
     private String phoneNumber;
-    private Boolean isActive;
-    private Role role;
+    private String password;
     private Long agenceId;
-    private AgenceDTO agence;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

@@ -11,7 +11,8 @@ import sn.axa.apiaxacnaas.entities.Insured;
         BeneficiaryMapper.class
 })
 public interface InsuredMapper {
-    @Mapping(source = "group.id", target = "group_id")
+    @Mapping(source = "group.id", target = "groupId")
+    @Mapping(source = "group.name", target = "groupName")
     InsuredDTO toDTO(Insured entity);
     Insured toEntity(InsuredDTO dto);
 }

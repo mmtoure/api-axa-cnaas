@@ -19,7 +19,6 @@ public class AgenceDTO {
     private Long id;
     private String name;
     private VilleEnum ville;
-    private Set<User> users;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

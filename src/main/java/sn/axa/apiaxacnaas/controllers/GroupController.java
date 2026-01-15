@@ -30,7 +30,7 @@ public class GroupController {
 
     @GetMapping("/{id}")
     public  ResponseEntity<GroupDTO> getGroupById(@PathVariable Long id){
-        return ResponseEntity.status(HttpStatus.OK).body(groupService.getFroupById(id));
+        return ResponseEntity.status(HttpStatus.OK).body(groupService.getGroupById(id));
     }
 
     @PutMapping("/{id}")
