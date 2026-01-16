@@ -59,15 +59,16 @@ public class GroupService {
     }
     public GroupDTO createGroup(GroupDTO groupDTO){
         Group group = groupMapper.toEntity(groupDTO);
-        User currentUser = userService.getCurrentUser();
-        group.setUser(currentUser);
+        Group savedGroup = groupRepository.save(group);
         if(group.getInsureds()!=null){
             group.getInsureds().forEach(insured -> {
                 insured.setGroup(group);
+                insuredRepository.save(insured);
+                contractService.createContract(insured);
             });
         }
-        Group savedGroup = groupRepository.save(group);
-        contractService.createContract(group,null);
+
+
 
         return groupMapper.toDTO(savedGroup);
     }

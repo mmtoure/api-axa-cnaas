@@ -22,6 +22,7 @@ public class InsuredDTO {
     private InsuredStatus status;
     private LocalDate dateOfBirth;
     private BeneficiaryDTO beneficiary;
+    private ContractDTO contract;
     private Long groupId;
     private String groupName;
     private UserDTO user;

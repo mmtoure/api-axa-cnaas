@@ -29,8 +29,7 @@ public class ContractDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<ContractGarantieDTO> garanties;
-    private Long groupId;
-    private String groupName;
-
-    private Set<InsuredSimpleDTO> insureds;
+    private Long insuredId;
+    private String firstName;
+    private String lastName;
 }

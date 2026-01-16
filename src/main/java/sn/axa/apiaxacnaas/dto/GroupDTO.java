@@ -16,10 +16,10 @@ import java.util.Set;
 public class GroupDTO {
     private Long id;
     private String name;
-    private String firstNameRepresentant;
-    private String lastNameRepresentant;
-    private String phoneNumberRepresentant;
-    private LocalDate dateOfBirthRepresentant;
+    private String firstName;
+    private String lastName;
+    private String phoneNumber;
+    private LocalDate dateOfBirth;
     private Set<InsuredDTO> insureds;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

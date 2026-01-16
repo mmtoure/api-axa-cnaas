@@ -15,8 +15,9 @@ import sn.axa.apiaxacnaas.entities.Contract;
         }
 )
 public interface ContractMapper {
-    @Mapping(source = "group.id", target = "groupId")
-    @Mapping(source = "group.name", target = "groupName")
+    @Mapping(source = "insured.id", target = "insuredId")
+    @Mapping(source = "insured.firstName", target = "firstName")
+    @Mapping(source = "insured.lastName", target = "lastName")
     ContractDTO toDTO(Contract entity);
 
     Contract toEntity(ContractDTO dto);

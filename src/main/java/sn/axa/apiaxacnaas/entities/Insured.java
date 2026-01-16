@@ -49,6 +49,8 @@ public class Insured {
     )
     private Beneficiary beneficiary;
 
+    @OneToOne(mappedBy = "insured")
+    private Contract contract;
 
     @Column(updatable = false)
     @CreationTimestamp

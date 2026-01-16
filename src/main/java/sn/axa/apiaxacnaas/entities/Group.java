@@ -22,21 +22,12 @@ public class Group {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private String firstNameRepresentant;
-    private String lastNameRepresentant;
-    private String phoneNumberRepresentant;
-    private LocalDate dateOfBirthRepresentant;
-
-    @OneToMany(
-            mappedBy = "group",
-            cascade = CascadeType.ALL
-    )
+    private String firstName;
+    private String lastName;
+    private String phoneNumber;
+    private LocalDate dateOfBirth;
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     private Set<Insured> insureds = new HashSet<>();
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
-
     @Column(updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;

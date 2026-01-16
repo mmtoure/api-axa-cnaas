@@ -26,14 +26,15 @@ public class InsuredService {
     public InsuredDTO createInsured(InsuredDTO insuredDTO){
         User currentUser = userService.getCurrentUser();
 
-        Insured newInsured = insuredMapper.toEntity(insuredDTO);
-        newInsured.setUser(currentUser);
+        Insured insured = insuredMapper.toEntity(insuredDTO);
+        insured.setUser(currentUser);
 
-        Insured savedInsured = insuredRepository.save(newInsured);
-        if(newInsured.getBeneficiary()!=null){
-            newInsured.getBeneficiary().setInsured(newInsured);
+
+        if(insured.getBeneficiary()!=null){
+            insured.getBeneficiary().setInsured(insured);
         }
-        contractService.createContract(null, savedInsured);
+        Insured savedInsured = insuredRepository.save(insured);
+        contractService.createContract(savedInsured);
         return insuredMapper.toDTO(savedInsured);
     }
 

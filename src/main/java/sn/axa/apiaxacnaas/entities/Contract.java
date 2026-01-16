@@ -36,27 +36,16 @@ public class Contract {
 
     @Column(nullable = false)
     private Double montantPrime;
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id", nullable = true)
-    private Group group;
-
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "insured_id", nullable = false, unique = true)
+    private Insured insured;
 
     @Enumerated(EnumType.STRING)
     private StatusContract status; // ACTIF, EXPIRÉ, ANNULÉ
 
     // Garanties rattachées au contrat
-    @OneToMany(
-            mappedBy = "contract",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
+    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ContractGarantie> garanties = new HashSet<>();
-
-
-
-
 
     @Column(updatable = false)
     @CreationTimestamp
@@ -64,17 +53,5 @@ public class Contract {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "tlb_contract_insureds",
-            joinColumns = @JoinColumn(name = "contract_id"),
-            inverseJoinColumns = @JoinColumn(name = "insured_id")
-    )
-    private Set<Insured> insureds = new HashSet<>();
-    public void addInsured(Insured insured) {
-        this.insureds.add(insured);
-    }
-
 
 }

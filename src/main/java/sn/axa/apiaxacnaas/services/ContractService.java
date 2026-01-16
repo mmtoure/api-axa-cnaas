@@ -30,7 +30,7 @@ public class ContractService {
     private final GroupRepository groupRepository;
     private final InsuredRepository insuredRepository;
 
-    public ContractDTO createContract(Group group,  Insured insured){
+    public ContractDTO createContract(Insured insured){
         Contract contract = new Contract();
         contract.setPoliceNumber(generatePoliceContract());
         contract.setMontantPrime(GlobalConstants.MONTANT_PRIME);
@@ -40,27 +40,9 @@ public class ContractService {
 
         contract.setStartDate(LocalDate.now());
         contract.setEndDate(LocalDate.now().plusYears(1));
+        System.out.println("CONTRACT SAVED ID = " + insured.getId());
+        contract.setInsured(insured);
 
-        //Contrat par Groupement
-        if(group!=null){
-            contract.setTypeContract(TypeContractEnum.GROUPEMENT);
-            Group groupExisting = groupRepository.findById(group.getId())
-                    .orElseThrow(()-> new RuntimeException("Groupement n'existe pas"));
-            contract.setGroup(groupExisting);
-
-            // Ajouter tous les assurés du groupe au contrat
-            groupExisting.getInsureds().forEach(contract::addInsured);
-        }
-
-        //Contrat individuel
-        if(insured!=null){
-            contract.setTypeContract(TypeContractEnum.INDIVIDUEL);
-            Insured insuredExisting = insuredRepository
-                    .findById(insured.getId())
-                    .orElseThrow(() ->new RuntimeException("Assuré n'existe pas"));
-            System.out.println("ID"+ insuredExisting);
-            contract.addInsured(insuredExisting);
-        }
 
         // AJOUTER LES GARANTIES
 
