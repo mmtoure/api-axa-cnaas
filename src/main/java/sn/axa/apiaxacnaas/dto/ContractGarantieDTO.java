@@ -21,6 +21,9 @@ public class ContractGarantieDTO {
     private Integer plafondNuitsParAn; // 30
     private Integer nuitsRestantes;
     private Double montantParNuit; // 5 000
+    private Long contractId;
+    private Long garantieId;
+    private String garantieName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

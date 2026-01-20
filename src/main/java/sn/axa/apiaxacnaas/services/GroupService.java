@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -50,10 +51,20 @@ public class GroupService {
     private final InsuredMapper insuredMapper;
     private static final Logger logger = LoggerFactory.getLogger(GroupService.class);
 
-    public Set<InsuredDTO> subscribeGroup(MultipartFile file ){
+    public GroupDTO subscribeGroup(GroupDTO groupDTO, MultipartFile file ){
+        Group group = groupMapper.toEntity(groupDTO);
+        Group savedGroup = groupRepository.save(group);
         Set<Insured> insureds = parseExcel(file);
+        if(!insureds.isEmpty()){
+            insureds.forEach(insured -> {
+                insured.setGroup(savedGroup);
+                insuredRepository.save(insured);
+                contractService.createContract(insured);
+            });
 
-        return insuredRepository.saveAll(insureds).stream().map(insuredMapper::toDTO).collect(Collectors.toSet());
+        }
+
+        return groupMapper.toDTO(savedGroup);
 
 
     }
@@ -80,7 +91,9 @@ public class GroupService {
     }
 
     public List<GroupDTO> getAllGroups(){
-        List<Group> listGroups = groupRepository.findAll();
+        List<Group> listGroups = groupRepository.findAll(
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
         return listGroups.stream().map(groupMapper::toDTO).toList();
     }
 

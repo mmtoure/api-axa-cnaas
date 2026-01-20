@@ -1,11 +1,13 @@
 package sn.axa.apiaxacnaas.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sn.axa.apiaxacnaas.dto.ContractDTO;
 import sn.axa.apiaxacnaas.dto.InsuredDTO;
 import sn.axa.apiaxacnaas.entities.*;
+import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.ContractMapper;
 import sn.axa.apiaxacnaas.mappers.GarantieMapper;
 import sn.axa.apiaxacnaas.repositories.ContractRepository;
@@ -23,6 +25,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class ContractService {
+
     private final ContractRepository contractRepository;
     private final ContractMapper contractMapper;
     private final GarantieRepository garantieRepository;
@@ -37,15 +40,11 @@ public class ContractService {
         contract.setStatus(StatusContract.ACTIF);
         contract.setAccessoryCost(GlobalConstants.ACCESSOIRE);
         contract.setTax(GlobalConstants.TAXE);
-
         contract.setStartDate(LocalDate.now());
         contract.setEndDate(LocalDate.now().plusYears(1));
-        System.out.println("CONTRACT SAVED ID = " + insured.getId());
         contract.setInsured(insured);
 
-
         // AJOUTER LES GARANTIES
-
         Set<ContractGarantie> garanties = new HashSet<>();
         garanties.add(createHospicash(contract));
         garanties.add(createInvalidity(contract));
@@ -56,8 +55,6 @@ public class ContractService {
 
         return contractMapper.toDTO(savedContract);
     }
-
-
 
     public ContractGarantie createHospicash(Contract contract){
         Garantie garantie = garantieRepository.findByName(GarantieEnum.HOSPICASH)
@@ -99,15 +96,20 @@ public class ContractService {
     }
 
     public List<ContractDTO> getAllContracts(){
-        List<Contract> allContracts = contractRepository.findAll();
+        List<Contract> allContracts = contractRepository.findAll(
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
         return  allContracts.stream().map(contractMapper::toDTO).toList();
     }
 
     public ContractDTO getContractById(Long id){
-        Contract contract = contractRepository.findById(id)
-                .orElseThrow(()->new RuntimeException("Contract not found"));
+        Contract contract = contractRepository
+                .findByIdWithGaranties(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Contrat introuvable"));
         return contractMapper.toDTO(contract);
     }
+
 
 
 

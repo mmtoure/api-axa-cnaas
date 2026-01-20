@@ -32,4 +32,5 @@ public class ContractDTO {
     private Long insuredId;
     private String firstName;
     private String lastName;
+    private List<ClaimDTO> claims;
 }

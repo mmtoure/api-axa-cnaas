@@ -18,10 +18,13 @@ public class ContractGarantie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contract_id", referencedColumnName = "id")
     private Contract contract;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "garantie_id", referencedColumnName = "id")
     private Garantie garantie;
 
     private Double capitalMax; // 350 000

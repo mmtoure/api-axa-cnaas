@@ -15,6 +15,7 @@ import sn.axa.apiaxacnaas.dto.UserDTO;
 import sn.axa.apiaxacnaas.entities.Agence;
 import sn.axa.apiaxacnaas.entities.Role;
 import sn.axa.apiaxacnaas.entities.User;
+import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.UserMapper;
 import sn.axa.apiaxacnaas.repositories.AgenceRepository;
 import sn.axa.apiaxacnaas.repositories.RoleRepository;
@@ -55,7 +56,7 @@ public class UserService {
     public Map<String, Object> login(LoginDTO request) {
         System.out.println("EMAIL: "+ request.getEmail());
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(()-> new RuntimeException("User not found"));
+                .orElseThrow(()-> new ResourceNotFoundException("❌ Email ou mot de passe incorrect"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword()))
             throw new RuntimeException("Bad credentials");

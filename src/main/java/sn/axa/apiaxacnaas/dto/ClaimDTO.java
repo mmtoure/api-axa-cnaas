@@ -1,22 +1,19 @@
 package sn.axa.apiaxacnaas.dto;
 
-import jakarta.persistence.*;
 import lombok.*;
-import sn.axa.apiaxacnaas.entities.Contract;
-import sn.axa.apiaxacnaas.entities.SinistreDocument;
-import sn.axa.apiaxacnaas.util.CompensationStatusEnum;
+import sn.axa.apiaxacnaas.entities.ClaimDocument;
+import sn.axa.apiaxacnaas.util.ClaimStatus;
 import sn.axa.apiaxacnaas.util.GarantieEnum;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SinistreDTO {
+public class ClaimDTO {
     private Long id;
     private LocalDateTime hospitalizationStartDate;
     private LocalDateTime hospitalizationEndDate;
@@ -28,7 +25,9 @@ public class SinistreDTO {
     private GarantieEnum sinisterType;
     private Integer probableDuration;
     private Double compensationAmount;
-    private CompensationStatusEnum compensationStatus;
-    private Set<SinistreDocument> sinistreDocuments;
+    private ClaimStatus compensationStatus;
+    private List<ClaimDocument> claimDocuments;
     private Long contractId;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

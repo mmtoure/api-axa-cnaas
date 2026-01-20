@@ -1,15 +1,15 @@
 package sn.axa.apiaxacnaas.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
-import sn.axa.apiaxacnaas.util.CompensationStatusEnum;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import sn.axa.apiaxacnaas.util.ClaimStatus;
 import sn.axa.apiaxacnaas.util.GarantieEnum;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -17,8 +17,8 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "tbl_sinistres")
-public class Sinistre {
+@Table(name = "tbl_claims")
+public class Claim {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,11 +34,18 @@ public class Sinistre {
     private Integer probableDuration;
     private Double compensationAmount;
     @Enumerated(EnumType.STRING)
-    private CompensationStatusEnum compensationStatus;
+    private ClaimStatus status;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "sinistre")
-    private Set<SinistreDocument> sinistreDocuments = new HashSet<>();
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "claim")
+    private List<ClaimDocument> claimDocuments = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Contract contract;
+
+    @Column(updatable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

@@ -8,7 +8,6 @@ import sn.axa.apiaxacnaas.entities.Garantie;
 
 @Mapper(componentModel = "spring")
 public interface GarantieMapper {
-
     GarantieDTO toDTO(Garantie entity);
     Garantie toEntity(GarantieDTO dto);
 }

@@ -25,8 +25,8 @@ public class TestController {
             value = "/uploadExcel",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-    public ResponseEntity<?> uploadFileExcel(@RequestPart("file") MultipartFile file) {
-        return ResponseEntity.status(HttpStatus.OK).body(groupService.subscribeGroup(file));
+    public ResponseEntity<?> uploadFileExcel(@RequestPart("group") GroupDTO groupDTO, @RequestPart("file") MultipartFile file) {
+        return ResponseEntity.status(HttpStatus.OK).body(groupService.subscribeGroup(groupDTO,file));
 
     }
 }
