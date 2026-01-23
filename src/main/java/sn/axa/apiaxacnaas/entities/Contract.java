@@ -33,6 +33,7 @@ public class Contract {
     private String description;
     private Double accessoryCost;
     private Double tax;
+    private Double  montantPrimeTtc;
 
     @Column(nullable = false)
     private Double montantPrime;

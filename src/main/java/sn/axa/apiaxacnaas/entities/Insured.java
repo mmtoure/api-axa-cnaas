@@ -8,6 +8,8 @@ import sn.axa.apiaxacnaas.util.InsuredStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -27,7 +29,7 @@ public class Insured {
     private String address;
     private LocalDate dateOfBirth;
     @Enumerated(EnumType.STRING)
-    private InsuredStatus status = InsuredStatus.ACTIVE;
+    private InsuredStatus status= InsuredStatus.ACTIF;
 
     private String firstNameBeneficiaire;
     private String lastNameBeneficiaire;
@@ -51,6 +53,9 @@ public class Insured {
 
     @OneToOne(mappedBy = "insured")
     private Contract contract;
+
+    @OneToMany(mappedBy = "insured", fetch = FetchType.LAZY)
+    private Set<Claim> claims = new HashSet<>();
 
     @Column(updatable = false)
     @CreationTimestamp

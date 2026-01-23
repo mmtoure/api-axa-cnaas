@@ -7,11 +7,13 @@ import sn.axa.apiaxacnaas.dto.ClaimDTO;
 import sn.axa.apiaxacnaas.dto.ClaimDocumentDTO;
 import sn.axa.apiaxacnaas.entities.Claim;
 import sn.axa.apiaxacnaas.entities.Contract;
+import sn.axa.apiaxacnaas.entities.Insured;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.ClaimDocumentMapper;
 import sn.axa.apiaxacnaas.mappers.ClaimMapper;
 import sn.axa.apiaxacnaas.repositories.ClaimRepository;
 import sn.axa.apiaxacnaas.repositories.ContractRepository;
+import sn.axa.apiaxacnaas.repositories.InsuredRepository;
 import sn.axa.apiaxacnaas.util.ClaimDocumentType;
 import sn.axa.apiaxacnaas.util.ClaimStatus;
 import sn.axa.apiaxacnaas.util.StatusContract;
@@ -26,12 +28,13 @@ public class ClaimService {
     private final ClaimDocumentService claimDocumentService;
     private final ClaimDocumentMapper claimDocumentMapper;
     private final ContractRepository contractRepository;
+    private  final InsuredRepository insuredRepository;
 
     public ClaimDTO createClaim(ClaimDTO claimDTO, List<MultipartFile> files, List<ClaimDocumentType> types){
-        Contract contract = contractRepository.findById(claimDTO.getContractId())
-                .orElseThrow(()->new ResourceNotFoundException("Contract n'existe pas"));
+        Insured insured = insuredRepository.findById(claimDTO.getInsuredId())
+                .orElseThrow(()->new ResourceNotFoundException("Assure n'existe pas"));
 
-        if(contract.getStatus()!= StatusContract.ACTIF){
+        if(insured.getContract().getStatus()!= StatusContract.ACTIF){
             throw  new RuntimeException("Le contract n'est pas actif");
         }
         // 🔹 Création du sinistre
@@ -40,7 +43,7 @@ public class ClaimService {
                 .hospitalizationStartDate(claimDTO.getHospitalizationStartDate())
                 .hospitalizationEndDate(claimDTO.getHospitalizationEndDate())
                 .status(ClaimStatus.EN_COURS)
-                .contract(contract)
+                .insured(insured)
                 .build();
         Claim savedClaim = claimRepository.save(claim);
 

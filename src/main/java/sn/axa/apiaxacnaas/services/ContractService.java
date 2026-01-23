@@ -3,13 +3,13 @@ package sn.axa.apiaxacnaas.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import sn.axa.apiaxacnaas.dto.ContractDTO;
 import sn.axa.apiaxacnaas.dto.InsuredDTO;
 import sn.axa.apiaxacnaas.entities.*;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.ContractMapper;
 import sn.axa.apiaxacnaas.mappers.GarantieMapper;
+import sn.axa.apiaxacnaas.mappers.InsuredMapper;
 import sn.axa.apiaxacnaas.repositories.ContractRepository;
 import sn.axa.apiaxacnaas.repositories.GarantieRepository;
 import sn.axa.apiaxacnaas.repositories.GroupRepository;
@@ -17,8 +17,8 @@ import sn.axa.apiaxacnaas.repositories.InsuredRepository;
 import sn.axa.apiaxacnaas.util.GarantieEnum;
 import sn.axa.apiaxacnaas.util.GlobalConstants;
 import sn.axa.apiaxacnaas.util.StatusContract;
-import sn.axa.apiaxacnaas.util.TypeContractEnum;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -28,18 +28,21 @@ public class ContractService {
 
     private final ContractRepository contractRepository;
     private final ContractMapper contractMapper;
+    private final InsuredMapper insuredMapper;
     private final GarantieRepository garantieRepository;
     private final GarantieMapper garantieMapper;
     private final GroupRepository groupRepository;
     private final InsuredRepository insuredRepository;
+    private final ContractPdfService contractPdfService;
 
-    public ContractDTO createContract(Insured insured){
+    public ContractDTO createContract(Insured insured) {
         Contract contract = new Contract();
         contract.setPoliceNumber(generatePoliceContract());
-        contract.setMontantPrime(GlobalConstants.MONTANT_PRIME);
+        contract.setMontantPrime(GlobalConstants.MONTANT_PRIME_NET);
         contract.setStatus(StatusContract.ACTIF);
         contract.setAccessoryCost(GlobalConstants.ACCESSOIRE);
         contract.setTax(GlobalConstants.TAXE);
+        contract.setMontantPrimeTtc(GlobalConstants.MONTANT_PRIME_TTC);
         contract.setStartDate(LocalDate.now());
         contract.setEndDate(LocalDate.now().plusYears(1));
         contract.setInsured(insured);
@@ -52,7 +55,6 @@ public class ContractService {
         contract.setGaranties(garanties);
         Contract savedContract = contractRepository.save(contract);
         System.out.println("CONTRACT SAVED ID = " + savedContract.getId());
-
         return contractMapper.toDTO(savedContract);
     }
 
@@ -108,6 +110,19 @@ public class ContractService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Contrat introuvable"));
         return contractMapper.toDTO(contract);
+    }
+    public byte[] generateContractPdf(Long id) throws IOException {
+        Contract contract = contractRepository
+                .findByIdWithGaranties(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Contrat introuvable"));
+        ContractDTO contractDTO = contractMapper.toDTO(contract);
+        InsuredDTO insuredDTO = insuredMapper.toDTO(contract.getInsured());
+        return  contractPdfService.generateAndSavePdf(contractDTO,insuredDTO,"contract");
+    }
+
+    public Double getPrimeTcc(Double tax, Double montantNet, Double accessoire){
+        return  tax+montantNet+accessoire;
     }
 
 

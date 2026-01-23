@@ -1,5 +1,6 @@
 package sn.axa.apiaxacnaas.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -15,6 +16,7 @@ public class BeneficiaryDTO {
     private String firstName;
     private String lastName;
     private String phoneNumber;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
     private String lienParente;
     private LocalDateTime createdAt;

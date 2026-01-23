@@ -1,40 +1,38 @@
 package sn.axa.apiaxacnaas.services;
 
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 import sn.axa.apiaxacnaas.controllers.TestController;
 import sn.axa.apiaxacnaas.dto.ContractDTO;
 import sn.axa.apiaxacnaas.dto.GroupDTO;
 import sn.axa.apiaxacnaas.dto.InsuredDTO;
-import sn.axa.apiaxacnaas.entities.Beneficiary;
-import sn.axa.apiaxacnaas.entities.Group;
-import sn.axa.apiaxacnaas.entities.Insured;
-import sn.axa.apiaxacnaas.entities.User;
+import sn.axa.apiaxacnaas.entities.*;
+import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.ContractMapper;
 import sn.axa.apiaxacnaas.mappers.GroupMapper;
 import sn.axa.apiaxacnaas.mappers.InsuredMapper;
 import sn.axa.apiaxacnaas.repositories.GroupRepository;
 import sn.axa.apiaxacnaas.repositories.InsuredRepository;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.log;
@@ -50,6 +48,9 @@ public class GroupService {
     private final InsuredRepository insuredRepository;
     private final InsuredMapper insuredMapper;
     private static final Logger logger = LoggerFactory.getLogger(GroupService.class);
+    private final TemplateEngine templateEngine;
+    @Value("${app.pdf.storage-path}")
+    private String storagePath;
 
     public GroupDTO subscribeGroup(GroupDTO groupDTO, MultipartFile file ){
         Group group = groupMapper.toEntity(groupDTO);
@@ -78,9 +79,6 @@ public class GroupService {
                 contractService.createContract(insured);
             });
         }
-
-
-
         return groupMapper.toDTO(savedGroup);
     }
 
@@ -174,9 +172,8 @@ public class GroupService {
 
     private Set<Insured> parseExcel(MultipartFile file) {
 
-        Set<Insured> insureds = new HashSet<>();
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
-
+            Set<Insured> insureds = new HashSet<>();
             Sheet sheet = workbook.getSheetAt(0);
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Insured insured = new Insured();
@@ -185,29 +182,23 @@ public class GroupService {
                 if (row == null) continue;
                 insured.setFirstName(getCellValueAsString(row.getCell(0)));
                 insured.setLastName(getCellValueAsString(row.getCell(1)));
+                insured.setDateOfBirth(getCellValueAsLocalDate(row.getCell(2)));
                 insured.setPhoneNumber(getCellValueAsString(row.getCell(3)));
-                insured.setDateOfBirth(row.getCell(6).getLocalDateTimeCellValue().toLocalDate());
                 insured.setCreatedAt(LocalDateTime.now());
-
                 ben.setFirstName(getCellValueAsString(row.getCell(4)));
                 ben.setLastName(getCellValueAsString(row.getCell(5)));
-                ben.setDateOfBirth(row.getCell(6).getLocalDateTimeCellValue().toLocalDate());
+                ben.setDateOfBirth(getCellValueAsLocalDate(row.getCell(6)));
                 ben.setPhoneNumber(getCellValueAsString(row.getCell(7)));
                 ben.setLienParente(getCellValueAsString(row.getCell(8)));
-
-
                 insured.setBeneficiary(ben);
-
                 ben.setInsured(insured);
                 insureds.add(insured);
-
             }
 
+            return insureds;
         } catch (Exception e) {
-            throw new RuntimeException("Erreur de lecture du fichier Excel");
+            throw new RuntimeException("Erreur de lecture du fichier Excel"+e.getMessage());
         }
-
-        return insureds;
     }
 
     private static String getCellValueAsString(Cell cell) {
@@ -230,6 +221,57 @@ public class GroupService {
             default:
                 return "";
         }
+    }
+
+    private LocalDate getCellValueAsLocalDate(Cell cell) {
+        if (cell == null) return null;
+
+        try {
+            if (cell.getCellType() == CellType.NUMERIC &&
+                    DateUtil.isCellDateFormatted(cell)) {
+
+                return cell.getLocalDateTimeCellValue().toLocalDate();
+            }
+
+            if (cell.getCellType() == CellType.STRING) {
+                String value = cell.getStringCellValue().trim();
+                if (value.isEmpty()) return null;
+                return LocalDate.parse(value); // yyyy-MM-dd
+            }
+        } catch (Exception e) {
+            return null;
+        }
+
+        return null;
+    }
+
+    public byte[] generateContractByGroup(Long groupId) throws IOException {
+        Context context = new Context();
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(()->new ResourceNotFoundException("Group not found"));
+         Contract contract =group.getInsureds().stream()
+                 .map(Insured::getContract)
+                 .filter(Objects::nonNull)
+                 .findFirst()
+                 .orElseThrow(()->new ResourceNotFoundException("Aucun contrat trouvé pour ce group"));
+
+        context.setVariable("group", group);
+        context.setVariable("contract", contract);
+        String fileName = "contract_group" + contract.getId() + ".pdf";
+        Path pdfPath = Paths.get(storagePath, fileName);
+        String htmlContent = templateEngine.process("contract-group", context);
+
+        try(ByteArrayOutputStream os = new ByteArrayOutputStream()){
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.withHtmlContent(htmlContent,null);
+            builder.toStream(os);
+            builder.run();
+            return os.toByteArray();
+
+        } catch (IOException e) {
+            throw new IOException(e);
+        }
+
     }
 
 }

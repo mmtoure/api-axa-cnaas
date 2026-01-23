@@ -1,19 +1,26 @@
 package sn.axa.apiaxacnaas.services;
 
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 import sn.axa.apiaxacnaas.dto.InsuredDTO;
-import sn.axa.apiaxacnaas.entities.Beneficiary;
-import sn.axa.apiaxacnaas.entities.Insured;
-import sn.axa.apiaxacnaas.entities.User;
+import sn.axa.apiaxacnaas.entities.*;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.InsuredMapper;
 import sn.axa.apiaxacnaas.repositories.InsuredRepository;
 import sn.axa.apiaxacnaas.repositories.UserRepository;
+import sn.axa.apiaxacnaas.util.InsuredStatus;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -24,11 +31,16 @@ public class InsuredService {
     private final InsuredRepository insuredRepository;
     private final UserService userService;
     private final ContractService contractService;
+    private final TemplateEngine templateEngine;
+    @Value("${app.pdf.storage-path}")
+    private String storagePath;
+
 
     public InsuredDTO createInsured(InsuredDTO insuredDTO){
         User currentUser = userService.getCurrentUser();
         Insured insured = insuredMapper.toEntity(insuredDTO);
         insured.setUser(currentUser);
+        insured.setStatus(InsuredStatus.ACTIF);
         if(insured.getBeneficiary()!=null){
             insured.getBeneficiary().setInsured(insured);
         }
@@ -62,6 +74,33 @@ public class InsuredService {
         Insured existingInsured = insuredRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("Insured not found"));
         insuredRepository.delete(existingInsured);
+    }
+
+    public byte[] generateContractByInsured(Long insuredId) throws IOException {
+        Context context = new Context();
+        Insured insured = insuredRepository.findById(insuredId)
+                .orElseThrow(()->new ResourceNotFoundException("Insured not found"));
+        Contract contract = insured.getContract();
+        if (contract == null) {
+            throw new ResourceNotFoundException("No contract found for insured id=" + insuredId);
+        }
+        context.setVariable("insured", insured);
+        context.setVariable("contract", contract);
+        String fileName = "contract_" + contract.getId() + ".pdf";
+        Path pdfPath = Paths.get(storagePath, fileName);
+        String htmlContent = templateEngine.process("contract", context);
+
+        try(ByteArrayOutputStream os = new ByteArrayOutputStream()){
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.withHtmlContent(htmlContent,null);
+            builder.toStream(os);
+            builder.run();
+            return os.toByteArray();
+
+        } catch (IOException e) {
+            throw new IOException(e);
+        }
+
     }
 
 

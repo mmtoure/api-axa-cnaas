@@ -1,6 +1,7 @@
 package sn.axa.apiaxacnaas.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import sn.axa.apiaxacnaas.entities.Group;
 import sn.axa.apiaxacnaas.util.InsuredStatus;
@@ -8,6 +9,7 @@ import sn.axa.apiaxacnaas.util.InsuredStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -20,9 +22,10 @@ public class InsuredDTO {
     private String lastName;
     private String phoneNumber;
     private InsuredStatus status;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
     private BeneficiaryDTO beneficiary;
-    private ContractDTO contract;
+    private Set<ClaimDTO> claims;
     private Long groupId;
     private String groupName;
     private UserDTO user;

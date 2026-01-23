@@ -1,5 +1,6 @@
 package sn.axa.apiaxacnaas.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import sn.axa.apiaxacnaas.util.GarantieEnum;
 import sn.axa.apiaxacnaas.util.StatusContract;
@@ -19,7 +20,9 @@ public class ContractDTO {
     private Long id;
     private TypeContractEnum typeContract;
     private String policeNumber;
+    @JsonFormat(pattern = "dd MMMM yyyy", locale = "fr")
     private LocalDate startDate;
+    @JsonFormat(pattern = "dd MMMM yyyy", locale = "fr")
     private LocalDate endDate;
     private String description;
     private Double accessoryCost;
@@ -33,4 +36,5 @@ public class ContractDTO {
     private String firstName;
     private String lastName;
     private List<ClaimDTO> claims;
+    private Double montantPrimeTtc;
 }

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Title</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+        .header {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .title-table {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td, th {
+            border: 1px solid #ccc;
+            padding: 6px;
+        }
+        .section {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    BULLETIN D’ADHESION MICRO-ASSURANCE DE PERSONNE
+</div>
+
+    <p>Entre AXA SENEGAL, sis 5 Place de l’Indépendance DAKAR avec délégation de signature spécialement donnée aux fins des présentes à la CNAAS,
+    sis à DAKAR à Cité Keur Gorgui Villa N°4, Pyrotechnique, Cité des Enseignants du Supérieur, Ci-après dénommé l’Assureur, d’une part,</p>
+
+    <p>*Prénoms et Nom de l’assuré : <span th:text="${insured.firstName + ' ' + insured.lastName}"></span></p>
+    <p>*Date et lieu de naissance : <span th:text="${insured.dateOfBirth}"></span> à…………………………………</p>
+    <p>*Adresse : ………………………………………………………………….Ville………………….................</p>
+    <p>Profession/Activité : ……………………………………………… </p>
+    <p>Téléphone(s): <span th:text="${insured.phoneNumber}"></span></p>
+    <p>Email : …………………………………..................................................................... </p>
+
+    <p>Ci-après dénommé l’Adhérent, d’autre part.</p>
+
+<p>Le présent Bulletin d’Adhésion est établi à effet du  <strong><span th:text="${#temporals.format(contract.startDate, 'dd MMMM yyyy')}"></span></strong> Au <strong><span th:text="${#temporals.format(contract.startDate, 'dd MMMM yyyy')}"></span></strong> </p>
+
+    <p>Conformément aux dispositions du Code CIMA pour garantir l’Adhérent à la police souscrite contre les risques énoncés ci-après : </p>
+    <ul>
+        <li><p>Couverture annuelle</p></li>
+        <li><p>Décès ou invalidité permanente à la suite d’un accident Capital de 350.000 FCFA par an</p></li>
+        <li><p>5 000 FCFA par jour à partir du 2° jour et dans la limite de 30 jours par année et par membre et par adhérent à la suite d’une hospitalisation à la suite d’un accident ou d’une maladie.</p></li>
+
+    </ul>
+
+
+<p><u><strong><i>Informations</i> du bénéficiaire :</strong></u></p>
+
+<p>*Bénéficiaire désigné en cas de décès accidentel : <strong><span th:text="${insured.beneficiary.firstName + ' ' + insured.beneficiary.lastName}"></span></strong></p>
+
+<p>*Lien de parenté : <strong><span th:text="${insured.beneficiary.lienParente}"></span></strong></p>
+
+<p>*Date et lieu de naissance : <strong><span th:text="${#temporals.format(insured.beneficiary.dateOfBirth, 'dd MMMM yyyy')}"></span></strong></p>
+
+N° CIN …………………………...…...………………………………………………………………………………………………
+<p>*Téléphone:  <strong><span th:text="${insured.beneficiary.phoneNumber}"></span></strong></p>
+
+
+
+<div class="container mt-4">
+    <div class="title-table">
+        DECOMPTE DE LA PRIME (en FCFA)
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>PRIME NET</th>
+            <th>ACCESSOIRES</th>
+            <th>TAXES</th>
+            <th>PRIME TTC</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td th:text="${contract.montantPrime}">3610</td>
+                <td th:text="${contract.accessoryCost}">200</td>
+                <td th:text="${contract.tax}">190</td>
+                <td th:text="*{contract.montantPrime}">6000</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<br/><br/>
+
+Signature Client: _______________________
+
+</body>
+</html>

@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import sn.axa.apiaxacnaas.util.ClaimStatus;
 import sn.axa.apiaxacnaas.util.GarantieEnum;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +23,9 @@ public class Claim {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDateTime hospitalizationStartDate;
-    private LocalDateTime hospitalizationEndDate;
-    private LocalDateTime accidentDate;
+    private LocalDate hospitalizationStartDate;
+    private LocalDate hospitalizationEndDate;
+    private LocalDate accidentDate;
     private String healthStructure;
     private String doctor;
     private String nature;
@@ -40,7 +41,8 @@ public class Claim {
     private List<ClaimDocument> claimDocuments = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Contract contract;
+    @JoinColumn(name = "insured_id", nullable = false)
+    private Insured insured;
 
     @Column(updatable = false)
     @CreationTimestamp
