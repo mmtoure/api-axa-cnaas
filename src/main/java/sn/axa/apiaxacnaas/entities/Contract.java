@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import sn.axa.apiaxacnaas.util.StatusContract;
 import sn.axa.apiaxacnaas.util.TypeContractEnum;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -31,12 +32,12 @@ public class Contract {
     private LocalDate startDate;
     private LocalDate endDate;
     private String description;
-    private Double accessoryCost;
-    private Double tax;
-    private Double  montantPrimeTtc;
+    private BigDecimal accessoryCost;
+    private BigDecimal tax;
+    private BigDecimal montantPrimeTtc;
 
     @Column(nullable = false)
-    private Double montantPrime;
+    private BigDecimal montantPrime;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "insured_id", nullable = false, unique = true)
     private Insured insured;
@@ -54,5 +55,14 @@ public class Contract {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    @PreUpdate
+    public void calculateMontantPrimeTtc() {
+        this.montantPrimeTtc = montantPrime
+                .add(accessoryCost)
+                .add(tax);
+    }
+
 
 }

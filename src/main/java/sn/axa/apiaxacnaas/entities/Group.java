@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ public class Group {
     private String lastName;
     private String phoneNumber;
     private LocalDate dateOfBirth;
+    private BigDecimal montantPrimeTtc;
     @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     private Set<Insured> insureds = new HashSet<>();
     @Column(updatable = false)
@@ -34,5 +36,6 @@ public class Group {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
 
 }

@@ -28,6 +28,7 @@ import sn.axa.apiaxacnaas.repositories.GroupRepository;
 import sn.axa.apiaxacnaas.repositories.InsuredRepository;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -54,8 +55,9 @@ public class GroupService {
 
     public GroupDTO subscribeGroup(GroupDTO groupDTO, MultipartFile file ){
         Group group = groupMapper.toEntity(groupDTO);
-        Group savedGroup = groupRepository.save(group);
         Set<Insured> insureds = parseExcel(file);
+        Group savedGroup = groupRepository.save(group);
+
         if(!insureds.isEmpty()){
             insureds.forEach(insured -> {
                 insured.setGroup(savedGroup);

@@ -19,6 +19,7 @@ import sn.axa.apiaxacnaas.util.GlobalConstants;
 import sn.axa.apiaxacnaas.util.StatusContract;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -78,7 +79,7 @@ public class ContractService {
                 .contract(contract)
                 .garantie(garantie)
                 .capitalMax(GlobalConstants.CAPITAL_MAX)
-                .capitalDejaVerse(0.0)
+                .capitalDejaVerse(BigDecimal.valueOf(0.0))
                 .build();
     }
 
@@ -89,7 +90,7 @@ public class ContractService {
                 .contract(contract)
                 .garantie(garantie)
                 .capitalMax(GlobalConstants.CAPITAL_MAX)
-                .capitalDejaVerse(0.0)
+                .capitalDejaVerse(BigDecimal.valueOf(0.0))
                 .build();
     }
 

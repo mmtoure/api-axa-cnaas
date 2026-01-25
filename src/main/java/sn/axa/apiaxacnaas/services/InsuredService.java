@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -21,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -86,6 +88,21 @@ public class InsuredService {
         }
         context.setVariable("insured", insured);
         context.setVariable("contract", contract);
+        byte[] logoBytesAxa = new ClassPathResource("static/logo-axa.png")
+                .getInputStream()
+                .readAllBytes();
+
+        byte[] logoBytesCnaas = new ClassPathResource("static/logo-cnaas.png")
+                .getInputStream()
+                .readAllBytes();
+
+        String logoCnaasBase64 = Base64.getEncoder().encodeToString(logoBytesCnaas);
+
+        String logoAxaBase64 = Base64.getEncoder().encodeToString(logoBytesAxa);
+
+        context.setVariable("logo", "data:image/png;base64," + logoAxaBase64);
+
+        context.setVariable("logoCnaas", "data:image/png;base64," + logoCnaasBase64);
         String fileName = "contract_" + contract.getId() + ".pdf";
         Path pdfPath = Paths.get(storagePath, fileName);
         String htmlContent = templateEngine.process("contract", context);

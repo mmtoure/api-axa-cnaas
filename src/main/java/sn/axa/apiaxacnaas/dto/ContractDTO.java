@@ -6,6 +6,7 @@ import sn.axa.apiaxacnaas.util.GarantieEnum;
 import sn.axa.apiaxacnaas.util.StatusContract;
 import sn.axa.apiaxacnaas.util.TypeContractEnum;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,9 +26,9 @@ public class ContractDTO {
     @JsonFormat(pattern = "dd MMMM yyyy", locale = "fr")
     private LocalDate endDate;
     private String description;
-    private Double accessoryCost;
-    private Double tax;
-    private Double montantPrime;
+    private BigDecimal accessoryCost;
+    private BigDecimal tax;
+    private BigDecimal montantPrime;
     private StatusContract status; // ACTIF, EXPIRÉ, ANNULÉ
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -36,5 +37,5 @@ public class ContractDTO {
     private String firstName;
     private String lastName;
     private List<ClaimDTO> claims;
-    private Double montantPrimeTtc;
+    private BigDecimal montantPrimeTtc;
 }
