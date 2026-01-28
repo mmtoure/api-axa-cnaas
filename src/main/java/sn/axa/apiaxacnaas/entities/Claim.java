@@ -30,6 +30,7 @@ public class Claim {
     private String doctor;
     private String nature;
     private String cause;
+    private String motif;
     @Enumerated(EnumType.STRING)
     private GarantieEnum sinisterType;
     private Integer probableDuration;

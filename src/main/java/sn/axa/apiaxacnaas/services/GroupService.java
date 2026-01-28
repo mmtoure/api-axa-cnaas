@@ -8,6 +8,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -256,6 +257,22 @@ public class GroupService {
                  .filter(Objects::nonNull)
                  .findFirst()
                  .orElseThrow(()->new ResourceNotFoundException("Aucun contrat trouvé pour ce group"));
+
+        byte[] logoBytesAxa = new ClassPathResource("static/logo-axa.png")
+                .getInputStream()
+                .readAllBytes();
+
+        byte[] logoBytesCnaas = new ClassPathResource("static/logo-cnaas.png")
+                .getInputStream()
+                .readAllBytes();
+
+        String logoCnaasBase64 = Base64.getEncoder().encodeToString(logoBytesCnaas);
+
+        String logoAxaBase64 = Base64.getEncoder().encodeToString(logoBytesAxa);
+
+        context.setVariable("logoAxa", "data:image/png;base64," + logoAxaBase64);
+
+        context.setVariable("logoCnaas", "data:image/png;base64," + logoCnaasBase64);
 
         context.setVariable("group", group);
         context.setVariable("contract", contract);

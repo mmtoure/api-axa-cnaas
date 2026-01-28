@@ -2,8 +2,11 @@ package sn.axa.apiaxacnaas.util;
 
 public enum ClaimDocumentType {
     RAPPORT_MEDICAL,
-    FACTURE,
+    FACTURE_ORDONNACE,
+    FRAIS_PHARMACEUTIQUES,
     PIECE_IDENTITE,
-    PV_POLICE,
-    AUTRE
+    CERTIFICAT_INVALIDITE,
+    CERTIFICAT_DECES,
+    DECHARGE_HOSPITALISATION,
+    AUTRE,
 }

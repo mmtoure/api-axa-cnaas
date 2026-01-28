@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -88,6 +89,7 @@ public class InsuredService {
         }
         context.setVariable("insured", insured);
         context.setVariable("contract", contract);
+
         byte[] logoBytesAxa = new ClassPathResource("static/logo-axa.png")
                 .getInputStream()
                 .readAllBytes();
@@ -97,11 +99,8 @@ public class InsuredService {
                 .readAllBytes();
 
         String logoCnaasBase64 = Base64.getEncoder().encodeToString(logoBytesCnaas);
-
         String logoAxaBase64 = Base64.getEncoder().encodeToString(logoBytesAxa);
-
-        context.setVariable("logo", "data:image/png;base64," + logoAxaBase64);
-
+        context.setVariable("logoAxa", "data:image/png;base64," + logoAxaBase64);
         context.setVariable("logoCnaas", "data:image/png;base64," + logoCnaasBase64);
         String fileName = "contract_" + contract.getId() + ".pdf";
         Path pdfPath = Paths.get(storagePath, fileName);

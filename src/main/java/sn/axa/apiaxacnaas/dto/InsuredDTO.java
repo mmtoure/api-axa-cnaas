@@ -29,6 +29,7 @@ public class InsuredDTO {
     private Long groupId;
     private String groupName;
     private UserDTO user;
+    private ContractDTO contract;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

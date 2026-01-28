@@ -23,6 +23,7 @@ public class ClaimDTO {
     private String doctor;
     private String nature;
     private String cause;
+    private String motif;
     private GarantieEnum sinisterType;
     private Integer probableDuration;
     private Double compensationAmount;

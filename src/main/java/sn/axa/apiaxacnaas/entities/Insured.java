@@ -55,7 +55,7 @@ public class Insured {
     @OneToOne(mappedBy = "insured")
     private Contract contract;
 
-    @OneToMany(mappedBy = "insured", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "insured")
     private Set<Claim> claims = new HashSet<>();
 
     @Column(updatable = false)

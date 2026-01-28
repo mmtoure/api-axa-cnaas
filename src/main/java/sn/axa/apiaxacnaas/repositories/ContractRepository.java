@@ -17,4 +17,6 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
         where c.id = :id
     """)
     Optional<Contract> findByIdWithGaranties(@Param("id") Long id);
+
+
 }

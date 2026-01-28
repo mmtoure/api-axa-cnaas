@@ -35,6 +35,7 @@ public class ClaimDocumentService {
                 .type(typeDocument)
                 .claim(claim)
                 .build();
+        claimDocumentRepository.save(claimDocument);
         return claimDocumentMapper.toDTO(claimDocument);
     }
 

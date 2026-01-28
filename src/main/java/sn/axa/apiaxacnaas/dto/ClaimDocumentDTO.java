@@ -19,7 +19,6 @@ public class ClaimDocumentDTO {
     private String filePath;
     private ClaimDocumentType type;
     private Long claimId;
-
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

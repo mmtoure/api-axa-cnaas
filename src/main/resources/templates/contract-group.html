@@ -4,94 +4,216 @@
     <meta charset="UTF-8"/>
     <title>Fiche Adhésion Groupement</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 12px;
+        @page {
+           size: A4;
+           margin: 2cm 1.5cm 2.5cm 1.5cm;
+       }
+      .page-break {
+            page-break-before: always;
         }
-        .header {
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-        .title-table {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        td, th {
-            border: 1px solid #ccc;
-            padding: 6px;
-        }
-        .section {
-            margin-top: 15px;
-            font-weight: bold;
-        }
+       body {
+           font-family: Arial, sans-serif;
+           font-size: 12px;
+       }
+       .header {
+           text-align: center;
+           font-size: 18px;
+           font-weight: bold;
+           margin-bottom: 30px;
+       }
+       .title-table {
+           text-align: center;
+           margin-bottom: 10px;
+       }
+       table {
+           width: 100%;
+           border-collapse: collapse;
+       }
+       td, th {
+           border: 1px solid #ccc;
+           padding: 6px;
+       }
+       .section {
+           margin-top: 15px;
+           font-weight: bold;
+       }
+       .logo {
+       margin-top: 20px;
+       margin-bottom: 40px;
+       }
+      .logo-axa {
+          float: right;
+       }
+
+       .logo-cnaas {
+          float: left;
+       }
+       .date-contrat {
+       float: right;
+
+       }
+
+      .signature {
+       margin-top: 100px;
+       }
+      .signature-assure {
+          float: left;
+       }
+
+       .signature-assureur {
+          float: right;
+       }
     </style>
 </head>
 <body>
+    <div class="logo">
+        <div class="logo-axa">
+            <img th:src="${logoAxa}" alt="logo axa" style="height:80px"/>
 
-<div class="header">
-    BULLETIN D’ADHESION MICRO-ASSURANCE GROUPEMENT DE MEMBRES
-</div>
-
-<p>Entre AXA SENEGAL, sis 5 Place de l’Indépendance DAKAR avec délégation de signature spécialement donnée aux fins des présentes à la CNAAS,
-    sis à DAKAR à Cité Keur Gorgui Villa N°4, Pyrotechnique, Cité des Enseignants du Supérieur, Ci-après dénommé l’Assureur, d’une part,</p>
-
-<p>*Nom du groupement : <strong><span th:text="${group.name}"></span></strong></p>
-<p>*Prénoms et Nom du Président du Groupement : <strong><span th:text="${group.firstName + ' ' + group.lastName}"></span></strong></p>
-<p>*Date et lieu de naissance : <strong><span th:text="${group.dateOfBirth}"></span></strong></p>
-<p>*Téléphone(s): <strong><span th:text="${group.phoneNumber}"></span></strong></p>
-<p>Ci-après dénommé l'Adhérent, d'autre part.</p>
-<p>Le présent Bulletin d’Adhésion est établi à effet du  <strong><span th:text="${#temporals.format(contract.startDate, 'dd MMMM yyyy')}"></span></strong> Au <strong><span th:text="${#temporals.format(contract.startDate, 'dd MMMM yyyy')}"></span></strong> </p>
-
-<p>
-    Chaque membre du groupement doit avoir connaissance des garanties et des coordonnées de contact en cas de sinistre
-    Conformément aux dispositions du Code CIMA pour garantir tous les membres du groupement à la police mère souscrite
-    contre les risques énoncés ci-après :
-</p>
-
-<ul>
-    <li><p>Couverture annuelle</p></li>
-    <li><p>Décès ou invalidité permanente à la suite d’un accident Capital de 350.000 FCFA par an</p></li>
-    <li><p>5 000 FCFA par jour à partir du 2° jour et dans la limite de 30 jours par année et par membre et par adhérent à la suite d’une hospitalisation à la suite d’un accident ou d’une maladie.</p></li>
-
-</ul>
-
-<p><u><strong><i>Informations</i> du bénéficiaire :</strong></u></p>
-<p> <strong>
-    *En cas de décès d’un des membres du groupement, le Président doit informer l’assureur, donner les justificatifs et
-    fournir les coordonnées des ayants droits.
-</strong> </p>
-
-<div class="container mt-4">
-    <div class="title-table">
-        DECOMPTE DE LA PRIME (en FCFA)
+        </div>
+        <div class="logo-cnaas">
+            <img th:src="${logoCnaas}" alt="logo cnaas" style="height:80px"/>
+        </div>
     </div>
 
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>PRIME NET</th>
-            <th>ACCESSOIRES</th>
-            <th>TAXES</th>
-            <th>PRIME TTC</th>
-            <th>MONTANT TOTAL </th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td th:text="${contract.montantPrime}">3610</td>
-            <td th:text="${contract.accessoryCost}">200</td>
-            <td th:text="${contract.tax}">190</td>
-            <td th:text="*{contract.montantPrime}">6000</td>
-            <td th:text="*{contract.montantPrime}">6000</td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+    <div class="header">
+        BULLETIN D’ADHESION MICRO-ASSURANCE GROUPEMENT DE MEMBRES
+    </div>
+
+    <p>Entre AXA SENEGAL, sis 5 Place de l’Indépendance DAKAR avec délégation de signature spécialement donnée aux fins des présentes à la CNAAS,
+        sis à DAKAR à Cité Keur Gorgui Villa N°4, Pyrotechnique, Cité des Enseignants du Supérieur, Ci-après dénommé l’Assureur, d’une part,</p>
+
+    <p>*Nom du groupement : <strong><span th:text="${group.name}"></span></strong></p>
+    <p>*Prénoms et Nom du Président du Groupement : <strong><span th:text="${group.firstName + ' ' + group.lastName}"></span></strong></p>
+    <p>*Date et lieu de naissance : <strong><span th:text="${group.dateOfBirth}"></span></strong></p>
+    <p>*Téléphone(s): <strong><span th:text="${group.phoneNumber}"></span></strong></p>
+    <p>Ci-après dénommé l'Adhérent, d'autre part.</p>
+    <p>Le présent Bulletin d’Adhésion est établi à effet du  <strong><span th:text="${#temporals.format(contract.startDate, 'dd MMMM yyyy')}"></span></strong> Au <strong><span th:text="${#temporals.format(contract.startDate, 'dd MMMM yyyy')}"></span></strong> </p>
+
+    <p>
+        Chaque membre du groupement doit avoir connaissance des garanties et des coordonnées de contact en cas de sinistre
+        Conformément aux dispositions du Code CIMA pour garantir tous les membres du groupement à la police mère souscrite
+        contre les risques énoncés ci-après :
+    </p>
+
+    <ul>
+        <li><p>Couverture annuelle</p></li>
+        <li><p>Décès ou invalidité permanente à la suite d’un accident Capital de 350.000 FCFA par an</p></li>
+        <li><p>5 000 FCFA par jour à partir du 2° jour et dans la limite de 30 jours par année et par membre et par adhérent à la suite d’une hospitalisation à la suite d’un accident ou d’une maladie.</p></li>
+
+    </ul>
+
+    <p><u><strong><i>Informations</i> du bénéficiaire :</strong></u></p>
+    <p> <strong>
+        *En cas de décès d’un des membres du groupement, le Président doit informer l’assureur, donner les justificatifs et
+        fournir les coordonnées des ayants droits.
+    </strong> </p>
+
+    <div class="container mt-4">
+        <div class="title-table">
+            DECOMPTE DE LA PRIME (en FCFA)
+        </div>
+
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>PRIME NET</th>
+                <th>ACCESSOIRES</th>
+                <th>TAXES</th>
+                <th>PRIME TTC</th>
+                <th>MONTANT TOTAL </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td th:text="${contract.montantPrime}">3610</td>
+                <td th:text="${contract.accessoryCost}">200</td>
+                <td th:text="${contract.tax}">190</td>
+                <td th:text="*{contract.montantPrime}">6000</td>
+                <td th:text="*{contract.montantPrime}">6000</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <p style="margin-bottom: 20px; margin-top: 20px" class="date-contrat">Fait à ……………………………………………, le ……………………………</p>
+
+    <div class="signature">
+        <div class="signature-assure">
+            <u>L’ASSURE</u><br/>
+            Avec mention ‘’Lu
+            et approuvé’’
+        </div>
+
+        <div class="signature-assureur">
+            <u>p/L’ASSUREUR</u><br/>
+            Par délégation
+        </div>
+    </div>
+    <div class="page-break"></div>
+
+    <div>
+        <div class="logo">
+            <div class="logo-axa">
+                <img th:src="${logoAxa}" alt="logo axa" style="height:80px"/>
+
+            </div>
+            <div class="logo-cnaas">
+                <img th:src="${logoCnaas}" alt="logo cnaas" style="height:80px"/>
+            </div>
+        </div>
+        <h1 style="text-align: center; margin-bottom: 20px;">TABLEAU DES PRESTATIONS</h1>
+        <h3 style="text-align: center">POLICE D’ASSURANCE MICRO-ASSURANCE SANTE DE PERSONNE </h3>
+        <hr style="color: blue;" />
+        <h4><u>DECES OU INVALIDITE PERMANENTE SUITE A UN ACCIDENT</u></h4>
+        <p><strong><u>Objet</u> : </strong> Couverture des risques de décès et d’Invalidité permanente à la suite d’un Accident survenant sur le territoire du Sénégal. </p>
+        <p>
+            <strong>En cas de décès accidentel</strong> immédiat ou survenu dans les <strong>30 jours </strong> qui suivent la date de l’accident,
+            l’Assureur verse aux ayant droits ou au bénéficiaire désigné le capital de trois cent cinquante mille francs CFA <strong>(350.000 FCFA)</strong>.
+        </p>
+        <p>
+            <strong>En cas d’invalidité permanente consécutive </strong> à un accident couvert, l’Assureur verse à l’Adhérent un capital maximum
+            de trois cent cinquante mille francs CFA <strong>350.000 FCFA</strong> variable selon le barème d’indemnisation servant à la
+            détermination du degré d’infirmité permanente <i>(exemple : Perte totale de la vision d’un œil ou des deux yeux, d’un ou des deux bras ou des deux mains,
+            d’un ou des deux jambes ou des deux pieds, etc.)</i>.
+        </p>
+        <p>
+            En tout état de cause, l’engagement maximum de l’assureur ne peut dépasser la somme de trois cent cinquante mille francs CFA <strong>350.000 FCFA </strong> par Adhérent.
+        </p>
+
+        <p>
+            <strong><u>NB</u> : En cas de décès avant consolidation définitive de l'invalidité, le capital prévu en cas de décès sera versé déduction faite éventuellement des sommes qui auraient pu être versées au titre de l'invalidité. Il n'y a pas cumul des deux garanties lorsqu'elles sont les suites d'un même événement.</strong>
+        </p>
+        <hr style="color: blue;"/>
+        <h4><u>HOSPITALISATION SUITE UNE MALADIE OU UN ACCIDENT</u></h4>
+        <strong><u>Objet</u> : </strong> Couverture annuelle d’hospitalisation à la suite d’une maladie, d’un accident survenant sur le territoire du Sénégal.<br/>
+        Versement d’une indemnité journalière de <strong>5 000 FCFA par jour </strong> à partir du <strong>2° jour </strong> et dans la limite de <strong>30 jours par année </strong> d’assurance. <br/>
+
+        <strong>En cas d’hospitalisation, </strong> <br/>
+        - L’Assureur verse aux ayant droits la somme de cinq mille francs CFA (5.000 FCFA) par nuit d’hospitalisation.<br/>
+        En tout état de cause, l’engagement maximum de l’assureur ne peut dépasser 30 JOURS par année d’assurance.<br/>
+
+        <h4><u>LIMITE DES PRESTATIONS HOSPITALISATION</u> : </h4>
+        <p>  - La durée des prestations au titre de cette garantie est limitée à 30 jours par adhérent et par année d’assurance.</p>
+
+        <h4><u>HOSPITALISATION</u></h4>
+        <strong>Territorialité </strong> : SENEGAL (uniquement)
+        <h4><u>POUR VOS HOSPITALISATIONS, VOUS DEVEZ </u>: </h4>
+        - Informer AXA Sénégal sous 72 heures par téléphone au <strong>+221 77 757 16 81 </strong> ou par mail : <span style="color: blue;">infosante@axa.sn</span> <br/>
+        Cette déclaration devra au minimum comporter les éléments suivants :
+        <li>Le nom, prénom, date de naissance, adresse de l’assuré et ou du bénéficiaire,</li>
+        <li>La décharge d’hospitalisation avec le nom, l’adresse de l’établissement de santé et le cachet de l’établissement </li>
+        - Le client doit passer au moins 24 heures à l’hôpital pour pouvoir faire une déclaration d’indemnisation (si le temps n’est pas indiqué sur la décharge d’hospitalisation, les dates d’admission et de sortie doivent être différentes)
+        <h4><u>DELAI DE TRAITEMENT DU SINISTRE</u> : </h4>
+        <p>
+            Le délai de traitement du sinistre est de 07 jours ouvré à compter du jour de la transmission au complet de toutes les informations demandées.
+        </p>
+        <h4><u>EXCLUSIONS</u> : </h4>
+        <ul>
+            <li><strong>Les hospitalisations et/ou les décès à la suite de participation aux manifestations de masse et/ou émeutes</strong></li>
+            <li><strong>Les hospitalisations et/ou les décès à la suite de guerre ou de l’automutilation</strong></li>
+        </ul>
+
+    </div>
+
 </body>
 </html>
