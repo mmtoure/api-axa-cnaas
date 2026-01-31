@@ -38,7 +38,7 @@ public class Claim {
     @Enumerated(EnumType.STRING)
     private ClaimStatus status;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "claim")
+    @OneToMany(mappedBy = "claim", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ClaimDocument> claimDocuments = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)

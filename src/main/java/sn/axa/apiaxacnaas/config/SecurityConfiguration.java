@@ -31,13 +31,16 @@ class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin()) // ❌ DENY → ✅ SAMEORIGIN
+                )
                 .cors(cors -> {})
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
                         .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/v3/**").permitAll()
-                        .requestMatchers("/create-user", "/create-admin", "/register", "/activate", "/login", "/admin", "/users", "/create-chef-zone", "/status").permitAll()
+                        .requestMatchers("/api/files/**").permitAll()                        .requestMatchers("/create-user", "/create-admin", "/register", "/activate", "/login", "/admin", "/users", "/create-chef-zone", "/status").permitAll()
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )
@@ -67,6 +70,8 @@ class SecurityConfiguration {
         return source;
 
     }
+
+
 
     /*
      * Authentication provider configuration

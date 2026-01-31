@@ -10,7 +10,7 @@ import java.util.UUID;
 
 
 @Service
-public class LocalFileStorageService implements  FileStorageService {
+public class LocalFileStorageService {
     private final Path root = Paths.get("documents_claim");
     public String store(MultipartFile file, String directory){
         try{
@@ -27,13 +27,5 @@ public class LocalFileStorageService implements  FileStorageService {
 
     }
 
-    @Override
-    public void deleteFile(String filePath) {
-        try {
-            Files.deleteIfExists(Paths.get(filePath));
-        } catch (IOException e) {
-            throw new RuntimeException("Erreur lors de la suppression du fichier");
-        }
-    }
 
 }

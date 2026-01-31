@@ -1,7 +1,9 @@
 package sn.axa.apiaxacnaas.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import sn.axa.apiaxacnaas.dto.ClaimDocumentDTO;
 import sn.axa.apiaxacnaas.entities.Claim;
@@ -12,6 +14,8 @@ import sn.axa.apiaxacnaas.repositories.ClaimDocumentRepository;
 import sn.axa.apiaxacnaas.repositories.ClaimRepository;
 import sn.axa.apiaxacnaas.util.ClaimDocumentType;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -19,24 +23,42 @@ import java.util.List;
 public class ClaimDocumentService {
     private final ClaimDocumentRepository claimDocumentRepository;
     private final ClaimRepository claimRepository;
-    private final LocalFileStorageService localFileStorageService;
+   private final FileStorageService storageService;
     private final ClaimDocumentMapper claimDocumentMapper;
 
-    public ClaimDocumentDTO uploadDocumentClaim(ClaimDocumentType typeDocument, Long claimId, MultipartFile file){
+    @Value("${app.upload.dir}")
+    private String uploadDir;
+    @Transactional
+    public void uploadClaimDocuments(
+            Long claimId,
+            List<MultipartFile> files,
+            List<ClaimDocumentType> documentTypes
+    ) throws IOException {
         Claim claim = claimRepository.findById(claimId)
-                .orElseThrow(()-> new ResourceNotFoundException("Sinistre introuvable"));
-        String filePath = localFileStorageService.store(file, "Claims/"+claimId);
+                .orElseThrow(() -> new ResourceNotFoundException("Claim introuvable"));
 
-        ClaimDocument claimDocument = ClaimDocument.builder()
-                .fileName(file.getOriginalFilename())
-                .fileSize(file.getSize())
-                .fileType(file.getContentType())
-                .filePath(filePath)
-                .type(typeDocument)
-                .claim(claim)
-                .build();
-        claimDocumentRepository.save(claimDocument);
-        return claimDocumentMapper.toDTO(claimDocument);
+        for (int i = 0; i < files.size(); i++) {
+
+            MultipartFile file = files.get(i);
+            ClaimDocumentType type = documentTypes.get(i);
+
+            String path = storageService.store(
+                    file,
+                    "claims/" + claim.getId()
+            );
+
+            ClaimDocument doc = ClaimDocument.builder()
+                    .claim(claim)
+                    .fileName(file.getOriginalFilename())
+                    .fileType(file.getContentType())
+                    .fileSize(file.getSize())
+                    .filePath(path)
+                    .type(type)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            claimDocumentRepository.save(doc);
+        }
     }
 
     public ClaimDocumentDTO getClaimDocument(Long id){
@@ -52,12 +74,5 @@ public class ClaimDocumentService {
         return claimDocumentMapper.toDTOList(claims_documents);
 
 
-    }
-
-    public void deleteDocumentClaim(Long id){
-        ClaimDocument claimDocument = claimDocumentRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("Document sinistre n'existe pas"));
-        localFileStorageService.deleteFile(claimDocument.getFilePath());
-        claimDocumentRepository.deleteById(id);
     }
 }

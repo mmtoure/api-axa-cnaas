@@ -11,6 +11,7 @@ import sn.axa.apiaxacnaas.repositories.ClaimRepository;
 import sn.axa.apiaxacnaas.services.ClaimService;
 import sn.axa.apiaxacnaas.util.ClaimDocumentType;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -24,7 +25,7 @@ public class ClaimController {
     )
     public ResponseEntity<ClaimDTO> createClaim(@RequestPart("claim") ClaimDTO request,
                                                 @RequestPart(value = "files", required = false) List<MultipartFile> files,
-                                                @RequestParam(value = "documentTypes", required = false) List<ClaimDocumentType> documentTypes){
+                                                @RequestParam(value = "documentTypes", required = false) List<ClaimDocumentType> documentTypes) throws IOException {
         ClaimDTO claimDTO = claimService.createClaim(request,files,documentTypes);
         return ResponseEntity.status(HttpStatus.CREATED).body(claimDTO);
     }
