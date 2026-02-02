@@ -23,6 +23,8 @@ public class Claim {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true)
+    private String numeroSinistre;
     private LocalDate hospitalizationStartDate;
     private LocalDate hospitalizationEndDate;
     private LocalDate accidentDate;

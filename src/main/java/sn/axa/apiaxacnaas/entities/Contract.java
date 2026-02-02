@@ -32,12 +32,18 @@ public class Contract {
     private LocalDate startDate;
     private LocalDate endDate;
     private String description;
-    private BigDecimal accessoryCost;
-    private BigDecimal tax;
-    private BigDecimal montantPrimeTtc;
+    private Double accessoryCost;
+    private Double tax;
+    private Double capitalMax; // 350 000
+    private Double capitalDejaVerse;
+    private Long plafondNuitsParAn; // 30
+    private Long nuitsRestantes;
+    private Double montantParNuit; // 5 000
+
+    private Double montantPrimeTtc;
 
     @Column(nullable = false)
-    private BigDecimal montantPrime;
+    private Double montantPrime;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "insured_id", nullable = false, unique = true)
     private Insured insured;
@@ -59,9 +65,7 @@ public class Contract {
     @PrePersist
     @PreUpdate
     public void calculateMontantPrimeTtc() {
-        this.montantPrimeTtc = montantPrime
-                .add(accessoryCost)
-                .add(tax);
+        this.montantPrimeTtc = montantPrime+accessoryCost+tax;
     }
 
 

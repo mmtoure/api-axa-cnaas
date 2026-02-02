@@ -28,12 +28,12 @@ public class ContractGarantie {
     @JoinColumn(name = "garantie_id", referencedColumnName = "id")
     private Garantie garantie;
 
-    private BigDecimal capitalMax; // 350 000
-    private BigDecimal capitalDejaVerse;
+    private Double capitalMax; // 350 000
+    private Double capitalDejaVerse;
 
-    private Integer plafondNuitsParAn; // 30
-    private Integer nuitsRestantes;
-    private BigDecimal montantParNuit; // 5 000
+    private Long plafondNuitsParAn; // 30
+    private Long nuitsRestantes;
+    private Double montantParNuit; // 5 000
 
     @Column(updatable = false)
     @CreationTimestamp

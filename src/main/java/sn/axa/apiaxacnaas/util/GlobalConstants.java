@@ -3,13 +3,13 @@ package sn.axa.apiaxacnaas.util;
 import java.math.BigDecimal;
 
 public final class GlobalConstants {
-    public static final BigDecimal MONTANT_PRIME_NET = BigDecimal.valueOf(3610);
-    public static final BigDecimal CAPITAL_MAX = BigDecimal.valueOf(350000);
-    public static final BigDecimal MONTANT_VERSEMENT_PAR_NUIT = BigDecimal.valueOf(5000.0);
-    public static final Integer PLAFOND_NB_NUITS_PAR_AN = 30;
-    public static final BigDecimal TAXE = BigDecimal.valueOf(190.0);
-    public static  final BigDecimal ACCESSOIRE = BigDecimal.valueOf(200.0);
-    public static  final BigDecimal MONTANT_PRIME_TTC= BigDecimal.valueOf(6000.0);
+    public static final Double MONTANT_PRIME_NET = 3610.0;
+    public static final Double CAPITAL_MAX = 350000.0;
+    public static final Double MONTANT_VERSEMENT_PAR_NUIT = 5000.0;
+    public static final Long PLAFOND_NB_NUITS_PAR_AN = 30L;
+    public static final Double TAXE = 190.0;
+    public static  final Double ACCESSOIRE = 200.0;
+    public static  final Double MONTANT_PRIME_TTC= 6000.0;
 
 
 }

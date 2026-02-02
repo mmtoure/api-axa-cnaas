@@ -16,6 +16,7 @@ import java.util.List;
 @Builder
 public class ClaimDTO {
     private Long id;
+    private String numeroSinistre;
     private LocalDate hospitalizationStartDate;
     private LocalDate hospitalizationEndDate;
     private LocalDateTime accidentDate;

@@ -26,9 +26,14 @@ public class ContractDTO {
     @JsonFormat(pattern = "dd MMMM yyyy", locale = "fr")
     private LocalDate endDate;
     private String description;
-    private BigDecimal accessoryCost;
-    private BigDecimal tax;
-    private BigDecimal montantPrime;
+    private Double accessoryCost;
+    private Double tax;
+    private Double capitalMax; // 350 000
+    private Double capitalDejaVerse;
+    private Integer plafondNuitsParAn; // 30
+    private Integer nuitsRestantes;
+    private Double montantParNuit;
+    private Double montantPrime;
     private StatusContract status; // ACTIF, EXPIRÉ, ANNULÉ
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -37,5 +42,5 @@ public class ContractDTO {
     private String firstName;
     private String lastName;
     private List<ClaimDTO> claims;
-    private BigDecimal montantPrimeTtc;
+    private Double montantPrimeTtc;
 }

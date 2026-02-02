@@ -44,6 +44,11 @@ public class ContractService {
         contract.setAccessoryCost(GlobalConstants.ACCESSOIRE);
         contract.setTax(GlobalConstants.TAXE);
         contract.setMontantPrimeTtc(GlobalConstants.MONTANT_PRIME_TTC);
+        contract.setCapitalMax(GlobalConstants.CAPITAL_MAX);
+        contract.setCapitalDejaVerse(0.0);
+        contract.setPlafondNuitsParAn(GlobalConstants.PLAFOND_NB_NUITS_PAR_AN);
+        contract.setNuitsRestantes(GlobalConstants.PLAFOND_NB_NUITS_PAR_AN);
+        contract.setMontantParNuit(GlobalConstants.MONTANT_VERSEMENT_PAR_NUIT);
         contract.setStartDate(LocalDate.now());
         contract.setEndDate(LocalDate.now().plusYears(1));
         contract.setInsured(insured);
@@ -79,7 +84,7 @@ public class ContractService {
                 .contract(contract)
                 .garantie(garantie)
                 .capitalMax(GlobalConstants.CAPITAL_MAX)
-                .capitalDejaVerse(BigDecimal.valueOf(0.0))
+                .capitalDejaVerse(0.0)
                 .build();
     }
 
@@ -90,7 +95,7 @@ public class ContractService {
                 .contract(contract)
                 .garantie(garantie)
                 .capitalMax(GlobalConstants.CAPITAL_MAX)
-                .capitalDejaVerse(BigDecimal.valueOf(0.0))
+                .capitalDejaVerse(0.0)
                 .build();
     }
 
