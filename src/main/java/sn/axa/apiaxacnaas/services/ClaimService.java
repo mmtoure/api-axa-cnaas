@@ -3,8 +3,7 @@ package sn.axa.apiaxacnaas.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import sn.axa.apiaxacnaas.dto.ClaimDTO;
-import sn.axa.apiaxacnaas.dto.ClaimDocumentDTO;
+import sn.axa.apiaxacnaas.dto.*;
 import sn.axa.apiaxacnaas.entities.*;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.ClaimDocumentMapper;
@@ -17,8 +16,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static java.lang.Integer.parseInt;
 
@@ -88,19 +86,44 @@ public class ClaimService {
                 .build();
         Claim savedClaim = claimRepository.save(claim);
         claimDocumentService.uploadClaimDocuments(savedClaim.getId(),files, types);
-
-
         List<ClaimDocumentDTO> claimDocumentDTO = claimDocumentMapper.toDTOList(claim.getClaimDocuments());
         Claim fullClaim = claimRepository.findById(savedClaim.getId())
                 .orElseThrow(() -> new RuntimeException("Claim not found after save"));
-
-
-
         return claimMapper.toDTO(fullClaim);
+    }
+
+    public void createAllClaims(CreateAllClaimsDTO dto, List<MultipartFile> files, List<ClaimDocumentType> types,List<String> claimTypes ) {
+
+        Insured insured = insuredRepository.findById(dto.getInsuredId())
+                .orElseThrow(()->new ResourceNotFoundException("Assure n'existe pas"));
+        Contract contract = insured.getContract();
+        if(contract.getStatus()!=StatusContract.ACTIF){
+            throw  new ResourceNotFoundException("Pas de sinistre car contrat n'est pas actif");
+        }
+
+        List<ClaimDTO> claimDTOList = dto.getClaims();
+        Map<String,List<DocumentPayload>> docsByClaimType =getDocumentsByClaimType(files,types, claimTypes);
+        claimDTOList.forEach((claimDTO -> {
+            System.out.println(claimDTO.getSinisterType());
+            Claim newClaim = new Claim();
+            newClaim.setInsured(insured);
+            newClaim.setNumeroSinistre(generateNumeroSinistre());
+            newClaim.setStatus(ClaimStatus.EN_COURS);
+            newClaim.setHospitalizationStartDate(claimDTO.getHospitalizationStartDate());
+            newClaim.setHospitalizationEndDate(claimDTO.getHospitalizationEndDate());
+            newClaim.setSinisterType(claimDTO.getSinisterType());
+            Claim savedClaim = claimRepository.save(newClaim);
+            List<DocumentPayload> documents = docsByClaimType
+                    .getOrDefault(savedClaim.getSinisterType().name(), List.of());
+
+            for(DocumentPayload doc: documents){
+                claimDocumentService.uploadSingleDocument(savedClaim.getId(), doc.file(),doc.type());
+            }
+
+        }));
 
 
     }
-
     public ClaimDTO getClaimById(Long claimId){
         Claim existingClaim = claimRepository.findById(claimId)
                 .orElseThrow(() -> new ResourceNotFoundException("Sinistre avec cette  (id=" + claimId + ") est introuvable"));
@@ -134,6 +157,21 @@ public class ClaimService {
             montantVerse = GlobalConstants.CAPITAL_MAX-contract.getCapitalDejaVerse();
         }
         return  montantVerse;
+    }
+
+    public Map<String, List<DocumentPayload>> getDocumentsByClaimType(List<MultipartFile> files,List<ClaimDocumentType> types, List<String> claimTypes){
+        Map<String,List<DocumentPayload>> docsByClaimType =new HashMap<>();
+        for(int i=0; i<files.size(); i++){
+            docsByClaimType
+                    .computeIfAbsent(claimTypes.get(i), k-> new ArrayList<>())
+                    .add( new DocumentPayload(
+                            files.get(i),
+                            types.get(i)
+                    ));
+
+        }
+        return docsByClaimType;
+
     }
 
 }

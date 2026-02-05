@@ -27,9 +27,6 @@ public class ApiAxaCnaasApplication {
             persistRoles(roleRepository);
             persistAgence(agenceRepository);
             persistGaranties(garantieRepository);
-
-
-
         };
     }
 

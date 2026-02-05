@@ -61,6 +61,30 @@ public class ClaimDocumentService {
         }
     }
 
+    public void uploadSingleDocument(Long claimId, MultipartFile file, ClaimDocumentType type){
+        Claim claim = claimRepository.findById(claimId)
+                .orElseThrow(() -> new ResourceNotFoundException("Claim introuvable"));
+        try {
+            String path = storageService.store(
+                    file,
+                    "claims/" + claim.getId()
+            );
+            ClaimDocument doc = ClaimDocument.builder()
+                    .claim(claim)
+                    .fileName(file.getOriginalFilename())
+                    .fileType(file.getContentType())
+                    .fileSize(file.getSize())
+                    .filePath(path)
+                    .type(type)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            claimDocumentRepository.save(doc);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public ClaimDocumentDTO getClaimDocument(Long id){
         ClaimDocument claimDocument = claimDocumentRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("Document sinistre n'existe pas"));
