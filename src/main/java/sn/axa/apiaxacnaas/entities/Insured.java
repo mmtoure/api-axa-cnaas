@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import sn.axa.apiaxacnaas.util.InsuredStatus;
+import sn.axa.apiaxacnaas.util.PartnerCategory;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -51,12 +52,18 @@ public class Insured {
             unique = true
     )
     private Beneficiary beneficiary;
+    @Enumerated(EnumType.STRING)
+    private PartnerCategory category; // STANDARD / GOLD / ARGENT
 
     @OneToOne(mappedBy = "insured")
     private Contract contract;
 
     @OneToMany(mappedBy = "insured")
     private Set<Claim> claims = new HashSet<>();
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "partner_id")
+    private Partner partner;
 
     @Column(updatable = false)
     @CreationTimestamp

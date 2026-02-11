@@ -1,22 +1,24 @@
 package sn.axa.apiaxacnaas.dto;
 
+import jakarta.persistence.Column;
 import lombok.*;
-import sn.axa.apiaxacnaas.util.PartenaireEnum;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserCreateDTO {
+public class PartnerDTO {
     private Long id;
-    private String firstName;
-    private String lastName;
+    private String code; //CNAAS, LG
+    private String name;
     private String email;
     private String phoneNumber;
-    private Long partnerId;
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
     private LocalDateTime updatedAt;
+    private List<PartnerPricingDTO> pricings;
 }

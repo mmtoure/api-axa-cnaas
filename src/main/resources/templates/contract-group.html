@@ -117,6 +117,7 @@
         <table class="table table-striped">
             <thead>
             <tr>
+                <th>Nbre assurés</th>
                 <th>PRIME NET</th>
                 <th>ACCESSOIRES</th>
                 <th>TAXES</th>
@@ -126,11 +127,12 @@
             </thead>
             <tbody>
             <tr>
-                <td th:text="${contract.montantPrime}">3610</td>
-                <td th:text="${contract.accessoryCost}">200</td>
-                <td th:text="${contract.tax}">190</td>
-                <td th:text="*{contract.montantPrime}">6000</td>
-                <td th:text="*{contract.montantPrime}">6000</td>
+                <td th:text="${group.insureds.size()}"></td>
+                <td th:text="${contract.montantPrime}"></td>
+                <td th:text="${contract.accessoryCost}"></td>
+                <td th:text="${contract.tax}"></td>
+                <td th:text="*{contract.montantPrimeTTC}"></td>
+                <td th:text="*{contract.montantPrimeTTC*group.insureds.size()}"></td>
             </tr>
             </tbody>
         </table>

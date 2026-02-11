@@ -50,15 +50,15 @@ public class ClaimController {
 
     @PostMapping(value = "/create-all",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> createAllClaimsWithFiles(
+    public ResponseEntity<List<ClaimDTO>> createAllClaimsWithFiles(
             @RequestPart("claims") CreateAllClaimsDTO dto,
             @RequestPart(value = "files",required = false) List<MultipartFile> files,
             @RequestParam( value="documentTypes", required = false) List<ClaimDocumentType> documentTypes,
             @RequestParam( value="claimTypes", required = false) List<String> claimTypes
 
     ) {
-        claimService.createAllClaims(dto,files,documentTypes,claimTypes);
-        return ResponseEntity.ok().body("Sinistres créés avec succès");
+        List<ClaimDTO> claimDTOList=claimService.createAllClaims(dto,files,documentTypes,claimTypes);
+        return ResponseEntity.status(HttpStatus.OK).body(claimDTOList);
     }
 
 

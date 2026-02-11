@@ -92,11 +92,13 @@
                 <li><p>Décès ou invalidité permanente à la suite d’un accident Capital de 350.000 FCFA par an</p></li>
                 <li><p>5 000 FCFA par jour à partir du 2° jour et dans la limite de 30 jours par année et par membre et par adhérent à la suite d’une hospitalisation à la suite d’un accident ou d’une maladie.</p></li>
             </ul>
-            <p><u><strong><i>Informations</i> du bénéficiaire :</strong></u></p>
-            <p>*Bénéficiaire désigné en cas de décès accidentel : <strong><span th:text="${insured.beneficiary.firstName + ' ' + insured.beneficiary.lastName}"></span></strong></p>
-            <p>*Lien de parenté : <strong><span th:text="${insured.beneficiary.lienParente}"></span></strong></p>
-            <p>*Date et lieu de naissance : <strong><span th:text="${#temporals.format(insured.beneficiary.dateOfBirth, 'dd MMMM yyyy')}"></span></strong></p>
-            <p>*Téléphone:  <strong><span th:text="${insured.beneficiary.phoneNumber}"></span></strong></p>
+            <div th:if="${insured.beneficiary != null}">
+                <p><u><strong><i>Informations</i> du bénéficiaire :</strong></u></p>
+                <p>*Bénéficiaire désigné en cas de décès accidentel : <strong><span th:text="${insured.beneficiary.firstName + ' ' + insured.beneficiary.lastName}"></span></strong></p>
+                <p>*Lien de parenté : <strong><span th:text="${insured.beneficiary.lienParente}"></span></strong></p>
+                <p>*Date et lieu de naissance : <strong><span th:text="${#temporals.format(insured.beneficiary.dateOfBirth, 'dd MMMM yyyy')}"></span></strong></p>
+                <p>*Téléphone:  <strong><span th:text="${insured.beneficiary.phoneNumber}"></span></strong></p>
+            </div>
             <div class="mt-4">
                 <div class="title-table">
                     DECOMPTE DE LA PRIME (en FCFA)
@@ -115,7 +117,7 @@
                             <td th:text="${contract.montantPrime}">3610</td>
                             <td th:text="${contract.accessoryCost}">200</td>
                             <td th:text="${contract.tax}">190</td>
-                            <td th:text="*{contract.montantPrimeTtc}">6000</td>
+                            <td th:text="${contract.montantPrimeTTC}"></td>
                         </tr>
                     </tbody>
                 </table>

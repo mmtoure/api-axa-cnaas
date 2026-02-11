@@ -58,26 +58,30 @@ public class GroupService {
         Group group = groupMapper.toEntity(groupDTO);
         Set<Insured> insureds = parseExcel(file);
         Group savedGroup = groupRepository.save(group);
+        User currentUser = userService.getCurrentUser();
+        Partner currentPartner = currentUser.getPartner();
 
         if(!insureds.isEmpty()){
             insureds.forEach(insured -> {
                 insured.setGroup(savedGroup);
+                insured.setPartner(currentPartner);
+                insured.setUser(currentUser);
                 insuredRepository.save(insured);
                 contractService.createContract(insured);
             });
-
         }
-
         return groupMapper.toDTO(savedGroup);
-
-
     }
     public GroupDTO createGroup(GroupDTO groupDTO){
         Group group = groupMapper.toEntity(groupDTO);
         Group savedGroup = groupRepository.save(group);
+        User currentUser = userService.getCurrentUser();
+        Partner currentPartner = currentUser.getPartner();
         if(group.getInsureds()!=null){
             group.getInsureds().forEach(insured -> {
-                insured.setGroup(group);
+                insured.setGroup(savedGroup);
+                insured.setPartner(currentPartner);
+                insured.setUser(currentUser);
                 insuredRepository.save(insured);
                 contractService.createContract(insured);
             });
@@ -180,7 +184,6 @@ public class GroupService {
             Sheet sheet = workbook.getSheetAt(0);
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Insured insured = new Insured();
-                Beneficiary ben = new Beneficiary();
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
                 insured.setFirstName(getCellValueAsString(row.getCell(0)));
@@ -188,13 +191,6 @@ public class GroupService {
                 insured.setDateOfBirth(getCellValueAsLocalDate(row.getCell(2)));
                 insured.setPhoneNumber(getCellValueAsString(row.getCell(3)));
                 insured.setCreatedAt(LocalDateTime.now());
-                ben.setFirstName(getCellValueAsString(row.getCell(4)));
-                ben.setLastName(getCellValueAsString(row.getCell(5)));
-                ben.setDateOfBirth(getCellValueAsLocalDate(row.getCell(6)));
-                ben.setPhoneNumber(getCellValueAsString(row.getCell(7)));
-                ben.setLienParente(getCellValueAsString(row.getCell(8)));
-                insured.setBeneficiary(ben);
-                ben.setInsured(insured);
                 insureds.add(insured);
             }
 
@@ -235,7 +231,6 @@ public class GroupService {
 
                 return cell.getLocalDateTimeCellValue().toLocalDate();
             }
-
             if (cell.getCellType() == CellType.STRING) {
                 String value = cell.getStringCellValue().trim();
                 if (value.isEmpty()) return null;

@@ -42,5 +42,8 @@ public class ContractDTO {
     private String firstName;
     private String lastName;
     private List<ClaimDTO> claims;
-    private Double montantPrimeTtc;
+    private Double montantPrimeTTC;
+    private Long partnerId;
+    private String partnerName;
+
 }

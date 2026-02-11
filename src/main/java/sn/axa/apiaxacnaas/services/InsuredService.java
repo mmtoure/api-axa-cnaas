@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -16,9 +15,7 @@ import sn.axa.apiaxacnaas.entities.*;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.InsuredMapper;
 import sn.axa.apiaxacnaas.repositories.InsuredRepository;
-import sn.axa.apiaxacnaas.repositories.UserRepository;
 import sn.axa.apiaxacnaas.util.InsuredStatus;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -38,11 +35,13 @@ public class InsuredService {
     @Value("${app.pdf.storage-path}")
     private String storagePath;
 
-
     public InsuredDTO createInsured(InsuredDTO insuredDTO){
         User currentUser = userService.getCurrentUser();
+        Partner currentPartner = currentUser.getPartner();
         Insured insured = insuredMapper.toEntity(insuredDTO);
         insured.setUser(currentUser);
+        insured.setPartner(currentPartner);
+        insured.setCategory(insuredDTO.getCategory());
         insured.setStatus(InsuredStatus.ACTIF);
         if(insured.getBeneficiary()!=null){
             insured.getBeneficiary().setInsured(insured);

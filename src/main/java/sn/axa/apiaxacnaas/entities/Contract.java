@@ -40,13 +40,15 @@ public class Contract {
     private Long nuitsRestantes;
     private Double montantParNuit; // 5 000
 
-    private Double montantPrimeTtc;
-
+    private Double montantPrimeTTC;
     @Column(nullable = false)
     private Double montantPrime;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "insured_id", nullable = false, unique = true)
     private Insured insured;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "partner_id")
+    private Partner partner;
 
     @Enumerated(EnumType.STRING)
     private StatusContract status; // ACTIF, EXPIRÉ, ANNULÉ
@@ -61,12 +63,6 @@ public class Contract {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    @PreUpdate
-    public void calculateMontantPrimeTtc() {
-        this.montantPrimeTtc = montantPrime+accessoryCost+tax;
-    }
 
 
 }

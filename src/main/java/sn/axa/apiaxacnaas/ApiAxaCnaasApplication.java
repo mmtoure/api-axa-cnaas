@@ -4,12 +4,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import sn.axa.apiaxacnaas.entities.Agence;
-import sn.axa.apiaxacnaas.entities.Garantie;
-import sn.axa.apiaxacnaas.entities.Role;
-import sn.axa.apiaxacnaas.repositories.AgenceRepository;
-import sn.axa.apiaxacnaas.repositories.GarantieRepository;
-import sn.axa.apiaxacnaas.repositories.RoleRepository;
+import sn.axa.apiaxacnaas.entities.*;
+import sn.axa.apiaxacnaas.repositories.*;
 import sn.axa.apiaxacnaas.util.GarantieEnum;
 import sn.axa.apiaxacnaas.util.RoleEnum;
 import sn.axa.apiaxacnaas.util.TypeInvalidityEnum;
@@ -22,11 +18,11 @@ public class ApiAxaCnaasApplication {
         SpringApplication.run(ApiAxaCnaasApplication.class, args);
     }
     @Bean
-    CommandLineRunner seedRoles(RoleRepository roleRepository, AgenceRepository agenceRepository, GarantieRepository garantieRepository) {
+    CommandLineRunner seedRoles(RoleRepository roleRepository, AgenceRepository agenceRepository, PartnerRepository partnerRepository) {
         return args -> {
             persistRoles(roleRepository);
             persistAgence(agenceRepository);
-            persistGaranties(garantieRepository);
+            persistPartner(partnerRepository);
         };
     }
 
@@ -37,21 +33,18 @@ public class ApiAxaCnaasApplication {
             roleRepository.save(role);
         }
 
-        if (roleRepository.findByName(RoleEnum.CHEF_ZONE).isEmpty()) {
+        if (roleRepository.findByName(RoleEnum.MANAGER).isEmpty()) {
             Role roleChefZone = new Role();
-            roleChefZone.setName(RoleEnum.CHEF_ZONE);
+            roleChefZone.setName(RoleEnum.MANAGER);
             roleRepository.save(roleChefZone);
         }
 
-        if (roleRepository.findByName(RoleEnum.CHEF_AGENCE).isEmpty()) {
+        if (roleRepository.findByName(RoleEnum.USER).isEmpty()) {
             Role roleChef_agence = Role.builder()
-                    .name(RoleEnum.CHEF_AGENCE)
+                    .name(RoleEnum.USER)
                     .build();
             roleRepository.save(roleChef_agence);
         }
-
-
-
     }
 
     public void persistAgence(AgenceRepository agenceRepository){
@@ -65,27 +58,16 @@ public class ApiAxaCnaasApplication {
 
     }
 
-    public void persistGaranties( GarantieRepository garantieRepository){
-        if(garantieRepository.findByName(GarantieEnum.HOSPICASH).isEmpty()){
-            Garantie garantie = Garantie.builder()
-                    .name(GarantieEnum.HOSPICASH)
+    public void persistPartner(PartnerRepository partnerRepository){
+        if(partnerRepository.findAll().isEmpty()){
+            Partner partner = Partner.builder()
+                    .name("AXA")
+                    .code("AXA")
+                    .email("contact@axa.sn")
                     .build();
-            garantieRepository.save(garantie);
+            partnerRepository.save(partner);
         }
 
-        if(garantieRepository.findByName(GarantieEnum.INVALIDITE).isEmpty()){
-            Garantie garantie = Garantie.builder()
-                    .name(GarantieEnum.INVALIDITE)
-                    .type_invalidity(TypeInvalidityEnum.PARTIELLE)
-                    .build();
-            garantieRepository.save(garantie);
-        }
-        if(garantieRepository.findByName(GarantieEnum.CAPITAL_FUNERAIRE).isEmpty()){
-            Garantie garantie = Garantie.builder()
-                    .name(GarantieEnum.CAPITAL_FUNERAIRE)
-                    .build();
-            garantieRepository.save(garantie);
-        }
     }
 
 }

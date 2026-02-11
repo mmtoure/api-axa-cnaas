@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import sn.axa.apiaxacnaas.util.PartenaireEnum;
 
 import java.time.LocalDateTime;
 
@@ -19,7 +20,8 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String fullName;
+    private String firstName;
+    private String lastName;
     private String email;
     private String password;
     private String phoneNumber;
@@ -34,6 +36,10 @@ public class User {
 
     private String activationToken;
     private String profileImageUrl;
+
+    @ManyToOne
+    @JoinColumn(name = "partner_id", referencedColumnName = "id")
+    private Partner partner;
 
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)

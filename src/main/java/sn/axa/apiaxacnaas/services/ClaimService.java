@@ -1,6 +1,7 @@
 package sn.axa.apiaxacnaas.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sn.axa.apiaxacnaas.dto.*;
@@ -92,7 +93,7 @@ public class ClaimService {
         return claimMapper.toDTO(fullClaim);
     }
 
-    public void createAllClaims(CreateAllClaimsDTO dto, List<MultipartFile> files, List<ClaimDocumentType> types,List<String> claimTypes ) {
+    public List<ClaimDTO> createAllClaims(CreateAllClaimsDTO dto, List<MultipartFile> files, List<ClaimDocumentType> types,List<String> claimTypes ) {
 
         Insured insured = insuredRepository.findById(dto.getInsuredId())
                 .orElseThrow(()->new ResourceNotFoundException("Assure n'existe pas"));
@@ -120,7 +121,10 @@ public class ClaimService {
                 claimDocumentService.uploadSingleDocument(savedClaim.getId(), doc.file(),doc.type());
             }
 
+
         }));
+        List<Claim> claims = claimRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+        return claims.stream().map(claimMapper::toDTO).toList();
 
 
     }
@@ -131,7 +135,7 @@ public class ClaimService {
     }
 
     public List<ClaimDTO> getAllClaims(){
-        List<Claim> claims = claimRepository.findAll();
+        List<Claim> claims = claimRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
         return claims.stream().map(claimMapper::toDTO).toList();
     }
 

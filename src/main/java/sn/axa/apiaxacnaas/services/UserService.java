@@ -13,11 +13,13 @@ import sn.axa.apiaxacnaas.dto.LoginDTO;
 import sn.axa.apiaxacnaas.dto.UserCreateDTO;
 import sn.axa.apiaxacnaas.dto.UserDTO;
 import sn.axa.apiaxacnaas.entities.Agence;
+import sn.axa.apiaxacnaas.entities.Partner;
 import sn.axa.apiaxacnaas.entities.Role;
 import sn.axa.apiaxacnaas.entities.User;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.UserMapper;
 import sn.axa.apiaxacnaas.repositories.AgenceRepository;
+import sn.axa.apiaxacnaas.repositories.PartnerRepository;
 import sn.axa.apiaxacnaas.repositories.RoleRepository;
 import sn.axa.apiaxacnaas.repositories.UserRepository;
 import sn.axa.apiaxacnaas.util.RoleEnum;
@@ -36,17 +38,21 @@ public class UserService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final AgenceRepository agenceRepository;
+    private final PartnerRepository partnerRepository;
 
 
     public UserDTO createUser(UserCreateDTO userDTO) {
-        Role role = roleRepository.findByName(RoleEnum.CHEF_AGENCE)
+        Partner partner = partnerRepository.findById(userDTO.getPartnerId())
+                .orElseThrow(()->new ResourceNotFoundException("Partner not found"));
+        Role role = roleRepository.findByName(RoleEnum.USER)
                 .orElseThrow(() -> new RuntimeException("Role Not Found"));
         User userEntity = userMapper.toEntity(userDTO);
-        Agence agence = agenceRepository.findById(userDTO.getAgenceId())
+        Agence agence = agenceRepository.findById(1L)
                 .orElseThrow(()->new RuntimeException("Agence not found"));
-        userEntity.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        userEntity.setPassword(passwordEncoder.encode("axa@2026"));
         userEntity.setRole(role);
         userEntity.setAgence(agence);
+        userEntity.setPartner(partner);
         userEntity.setIsActive(true);
         User savedUserEntity = userRepository.save(userEntity);
         return userMapper.toDTO(savedUserEntity);
@@ -108,15 +114,15 @@ public class UserService {
     public UserDTO updateUserById(UserCreateDTO request, Long id){
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        if(request.getAgenceId()!=null){
-            Agence agence = agenceRepository.findById(request.getAgenceId())
-                    .orElseThrow(()->new RuntimeException("Agence not found"));
-            user.setAgence(agence);
-        }
-        user.setFullName(request.getFullName());
+        Partner partner = partnerRepository.findById(request.getPartnerId())
+                .orElseThrow(()->new ResourceNotFoundException("Partner not found"));
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
-        return  userMapper.toDTO(user);
+        user.setPartner(partner);
+        User userSaved = userRepository.save(user);
+        return  userMapper.toDTO(userSaved);
     }
 
     public void deleteUser(Long id){

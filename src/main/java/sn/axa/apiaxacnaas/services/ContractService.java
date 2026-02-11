@@ -10,10 +10,7 @@ import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.ContractMapper;
 import sn.axa.apiaxacnaas.mappers.GarantieMapper;
 import sn.axa.apiaxacnaas.mappers.InsuredMapper;
-import sn.axa.apiaxacnaas.repositories.ContractRepository;
-import sn.axa.apiaxacnaas.repositories.GarantieRepository;
-import sn.axa.apiaxacnaas.repositories.GroupRepository;
-import sn.axa.apiaxacnaas.repositories.InsuredRepository;
+import sn.axa.apiaxacnaas.repositories.*;
 import sn.axa.apiaxacnaas.util.GarantieEnum;
 import sn.axa.apiaxacnaas.util.GlobalConstants;
 import sn.axa.apiaxacnaas.util.StatusContract;
@@ -34,34 +31,48 @@ public class ContractService {
     private final GarantieMapper garantieMapper;
     private final GroupRepository groupRepository;
     private final InsuredRepository insuredRepository;
+    private final PartnerPricingRepository partnerPricingRepository;
     private final ContractPdfService contractPdfService;
 
     public ContractDTO createContract(Insured insured) {
+
+        if(insured==null){
+            throw  new ResourceNotFoundException("Assuré introuvable");
+        }
+        Partner partner = insured.getPartner();
+        PartnerPricing pricing;
+        if(partner.getCode().equals("LG")){
+            pricing=partnerPricingRepository
+                    .findByPartnerIdAndCategory(partner.getId(), insured.getCategory())
+                    .orElseThrow(()->new ResourceNotFoundException("Pricing LG introuvable"));
+        }
+        else{
+            pricing = partnerPricingRepository.findFirstByPartnerId(partner.getId())
+                    .orElseThrow(()->new ResourceNotFoundException("Pricing introuvable"));
+        }
         Contract contract = new Contract();
+        contract.setInsured(insured);
+        contract.setPartner(partner);
         contract.setPoliceNumber(generatePoliceContract());
-        contract.setMontantPrime(GlobalConstants.MONTANT_PRIME_NET);
-        contract.setStatus(StatusContract.ACTIF);
-        contract.setAccessoryCost(GlobalConstants.ACCESSOIRE);
-        contract.setTax(GlobalConstants.TAXE);
-        contract.setMontantPrimeTtc(GlobalConstants.MONTANT_PRIME_TTC);
-        contract.setCapitalMax(GlobalConstants.CAPITAL_MAX);
-        contract.setCapitalDejaVerse(0.0);
-        contract.setPlafondNuitsParAn(GlobalConstants.PLAFOND_NB_NUITS_PAR_AN);
-        contract.setNuitsRestantes(GlobalConstants.PLAFOND_NB_NUITS_PAR_AN);
-        contract.setMontantParNuit(GlobalConstants.MONTANT_VERSEMENT_PAR_NUIT);
         contract.setStartDate(LocalDate.now());
         contract.setEndDate(LocalDate.now().plusYears(1));
-        contract.setInsured(insured);
+        contract.setStatus(StatusContract.ACTIF);
 
-        // AJOUTER LES GARANTIES
-        Set<ContractGarantie> garanties = new HashSet<>();
-        garanties.add(createHospicash(contract));
-        garanties.add(createInvalidity(contract));
-        garanties.add(createCapitalFuneraire(contract));
-        contract.setGaranties(garanties);
+
+        //Pricings
+        contract.setMontantPrime(pricing.getMontantPrime());
+        contract.setMontantPrimeTTC(pricing.getMontantPrimeTTC());
+        contract.setCapitalMax(pricing.getCapitalMAX());
+        contract.setAccessoryCost(pricing.getAccessoryCost());
+        contract.setTax(pricing.getTax());
+        contract.setPlafondNuitsParAn(pricing.getPlafondNuitsParAn());
+        contract.setMontantParNuit(pricing.getMontantParNuit());
+        contract.setNuitsRestantes(pricing.getPlafondNuitsParAn());
+        contract.setCapitalDejaVerse(0.0);
         Contract savedContract = contractRepository.save(contract);
         System.out.println("CONTRACT SAVED ID = " + savedContract.getId());
         return contractMapper.toDTO(savedContract);
+
     }
 
     public ContractGarantie createHospicash(Contract contract){
