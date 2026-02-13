@@ -31,6 +31,7 @@ public class Role {
             name = "tbl_roles_permissions",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "permission_id"))
+    @Builder.Default
     private Set<Permission> permissions = new HashSet<>();
 
     @Column(updatable = false)

@@ -6,8 +6,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import sn.axa.apiaxacnaas.util.StatusContract;
 import sn.axa.apiaxacnaas.util.TypeContractEnum;
-
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -34,7 +32,7 @@ public class Contract {
     private String description;
     private Double accessoryCost;
     private Double tax;
-    private Double capitalMax; // 350 000
+    private Double capitalMax;
     private Double capitalDejaVerse;
     private Long plafondNuitsParAn; // 30
     private Long nuitsRestantes;
@@ -47,7 +45,9 @@ public class Contract {
     @JoinColumn(name = "insured_id", nullable = false, unique = true)
     private Insured insured;
     @ManyToOne(optional = false)
+
     @JoinColumn(name = "partner_id")
+
     private Partner partner;
 
     @Enumerated(EnumType.STRING)
@@ -55,6 +55,7 @@ public class Contract {
 
     // Garanties rattachées au contrat
     @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<ContractGarantie> garanties = new HashSet<>();
 
     @Column(updatable = false)

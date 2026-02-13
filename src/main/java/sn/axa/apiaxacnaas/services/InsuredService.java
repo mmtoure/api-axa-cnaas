@@ -6,10 +6,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import sn.axa.apiaxacnaas.dto.ContractDTO;
 import sn.axa.apiaxacnaas.dto.InsuredDTO;
 import sn.axa.apiaxacnaas.entities.*;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
@@ -62,6 +66,12 @@ public class InsuredService {
                 Sort.by(Sort.Direction.DESC, "createdAt")
         );
         return listInsureds.stream().map(insuredMapper::toDTO).toList();
+    }
+    public Page<InsuredDTO> getInsureds(int page, int size){
+        Pageable pageable = PageRequest.of(page,size);
+        Page<Insured> InsuredPage = insuredRepository.findAllByOrderByCreatedAtDesc(pageable);
+        return InsuredPage.map(insuredMapper::toDTO);
+
     }
 
     public InsuredDTO updateInsured(InsuredDTO insuredDTO, Long id){

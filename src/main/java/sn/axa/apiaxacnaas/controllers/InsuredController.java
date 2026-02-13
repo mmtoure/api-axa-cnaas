@@ -1,6 +1,7 @@
 package sn.axa.apiaxacnaas.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,11 +26,20 @@ public class InsuredController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newInsured);
     }
 
-    @GetMapping
+    @GetMapping("all")
     public  ResponseEntity<List<InsuredDTO>> getAllInsureds(){
         List<InsuredDTO> allInsureds = insuredService.getAllInsureds();
         return ResponseEntity.status(HttpStatus.OK).body(allInsureds);
     }
+
+    @GetMapping
+    public ResponseEntity<Page<InsuredDTO>> getInsureds(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(insuredService.getInsureds(page, size));
+    }
+
 
     @GetMapping("/{id}")
     public  ResponseEntity<InsuredDTO> getInsuredById(@PathVariable Long id){

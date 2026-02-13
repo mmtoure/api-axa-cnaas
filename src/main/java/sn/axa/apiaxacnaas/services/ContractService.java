@@ -1,6 +1,9 @@
 package sn.axa.apiaxacnaas.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import sn.axa.apiaxacnaas.dto.ContractDTO;
@@ -8,15 +11,11 @@ import sn.axa.apiaxacnaas.dto.InsuredDTO;
 import sn.axa.apiaxacnaas.entities.*;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.ContractMapper;
-import sn.axa.apiaxacnaas.mappers.GarantieMapper;
 import sn.axa.apiaxacnaas.mappers.InsuredMapper;
 import sn.axa.apiaxacnaas.repositories.*;
-import sn.axa.apiaxacnaas.util.GarantieEnum;
-import sn.axa.apiaxacnaas.util.GlobalConstants;
 import sn.axa.apiaxacnaas.util.StatusContract;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -27,10 +26,8 @@ public class ContractService {
     private final ContractRepository contractRepository;
     private final ContractMapper contractMapper;
     private final InsuredMapper insuredMapper;
-    private final GarantieRepository garantieRepository;
-    private final GarantieMapper garantieMapper;
-    private final GroupRepository groupRepository;
-    private final InsuredRepository insuredRepository;
+
+
     private final PartnerPricingRepository partnerPricingRepository;
     private final ContractPdfService contractPdfService;
 
@@ -75,41 +72,6 @@ public class ContractService {
 
     }
 
-    public ContractGarantie createHospicash(Contract contract){
-        Garantie garantie = garantieRepository.findByName(GarantieEnum.HOSPICASH)
-                .orElseThrow(()->new RuntimeException("Garantie Hospicash absente"));
-        return ContractGarantie.builder()
-                .contract(contract)
-                .garantie(garantie)
-                .capitalMax(GlobalConstants.CAPITAL_MAX)
-                .plafondNuitsParAn(GlobalConstants.PLAFOND_NB_NUITS_PAR_AN)
-                .nuitsRestantes(GlobalConstants.PLAFOND_NB_NUITS_PAR_AN)
-                .montantParNuit(GlobalConstants.MONTANT_VERSEMENT_PAR_NUIT)
-                .build();
-    }
-
-    public ContractGarantie createInvalidity(Contract contract){
-        Garantie garantie = garantieRepository.findByName(GarantieEnum.INVALIDITE)
-                .orElseThrow(()->new RuntimeException("Garantie invalidité absente"));
-        return ContractGarantie.builder()
-                .contract(contract)
-                .garantie(garantie)
-                .capitalMax(GlobalConstants.CAPITAL_MAX)
-                .capitalDejaVerse(0.0)
-                .build();
-    }
-
-    public ContractGarantie createCapitalFuneraire(Contract contract){
-        Garantie garantie = garantieRepository.findByName(GarantieEnum.CAPITAL_FUNERAIRE)
-                .orElseThrow(()->new RuntimeException("Garantie Capital funéraire absente"));
-        return ContractGarantie.builder()
-                .contract(contract)
-                .garantie(garantie)
-                .capitalMax(GlobalConstants.CAPITAL_MAX)
-                .capitalDejaVerse(0.0)
-                .build();
-    }
-
     private String generatePoliceContract() {
         return "CTR-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
@@ -138,12 +100,10 @@ public class ContractService {
         return  contractPdfService.generateAndSavePdf(contractDTO,insuredDTO,"contract");
     }
 
-    public Double getPrimeTcc(Double tax, Double montantNet, Double accessoire){
-        return  tax+montantNet+accessoire;
+    public Page<ContractDTO> getContracts(int page, int size){
+        Pageable pageable = PageRequest.of(page,size);
+        Page<Contract> contractPage = contractRepository.findAllByOrderByCreatedAtDesc(pageable);
+        return contractPage.map(contractMapper::toDTO);
+
     }
-
-
-
-
-
 }

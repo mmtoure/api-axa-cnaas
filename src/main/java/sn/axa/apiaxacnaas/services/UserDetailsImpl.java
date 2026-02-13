@@ -7,14 +7,11 @@ import sn.axa.apiaxacnaas.entities.User;
 import java.util.Collection;
 import java.util.List;
 
-
 public record UserDetailsImpl(User user) implements UserDetails {
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().getName().toString());
-
         return List.of(authority);
     }
 
