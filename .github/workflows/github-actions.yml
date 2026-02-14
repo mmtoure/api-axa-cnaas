@@ -17,7 +17,7 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Build with Maven
-        run: mvn -Dmaven.test.skip=true -B package --file pom.xml echo
+        run: mvn -Dmaven.test.skip=true -B package --file pom.xml
 
   create-folder:
     name: create-folder
