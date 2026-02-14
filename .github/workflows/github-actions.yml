@@ -8,6 +8,7 @@ jobs:
   create-folder:
     name: create-folder
     runs-on: ubuntu-latest
+    needs: build  # Wait for build to complete successfully
     steps:
       - name: Create folder on remote VM
         uses: appleboy/ssh-action@v1.0.0
