@@ -1,5 +1,4 @@
 name: Java CI with Maven
-
 on:
   push:
     branches: [ "main", "dev" ]
@@ -35,6 +34,6 @@ jobs:
           script: |
             set -e
             echo "Starting deployment..."
-            mkdir -p /path/to/deployment/folder
-            cd /path/to/deployment/folder
+            mkdir -p /otp/applications/axa-cnaas
+            cd /otp/applications/axa-cnaas
             echo "Deployment folder created successfully"
