@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Téléchargements des sources
         uses: actions/checkout@v4
@@ -21,7 +21,7 @@ jobs:
 
   create-folder:
     name: create-folder
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: build  # Wait for build to complete successfully
     steps:
       - name: Create folder on remote VM
