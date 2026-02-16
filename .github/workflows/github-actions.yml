@@ -23,5 +23,5 @@ jobs:
           context: .
           push: true
           tags: |
-            mmtoure/api-axa-cnaas:latest
-            mmtoure/api-axa-cnaas:${{ github.run_number }}
+            20188783/api-axa-cnaas:latest
+            20188783/api-axa-cnaas:${{ github.run_number }}
