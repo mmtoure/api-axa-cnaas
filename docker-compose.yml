@@ -1,28 +1,38 @@
+version: '3.8'
+
 services:
   db:
     image: postgres:15-alpine
     container_name: postgres-db
+    restart: always
     environment:
-      POSTGRES_USER: admin@axa.sn
-      POSTGRES_PASSWORD: Passer@123
+      POSTGRES_USER: axa_admin
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: axa_db
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U axa_admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   app:
-    # On récupère l'image que vous venez de publier
     image: 20188783/api-axa-cnaas:latest
     container_name: api-axa-cnaas
+    restart: always
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
-      - "8080:8080"
+      - "8082:8080"
     environment:
+      SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/axa_db
-      SPRING_DATASOURCE_USERNAME: admin@axa.sn
-      SPRING_DATASOURCE_PASSWORD: Passer@123
+      SPRING_DATASOURCE_USERNAME: axa_admin
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
 
 volumes:
