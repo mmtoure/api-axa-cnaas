@@ -24,9 +24,12 @@ services:
       SPRING_DATASOURCE_USERNAME: axa_admin
       SPRING_DATASOURCE_PASSWORD: Passer@123
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-  frontend-axa:
+  frontend-axa-cnaas:
     image: 20188783/frontend-axa-cnaas:latest
     container_name: frontend-axa-cnaas
+    restart: always
+    ports:
+      - "80:82"
     depends_on:
       - app
     restart: always
