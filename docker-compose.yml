@@ -10,6 +10,8 @@ services:
       - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - axa-network
 
   app:
     # On récupère l'image que vous venez de publier
@@ -19,13 +21,14 @@ services:
       - db
     ports:
       - "8082:8080"
-    networks:
-      - axa-network
+
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/axa_db
       SPRING_DATASOURCE_USERNAME: axa_admin
       SPRING_DATASOURCE_PASSWORD: Passer@123
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    networks:
+      - axa-network
   frontend-axa-cnaas:
     image: 20188783/frontend-axa-cnaas:latest
     container_name: frontend-axa-cnaas
@@ -49,8 +52,8 @@ services:
     networks:
       - axa-network
 
-  networks:
-    axa-network:
+networks:
+  axa-network:
 
 volumes:
   pgdata:
