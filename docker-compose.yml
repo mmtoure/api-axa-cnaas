@@ -27,7 +27,6 @@ services:
   frontend-axa-cnaas:
     image: 20188783/frontend-axa-cnaas:latest
     container_name: frontend-axa-cnaas
-    restart: always
     ports:
       - "80:82"
     depends_on:
