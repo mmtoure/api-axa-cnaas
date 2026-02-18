@@ -41,7 +41,7 @@ class SecurityConfiguration {
                         // Public endpoints
                         .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/v3/**").permitAll()
-                        .requestMatchers("/api/files/**").permitAll()
+                        .requestMatchers("/api/v1.0/api/files/**").permitAll()
                         .requestMatchers("/create-user", "/create-admin", "/register", "/activate", "/login", "/admin", "/users", "/create-chef-zone", "/status").permitAll()
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
