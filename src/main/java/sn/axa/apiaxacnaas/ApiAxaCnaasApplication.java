@@ -25,20 +25,17 @@ public class ApiAxaCnaasApplication {
             persistPartner(partnerRepository);
         };
     }
-
     public void persistRoles(RoleRepository roleRepository){
         if (roleRepository.findByName(RoleEnum.ADMIN).isEmpty()) {
             Role role = new Role();
             role.setName(RoleEnum.ADMIN);
             roleRepository.save(role);
         }
-
         if (roleRepository.findByName(RoleEnum.MANAGER).isEmpty()) {
             Role roleChefZone = new Role();
             roleChefZone.setName(RoleEnum.MANAGER);
             roleRepository.save(roleChefZone);
         }
-
         if (roleRepository.findByName(RoleEnum.USER).isEmpty()) {
             Role roleChef_agence = Role.builder()
                     .name(RoleEnum.USER)
@@ -57,13 +54,13 @@ public class ApiAxaCnaasApplication {
         }
 
     }
-
     public void persistPartner(PartnerRepository partnerRepository){
         if(partnerRepository.findAll().isEmpty()){
             Partner partner = Partner.builder()
-                    .name("AXA")
-                    .code("AXA")
-                    .email("contact@axa.sn")
+                    .name("CNAAS")
+                    .code("CNAAS")
+                    .email("contact@cnaas.sn")
+                    .phoneNumber("773606060")
                     .build();
             partnerRepository.save(partner);
         }

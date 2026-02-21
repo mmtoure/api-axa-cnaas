@@ -9,6 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +30,7 @@ import sn.axa.apiaxacnaas.mappers.GroupMapper;
 import sn.axa.apiaxacnaas.mappers.InsuredMapper;
 import sn.axa.apiaxacnaas.repositories.GroupRepository;
 import sn.axa.apiaxacnaas.repositories.InsuredRepository;
+import sn.axa.apiaxacnaas.util.RoleEnum;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -285,6 +289,35 @@ public class GroupService {
         } catch (IOException e) {
             throw new IOException(e);
         }
+
+    }
+    public Page<GroupDTO> getGroups(int page, int size){
+        Pageable pageable = PageRequest.of(page,size);
+        User currentUser = userService.getCurrentUser();
+        RoleEnum roleAdmin = currentUser.getRole().getName();
+        Page<Group> groupsPage = null;
+        if(roleAdmin.equals(RoleEnum.ADMIN)){
+            groupsPage = groupRepository.findAllByOrderByCreatedAtDesc(pageable);
+        }
+        else{
+            groupsPage = groupRepository.findByUserIdOrderByCreatedAtDesc(pageable, currentUser.getId());
+        }
+
+        return groupsPage.map(groupMapper::toDTO);
+
+    }
+
+    public Long getNbGroups(){
+        User currentUser = userService.getCurrentUser();
+        RoleEnum roleAdmin = currentUser.getRole().getName();
+        Long nbGroups;
+        if(roleAdmin.equals(RoleEnum.ADMIN)){
+            nbGroups = groupRepository.countAllGroups();
+        }
+        else {
+            nbGroups = groupRepository.countGroupsForCurrentUser(currentUser.getId());
+        }
+        return nbGroups;
 
     }
 

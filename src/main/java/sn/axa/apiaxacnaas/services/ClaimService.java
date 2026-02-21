@@ -11,16 +11,10 @@ import sn.axa.apiaxacnaas.mappers.ClaimDocumentMapper;
 import sn.axa.apiaxacnaas.mappers.ClaimMapper;
 import sn.axa.apiaxacnaas.repositories.*;
 import sn.axa.apiaxacnaas.util.*;
-
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.Year;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-
-import static java.lang.Integer.parseInt;
-
 @Service
 @RequiredArgsConstructor
 public class ClaimService {
@@ -30,14 +24,13 @@ public class ClaimService {
     private final ClaimDocumentMapper claimDocumentMapper;
     private final ContractRepository contractRepository;
     private  final InsuredRepository insuredRepository;
-    private final ContractGarantieRepository contractGarantieRepository;
-    private final ClaimDocumentRepository claimDocumentRepository;
+    private final UserService userService;
 
     public ClaimDTO createClaim(ClaimDTO claimDTO, List<MultipartFile> files, List<ClaimDocumentType> types) throws IOException {
         Insured insured = insuredRepository.findById(claimDTO.getInsuredId())
                 .orElseThrow(()->new ResourceNotFoundException("Assure n'existe pas"));
         Contract contract = insured.getContract();
-        if(contract.getStatus()!=StatusContract.ACTIF){
+        if(contract.getStatus()!=StatusContract.ACTIVE){
             throw  new ResourceNotFoundException("Pas de sinistre car contrat n'est pas actif");
         }
 
@@ -94,11 +87,11 @@ public class ClaimService {
     }
 
     public List<ClaimDTO> createAllClaims(CreateAllClaimsDTO dto, List<MultipartFile> files, List<ClaimDocumentType> types,List<String> claimTypes ) {
-
+        User currentUser = userService.getCurrentUser();
         Insured insured = insuredRepository.findById(dto.getInsuredId())
                 .orElseThrow(()->new ResourceNotFoundException("Assure n'existe pas"));
         Contract contract = insured.getContract();
-        if(contract.getStatus()!=StatusContract.ACTIF){
+        if(contract.getStatus()!=StatusContract.ACTIVE){
             throw  new ResourceNotFoundException("Pas de sinistre car contrat n'est pas actif");
         }
 
@@ -108,6 +101,7 @@ public class ClaimService {
             System.out.println(claimDTO.getSinisterType());
             Claim newClaim = new Claim();
             newClaim.setInsured(insured);
+            newClaim.setUser(currentUser);
             newClaim.setNumeroSinistre(generateNumeroSinistre());
             newClaim.setStatus(ClaimStatus.EN_COURS);
             newClaim.setHospitalizationStartDate(claimDTO.getHospitalizationStartDate());
@@ -135,7 +129,17 @@ public class ClaimService {
     }
 
     public List<ClaimDTO> getAllClaims(){
-        List<Claim> claims = claimRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+        User currentUser = userService.getCurrentUser();
+        RoleEnum roleAdmin = currentUser.getRole().getName();
+        List<Claim> claims;
+        if(roleAdmin.equals(RoleEnum.ADMIN)){
+            claims = claimRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+        }
+        else {
+            claims = claimRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId());
+
+        }
+
         return claims.stream().map(claimMapper::toDTO).toList();
     }
 
@@ -176,6 +180,38 @@ public class ClaimService {
         }
         return docsByClaimType;
 
+    }
+
+    // get latest 5 claims for currentUser
+    public List<ClaimDTO> getLatest5claimsForCurrentUser(){
+        User currentUser = userService.getCurrentUser();
+        List<Claim> listClaims = claimRepository.findTop5ByUserIdOrderByCreatedAtDesc(currentUser.getId());
+        return listClaims.stream().map(claimMapper::toDTO).toList();
+    }
+
+    public Long getNbOpenClaim(){
+        User currentUser = userService.getCurrentUser();
+        RoleEnum roleAdmin = currentUser.getRole().getName();
+        Long nbOpenClaims ;
+        if(roleAdmin.equals(RoleEnum.ADMIN)){
+            nbOpenClaims = claimRepository.countOpenClaims();
+        }
+        else {
+            nbOpenClaims = claimRepository.countOpenClaimsForCurrentUser(currentUser.getId());
+        }
+        return nbOpenClaims;
+    }
+    public Long getNbAcceptedClaim(){
+        User currentUser = userService.getCurrentUser();
+        RoleEnum roleAdmin = currentUser.getRole().getName();
+        Long nbAcceptedClaims;
+        if(roleAdmin.equals(RoleEnum.ADMIN)){
+            nbAcceptedClaims = claimRepository.countAcceptedClaims();
+        }
+        else {
+            nbAcceptedClaims = claimRepository.countAcceptedClaimsForCurrentUser(currentUser.getId());
+        }
+        return nbAcceptedClaims;
     }
 
 }

@@ -27,8 +27,14 @@ public class Group {
     private String lastName;
     private String phoneNumber;
     private LocalDate dateOfBirth;
+
     @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     private Set<Insured> insureds = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+
     @Column(updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;

@@ -22,6 +22,7 @@ import java.util.List;
 public class Claim {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "claim_seq", sequenceName = "claim_seq", allocationSize = 1)
     private Long id;
     @Column(unique = true)
     private String numeroSinistre;
@@ -46,6 +47,10 @@ public class Claim {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "insured_id", nullable = false)
     private Insured insured;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 
     @Column(updatable = false)
     @CreationTimestamp

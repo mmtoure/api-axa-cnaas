@@ -22,6 +22,7 @@ public class GroupDTO {
     private String phoneNumber;
     private LocalDate dateOfBirth;
     private Set<InsuredDTO> insureds;
+    private UserDTO user;
     private BigDecimal montantPrimeTtc;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

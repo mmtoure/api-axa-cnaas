@@ -20,7 +20,11 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
     """)
     Optional<Contract> findByIdWithGaranties(@Param("id") Long id);
 
+    @Query("SELECT COUNT(c) FROM Contract c WHERE c.status = 'ACTIVE'")
+    Long countActiveContracts();
+
     Page<Contract> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    Page<Contract> findByUserIdOrderByCreatedAtDesc(Pageable pageable, Long userId);
 
 
 

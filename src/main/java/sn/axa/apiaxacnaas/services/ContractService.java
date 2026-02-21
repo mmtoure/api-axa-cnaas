@@ -13,6 +13,7 @@ import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.ContractMapper;
 import sn.axa.apiaxacnaas.mappers.InsuredMapper;
 import sn.axa.apiaxacnaas.repositories.*;
+import sn.axa.apiaxacnaas.util.RoleEnum;
 import sn.axa.apiaxacnaas.util.StatusContract;
 
 import java.io.IOException;
@@ -30,12 +31,14 @@ public class ContractService {
 
     private final PartnerPricingRepository partnerPricingRepository;
     private final ContractPdfService contractPdfService;
+    private final UserService userService;
 
     public ContractDTO createContract(Insured insured) {
 
         if(insured==null){
             throw  new ResourceNotFoundException("Assuré introuvable");
         }
+        User currentUser = userService.getCurrentUser();
         Partner partner = insured.getPartner();
         PartnerPricing pricing;
         if(partner.getCode().equals("LG")){
@@ -48,12 +51,13 @@ public class ContractService {
                     .orElseThrow(()->new ResourceNotFoundException("Pricing introuvable"));
         }
         Contract contract = new Contract();
+        contract.setUser(currentUser);
         contract.setInsured(insured);
         contract.setPartner(partner);
         contract.setPoliceNumber(generatePoliceContract());
         contract.setStartDate(LocalDate.now());
         contract.setEndDate(LocalDate.now().plusYears(1));
-        contract.setStatus(StatusContract.ACTIF);
+        contract.setStatus(StatusContract.ACTIVE);
 
 
         //Pricings
@@ -102,8 +106,21 @@ public class ContractService {
 
     public Page<ContractDTO> getContracts(int page, int size){
         Pageable pageable = PageRequest.of(page,size);
-        Page<Contract> contractPage = contractRepository.findAllByOrderByCreatedAtDesc(pageable);
+        User currentUser = userService.getCurrentUser();
+        RoleEnum roleAdmin = currentUser.getRole().getName();
+        Page<Contract> contractPage = null;
+        if(roleAdmin.equals(RoleEnum.ADMIN)){
+            contractPage = contractRepository.findAllByOrderByCreatedAtDesc(pageable);
+        }
+        else{
+            contractPage = contractRepository.findByUserIdOrderByCreatedAtDesc(pageable, currentUser.getId());
+        }
+
         return contractPage.map(contractMapper::toDTO);
 
+    }
+
+    public Long getNbContractActive(){
+        return  contractRepository.countActiveContracts();
     }
 }

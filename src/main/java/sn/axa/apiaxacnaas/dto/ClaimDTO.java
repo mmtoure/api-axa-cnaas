@@ -33,6 +33,7 @@ public class ClaimDTO {
     private Long insuredId;
     private String firstName;
     private String lastName;
+    private UserDTO user;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

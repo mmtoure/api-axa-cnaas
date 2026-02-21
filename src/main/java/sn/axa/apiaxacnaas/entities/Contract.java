@@ -44,11 +44,14 @@ public class Contract {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "insured_id", nullable = false, unique = true)
     private Insured insured;
+
     @ManyToOne(optional = false)
-
     @JoinColumn(name = "partner_id")
-
     private Partner partner;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 
     @Enumerated(EnumType.STRING)
     private StatusContract status; // ACTIF, EXPIRÉ, ANNULÉ

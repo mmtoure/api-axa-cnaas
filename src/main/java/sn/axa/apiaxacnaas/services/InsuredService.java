@@ -13,13 +13,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import sn.axa.apiaxacnaas.dto.ContractDTO;
+
 import sn.axa.apiaxacnaas.dto.InsuredDTO;
+import sn.axa.apiaxacnaas.dto.InsuredMonthlyStatDTO;
+
 import sn.axa.apiaxacnaas.entities.*;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.InsuredMapper;
 import sn.axa.apiaxacnaas.repositories.InsuredRepository;
 import sn.axa.apiaxacnaas.util.InsuredStatus;
+import sn.axa.apiaxacnaas.util.RoleEnum;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -69,15 +73,29 @@ public class InsuredService {
     }
     public Page<InsuredDTO> getInsureds(int page, int size){
         Pageable pageable = PageRequest.of(page,size);
-        Page<Insured> InsuredPage = insuredRepository.findAllByOrderByCreatedAtDesc(pageable);
-        return InsuredPage.map(insuredMapper::toDTO);
+        User currentUser = userService.getCurrentUser();
+        RoleEnum roleAdmin = currentUser.getRole().getName();
+        Page<Insured> insuredPage;
+        if (roleAdmin.equals(RoleEnum.ADMIN)){
+            insuredPage = insuredRepository.findAllByOrderByCreatedAtDesc(pageable);
+        }
+        else {
+
+            insuredPage = insuredRepository.findByUserIdOrderByCreatedAtDesc(pageable, currentUser.getId());
+        }
+
+        return insuredPage.map(insuredMapper::toDTO);
 
     }
 
     public InsuredDTO updateInsured(InsuredDTO insuredDTO, Long id){
         Insured existingInsured = insuredRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("Insured not found"));
-        Insured saveInsured = insuredRepository.save(insuredMapper.toEntity(insuredDTO));
+        existingInsured.setFirstName(insuredDTO.getFirstName());
+        existingInsured.setLastName(insuredDTO.getLastName());
+        existingInsured.setPhoneNumber(insuredDTO.getPhoneNumber());
+        existingInsured.setDateOfBirth(insuredDTO.getDateOfBirth());
+        Insured saveInsured = insuredRepository.save(existingInsured);
         return insuredMapper.toDTO(saveInsured);
 
     }
@@ -106,7 +124,6 @@ public class InsuredService {
         byte[] logoBytesCnaas = new ClassPathResource("static/logo-cnaas.png")
                 .getInputStream()
                 .readAllBytes();
-
         String logoCnaasBase64 = Base64.getEncoder().encodeToString(logoBytesCnaas);
         String logoAxaBase64 = Base64.getEncoder().encodeToString(logoBytesAxa);
         context.setVariable("logoAxa", "data:image/png;base64," + logoAxaBase64);
@@ -114,7 +131,6 @@ public class InsuredService {
         String fileName = "contract_" + contract.getId() + ".pdf";
         Path pdfPath = Paths.get(storagePath, fileName);
         String htmlContent = templateEngine.process("contract", context);
-
         try(ByteArrayOutputStream os = new ByteArrayOutputStream()){
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.withHtmlContent(htmlContent,null);
@@ -127,6 +143,42 @@ public class InsuredService {
         }
 
     }
+
+    // get latest 5 insureds for currentUser
+    public List<InsuredDTO> getLatest5InsuredsForCurrentUser(){
+        User currentUser = userService.getCurrentUser();
+        List<Insured> listInsureds = insuredRepository.findTop5ByUserIdOrderByCreatedAtDesc(currentUser.getId());
+        return listInsureds.stream().map(insuredMapper::toDTO).toList();
+    }
+
+    public List<InsuredMonthlyStatDTO> getMonthlyStats(){
+        User currentUser = userService.getCurrentUser();
+        RoleEnum roleAdmin = currentUser.getRole().getName();
+        List<InsuredMonthlyStatDTO> monthlyStatDTOList;
+        if(roleAdmin.equals(RoleEnum.ADMIN)){
+            monthlyStatDTOList =insuredRepository.countAllInsuredByMonth();
+        }
+        else {
+            monthlyStatDTOList = insuredRepository.countInsuredByMonthForCurrentuser(currentUser.getId());
+        }
+        return monthlyStatDTOList;
+    }
+
+    public Long getNbInsureds(){
+        User currentUser = userService.getCurrentUser();
+        RoleEnum roleAdmin = currentUser.getRole().getName();
+        Long nbInsureds = 0L;
+        if(roleAdmin.equals(RoleEnum.ADMIN)){
+            nbInsureds = insuredRepository.countAllInsureds();
+        }
+        else {
+            nbInsureds = insuredRepository.countInsuredsForCurrentUser(currentUser.getId());
+        }
+        return nbInsureds;
+
+    }
+
+
 
 
 }

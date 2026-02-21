@@ -8,4 +8,5 @@ public enum ClaimStatus {
     COMPLEMENT,      // Documents complémentaires demandés
     ACCEPTE,         // Sinistre accepté
     REJETE,
+    PAYE
 }
