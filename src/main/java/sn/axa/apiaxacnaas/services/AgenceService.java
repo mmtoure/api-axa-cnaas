@@ -6,6 +6,7 @@ import sn.axa.apiaxacnaas.dto.AgenceDTO;
 import sn.axa.apiaxacnaas.entities.Agence;
 import sn.axa.apiaxacnaas.mappers.AgenceMapper;
 import sn.axa.apiaxacnaas.repositories.AgenceRepository;
+import sn.axa.apiaxacnaas.util.VilleEnum;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,15 @@ public class AgenceService {
     public AgenceDTO createAgence( AgenceDTO agenceDTO){
         Agence newAgence = agenceRepository.save(agenceMapper.toEntity(agenceDTO));
         return agenceMapper.toDTO(newAgence);
+    }
+
+    public Agence createAgenceIfNotExist(String name, VilleEnum ville){
+        return agenceRepository.findByName(name).orElseGet(()->
+                agenceRepository.save(Agence.builder()
+                                .name(name)
+                                .ville(VilleEnum.DAKAR)
+                        .build())
+        );
     }
 
     public AgenceDTO getAgenceById(Long id){

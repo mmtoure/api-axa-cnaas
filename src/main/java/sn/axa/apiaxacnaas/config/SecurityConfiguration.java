@@ -76,8 +76,6 @@ class SecurityConfiguration {
 
     }
 
-
-
     /*
      * Authentication provider configuration
      * Links UserDetailsService and PasswordEncoder

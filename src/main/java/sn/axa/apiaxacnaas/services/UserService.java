@@ -168,6 +168,25 @@ public class UserService {
 
     }
 
+    public void createAdminIfNotExists(String firstName, String lastName, String email, String password, String phoneNumber, Partner partner, Role role, Agence agence) {
+
+        if (userRepository.findByEmail(email).isPresent()) return;
+
+        User admin = User.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .partner(partner)
+                .role(role)
+                .agence(agence)
+                .isActive(true)
+                .phoneNumber(phoneNumber)
+                .build();
+
+        userRepository.save(admin);
+    }
+
 
 
 

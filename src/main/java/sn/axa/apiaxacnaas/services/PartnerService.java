@@ -22,15 +22,22 @@ public class PartnerService {
     private final PartnerPricingRepository partnerPricingRepository;
     private final PricingPartnerMapper pricingPartnerMapper;
 
-
     public PartnerDTO createPartner( PartnerDTO partnerDTO){
         Partner partner = partnerMapper.toEntity(partnerDTO);
         Partner savedPartner = partnerRepository.save(partner);
-
         return partnerMapper.toDTO(savedPartner);
-
     }
-
+    public Partner createPartnerIfNotExist(String code, String name){
+        return partnerRepository.findByCode(code)
+                .orElseGet(()->partnerRepository.save(
+                        Partner.builder()
+                                .name(name)
+                                .code(code)
+                                .email("contact@cnaas.sn")
+                                .phoneNumber("775606060")
+                                .build())
+                );
+    }
     public List<PartnerDTO> getAllPartners(){
         return partnerMapper.toDTOList(partnerRepository.findAll());
     }
