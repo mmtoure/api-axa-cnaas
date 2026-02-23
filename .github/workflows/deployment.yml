@@ -1,0 +1,24 @@
+name: deploy api
+on: [push]
+jobs:
+  generate-image:
+    name: generate image
+    runs-on: ubuntu-latest
+    steps:
+      - name: clone le repertoire
+        uses: actions/checkout@master
+      - name: setup java version
+        uses: action/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: generate and push
+        run: |
+          mvn spring-boot:build-image \
+          -Ddocker.publishRegistry.username=${{ secrets.DOCKER_USERNAME }} \
+          -Ddocker.publishRegistry.password=${{ secrets.DOCKER_PASSWORD }} \
+          -Dspring-boot.build-image.publish=true \
+          -Dmaven.test.skip=true
+
+
+
