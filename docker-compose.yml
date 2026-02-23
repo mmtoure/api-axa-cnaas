@@ -15,7 +15,7 @@ services:
 
   app:
     # On récupère l'image que vous venez de publier
-    image: 20188783/api-axa-cnaas:latest
+    image: 20188783/api-axa-cnaas:0.0.1-SNAPSHOT
     container_name: api-axa-cnaas
     depends_on:
       - db

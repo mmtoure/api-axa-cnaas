@@ -3,7 +3,7 @@ on: [push]
 jobs:
   generate-image:
     name: generate image
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: clone le repertoire
         uses: actions/checkout@master
