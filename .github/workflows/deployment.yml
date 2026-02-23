@@ -20,7 +20,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: generate and push
         run: |
-          mvn spring-boot:build-image \
+          ./mvnw clean package spring-boot:build-image \
           -Ddocker.publishRegistry.username=${{ secrets.DOCKER_USERNAME }} \
           -Ddocker.publishRegistry.password=${{ secrets.DOCKER_PASSWORD }} \
           -Dspring-boot.build-image.publish=true \
