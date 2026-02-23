@@ -18,6 +18,8 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Give permission to mvnw
+        run: chmod +x mvnw
       - name: generate and push
         run: |
           ./mvnw clean package spring-boot:build-image \
