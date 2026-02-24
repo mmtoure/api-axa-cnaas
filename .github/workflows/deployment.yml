@@ -27,6 +27,12 @@ jobs:
           -Ddocker.publishRegistry.password=${{ secrets.DOCKER_PASSWORD }} \
           -Dspring-boot.build-image.publish=true \
           -Dmaven.test.skip=true
+      - name: Deploy
+        run: |
+          cd /opt/axa-cnaas
+          docker compose pull
+          docker compose down -v
+          docker compose up -d
 
 
 
