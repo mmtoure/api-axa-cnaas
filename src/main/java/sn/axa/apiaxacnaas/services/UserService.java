@@ -44,7 +44,7 @@ public class UserService {
     public UserDTO createUser(UserCreateDTO userDTO) {
         Partner partner = partnerRepository.findById(userDTO.getPartnerId())
                 .orElseThrow(()->new ResourceNotFoundException("Partner not found"));
-        Role role = roleRepository.findByName(RoleEnum.USER)
+        Role role = roleRepository.findByName(RoleEnum.valueOf(userDTO.getRoleName()))
                 .orElseThrow(() -> new RuntimeException("Role Not Found"));
         User userEntity = userMapper.toEntity(userDTO);
         Agence agence = agenceRepository.findById(1L)

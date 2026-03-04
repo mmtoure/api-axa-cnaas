@@ -17,6 +17,7 @@ public class UserCreateDTO {
     private String email;
     private String phoneNumber;
     private Long partnerId;
+    private String RoleName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
