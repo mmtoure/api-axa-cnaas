@@ -17,6 +17,7 @@ services:
     # On récupère l'image que vous venez de publier
     image: 20188783/api-axa-cnaas:0.0.1-SNAPSHOT
     container_name: api-axa-cnaas
+
     depends_on:
       - db
     ports:
@@ -27,6 +28,8 @@ services:
       SPRING_DATASOURCE_USERNAME: axa_admin
       SPRING_DATASOURCE_PASSWORD: Passer@123
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      JWT_SECRET: "K4G0h7zR4VtYl6RzjH7Y+X3E6p7zQnY4nQkXG9b5K3M="
+      JWT_EXPIRATION: 86400000
     networks:
       - axa-network
   frontend-axa-cnaas:
@@ -39,8 +42,6 @@ services:
     restart: always
     networks:
       - axa-network
-
-
 networks:
   axa-network:
 

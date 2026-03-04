@@ -26,7 +26,7 @@ public class ClaimDocumentService {
    private final FileStorageService storageService;
     private final ClaimDocumentMapper claimDocumentMapper;
 
-    @Value("${app.upload.dir}")
+    @Value("${file.upload-dir}")
     private String uploadDir;
     @Transactional
     public void uploadClaimDocuments(

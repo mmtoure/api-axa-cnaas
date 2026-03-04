@@ -3,6 +3,7 @@ package sn.axa.apiaxacnaas.services;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import sn.axa.apiaxacnaas.entities.Partner;
 import sn.axa.apiaxacnaas.entities.User;
 import java.util.Collection;
 import java.util.List;

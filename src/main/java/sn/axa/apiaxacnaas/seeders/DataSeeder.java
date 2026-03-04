@@ -23,6 +23,8 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         Role roleAdmin = roleService.CreateRoleIfNotExist(RoleEnum.ADMIN);
+        Role roleUser = roleService.CreateRoleIfNotExist(RoleEnum.USER);
+        Role roleManger = roleService.CreateRoleIfNotExist(RoleEnum.MANAGER);
         Partner partner = partnerService.createPartnerIfNotExist("CNAAS", "CNAAS Sénégal");
         Agence agence = agenceService.createAgenceIfNotExist("Dakar", VilleEnum.DAKAR);
         userService.createAdminIfNotExists(

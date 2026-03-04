@@ -1,7 +1,9 @@
 package sn.axa.apiaxacnaas.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import sn.axa.apiaxacnaas.dto.PartnerDTO;
 import sn.axa.apiaxacnaas.dto.PartnerPricingDTO;
 import sn.axa.apiaxacnaas.entities.Partner;
@@ -12,6 +14,11 @@ import sn.axa.apiaxacnaas.mappers.PricingPartnerMapper;
 import sn.axa.apiaxacnaas.repositories.PartnerPricingRepository;
 import sn.axa.apiaxacnaas.repositories.PartnerRepository;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @Service
@@ -22,11 +29,39 @@ public class PartnerService {
     private final PartnerPricingRepository partnerPricingRepository;
     private final PricingPartnerMapper pricingPartnerMapper;
 
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
+
+    public PartnerDTO createPartner(PartnerDTO partnerDTO, MultipartFile logoPartner) throws IOException {
+        Partner partner = partnerMapper.toEntity(partnerDTO);
+        if(logoPartner != null){
+            String fileName = partnerDTO.getCode()+"_"+logoPartner.getOriginalFilename();
+            Path uploadPath = Paths.get(uploadDir, "partners");
+            if(!Files.exists(uploadPath)){
+                Files.createDirectories(uploadPath);
+            }
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(logoPartner.getInputStream(), filePath,
+                    StandardCopyOption.REPLACE_EXISTING);
+            partner.setLogoPartner("/uploads/partners/"+fileName);
+
+        }
+        partner.setActive(true);
+        Partner savedPartner = partnerRepository.save(partner);
+        return partnerMapper.toDTO(savedPartner);
+
+
+
+    }
+
     public PartnerDTO createPartner( PartnerDTO partnerDTO){
         Partner partner = partnerMapper.toEntity(partnerDTO);
         Partner savedPartner = partnerRepository.save(partner);
         return partnerMapper.toDTO(savedPartner);
     }
+
+
     public Partner createPartnerIfNotExist(String code, String name){
         return partnerRepository.findByCode(code)
                 .orElseGet(()->partnerRepository.save(

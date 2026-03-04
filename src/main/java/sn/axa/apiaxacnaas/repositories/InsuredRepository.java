@@ -2,12 +2,14 @@ package sn.axa.apiaxacnaas.repositories;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import sn.axa.apiaxacnaas.dto.InsuredMonthlyStatDTO;
 
 import sn.axa.apiaxacnaas.entities.Insured;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface InsuredRepository extends JpaRepository<Insured, Long> {
@@ -52,5 +54,9 @@ public interface InsuredRepository extends JpaRepository<Insured, Long> {
 
     @Query("SELECT COUNT(i) FROM Insured i WHERE i.user.id =:userId")
     Long countInsuredsForCurrentUser(Long userId);
+
+
+
+    List<Insured> findByCreatedAtBetween( LocalDate startDate, LocalDate endDate);
 
 }

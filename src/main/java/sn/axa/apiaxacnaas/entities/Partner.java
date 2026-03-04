@@ -20,10 +20,12 @@ public class Partner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(unique = true, nullable = false)
-    private String code; //CNAAS, LG
+    private String code;
+    private String logoPartner;
     private String name;
     private String phoneNumber;
     private String email;
+    private boolean active;
     @OneToMany(mappedBy = "partner")
     private List<PartnerPricing> pricings;
     @Column(updatable = false)

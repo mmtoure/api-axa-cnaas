@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import sn.axa.apiaxacnaas.dto.FilterDTO;
 import sn.axa.apiaxacnaas.dto.InsuredDTO;
 import sn.axa.apiaxacnaas.services.InsuredService;
 
@@ -64,6 +65,13 @@ public class InsuredController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=contrat-" + id + ".pdf")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdf);
+    }
+
+    @PostMapping("/filter")
+    public ResponseEntity<List<InsuredDTO>> filterInsureds(@RequestBody FilterDTO filter){
+        List<InsuredDTO> listInsureds = insuredService.filterInsureds(filter);
+        return new ResponseEntity<>(listInsureds, HttpStatus.OK);
+
     }
 
 

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import sn.axa.apiaxacnaas.dto.FilterDTO;
 import sn.axa.apiaxacnaas.dto.InsuredDTO;
 import sn.axa.apiaxacnaas.dto.InsuredMonthlyStatDTO;
 
@@ -28,6 +29,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
 
@@ -177,6 +179,18 @@ public class InsuredService {
         return nbInsureds;
 
     }
+
+    public List<InsuredDTO> filterInsureds(FilterDTO filter){
+        User currentUser = userService.getCurrentUser();
+        List<Insured> listInsureds = insuredRepository.findByCreatedAtBetween(
+                filter.getStartDate(), filter.getEndDate()
+        );
+        return listInsureds.stream().map(insuredMapper::toDTO).toList();
+
+
+    }
+
+
 
 
 

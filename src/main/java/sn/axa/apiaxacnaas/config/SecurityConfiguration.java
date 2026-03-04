@@ -43,6 +43,7 @@ class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/v3/**").permitAll()
                         .requestMatchers("/api/files/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/create-user", "/create-admin", "/register", "/activate", "/login", "/admin", "/users", "/create-chef-zone", "/status").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/v1.0/login").permitAll()

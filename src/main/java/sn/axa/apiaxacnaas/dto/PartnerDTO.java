@@ -16,7 +16,9 @@ public class PartnerDTO {
     private Long id;
     private String code; //CNAAS, LG
     private String name;
+    private String logoPartner;
     private String email;
+    private boolean active;
     private String phoneNumber;
     private LocalDate createdAt;
     private LocalDateTime updatedAt;
