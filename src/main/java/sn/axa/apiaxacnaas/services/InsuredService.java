@@ -186,12 +186,28 @@ public class InsuredService {
 
     public List<InsuredDTO> filter(LocalDate startDate, LocalDate endDate){
         List<Insured> listInsureds = new ArrayList<>();
-        if(startDate != null && endDate != null) {
-            listInsureds = insuredRepository.findBySubscriptionDateBetween(startDate, endDate);
-            return listInsureds.stream().map(insuredMapper::toDTO).toList();
+        User currentUser = userService.getCurrentUser();
+        if(currentUser.getRole().getName().equals(RoleEnum.USER)){
+            if(startDate != null && endDate != null) {
+                listInsureds = insuredRepository.findByUserIdAndSubscriptionDateBetween(currentUser.getId(),startDate, endDate);
+
+            }
+            else {
+                listInsureds = insuredRepository.findTop5ByUserIdOrderByCreatedAtDesc(currentUser.getId());
+            }
+
         }
-        listInsureds = insuredRepository.findAll();
+        else if(currentUser.getRole().getName().equals(RoleEnum.ADMIN)){
+            if(startDate != null && endDate != null) {
+                listInsureds = insuredRepository.findBySubscriptionDateBetween(startDate, endDate);
+            }
+            else {
+                listInsureds = insuredRepository.findAll();
+            }
+
+        }
         return listInsureds.stream().map(insuredMapper::toDTO).toList();
+
     }
 
 

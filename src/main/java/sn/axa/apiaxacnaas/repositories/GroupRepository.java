@@ -7,9 +7,11 @@ import org.springframework.data.jpa.repository.Query;
 import sn.axa.apiaxacnaas.entities.Group;
 import sn.axa.apiaxacnaas.entities.Insured;
 
+import java.util.List;
+
 public interface GroupRepository extends JpaRepository<Group,Long> {
-    Page<Group> findAllByOrderByCreatedAtDesc(Pageable pageable);
-    Page<Group> findByUserIdOrderByCreatedAtDesc(Pageable pageable, Long userId);
+
+    List<Group> findByUserIdOrderByCreatedAtDesc(Long userId);
     @Query("SELECT COUNT(g) FROM Group g")
     Long countAllGroups();
 

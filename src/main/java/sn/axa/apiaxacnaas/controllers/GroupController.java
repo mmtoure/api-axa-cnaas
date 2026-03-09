@@ -34,11 +34,10 @@ public class GroupController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<GroupDTO>> getInsureds(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+    public ResponseEntity<List<GroupDTO>> getInsureds(
+
     ) {
-        return ResponseEntity.ok(groupService.getGroups(page, size));
+        return ResponseEntity.ok(groupService.getGroups());
     }
 
     @GetMapping("/{id}")

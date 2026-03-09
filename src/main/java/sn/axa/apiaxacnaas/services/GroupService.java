@@ -59,11 +59,13 @@ public class GroupService {
     private String storagePath;
 
     public GroupDTO subscribeGroup(GroupDTO groupDTO, MultipartFile file ){
-        Group group = groupMapper.toEntity(groupDTO);
-        Set<Insured> insureds = parseExcel(file);
-        Group savedGroup = groupRepository.save(group);
         User currentUser = userService.getCurrentUser();
         Partner currentPartner = currentUser.getPartner();
+        Group group = groupMapper.toEntity(groupDTO);
+        group.setUser(currentUser);
+        Set<Insured> insureds = parseExcel(file, group);
+        Group savedGroup = groupRepository.save(group);
+
 
         if(!insureds.isEmpty()){
             insureds.forEach(insured -> {
@@ -78,10 +80,12 @@ public class GroupService {
         return groupMapper.toDTO(savedGroup);
     }
     public GroupDTO createGroup(GroupDTO groupDTO){
-        Group group = groupMapper.toEntity(groupDTO);
-        Group savedGroup = groupRepository.save(group);
         User currentUser = userService.getCurrentUser();
         Partner currentPartner = currentUser.getPartner();
+        Group group = groupMapper.toEntity(groupDTO);
+        group.setUser(currentUser);
+        Group savedGroup = groupRepository.save(group);
+
         if(group.getInsureds()!=null){
             group.getInsureds().forEach(insured -> {
                 insured.setGroup(savedGroup);
@@ -176,6 +180,7 @@ public class GroupService {
                     .address(row.getCell(3).getStringCellValue())
                     .build();
 
+            Beneficiary ben = new Beneficiary();
             Insured savedInsured = insuredRepository.save(insured);
 
 
@@ -183,12 +188,20 @@ public class GroupService {
         });
     }
 
-    private Set<Insured> parseExcel(MultipartFile file) {
+    private Set<Insured> parseExcel(MultipartFile file, Group group) {
+
+
 
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Set<Insured> insureds = new HashSet<>();
             Sheet sheet = workbook.getSheetAt(0);
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Beneficiary ben = new Beneficiary();
+                ben.setFirstName(group.getFirstName());
+                ben.setLastName(group.getLastName());
+                ben.setPhoneNumber(group.getPhoneNumber());
+                ben.setDateOfBirth(group.getDateOfBirth());
+
                 Insured insured = new Insured();
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
@@ -197,6 +210,7 @@ public class GroupService {
                 insured.setDateOfBirth(getCellValueAsLocalDate(row.getCell(2)));
                 insured.setPhoneNumber(getCellValueAsString(row.getCell(3)));
                 insured.setCreatedAt(LocalDateTime.now());
+                insured.setBeneficiary(ben);
                 insureds.add(insured);
             }
 
@@ -293,19 +307,17 @@ public class GroupService {
         }
 
     }
-    public Page<GroupDTO> getGroups(int page, int size){
-        Pageable pageable = PageRequest.of(page,size);
+    public List<GroupDTO> getGroups(){
         User currentUser = userService.getCurrentUser();
-        RoleEnum roleAdmin = currentUser.getRole().getName();
-        Page<Group> groupsPage = null;
-        if(roleAdmin.equals(RoleEnum.ADMIN)){
-            groupsPage = groupRepository.findAllByOrderByCreatedAtDesc(pageable);
+       List<Group> groupList = new ArrayList<>();
+        if(currentUser.getRole().getName().equals(RoleEnum.USER)){
+            groupList = groupRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId());
         }
         else{
-            groupsPage = groupRepository.findByUserIdOrderByCreatedAtDesc(pageable, currentUser.getId());
+            groupList = groupRepository.findAll();
         }
 
-        return groupsPage.map(groupMapper::toDTO);
+        return groupList.stream().map(groupMapper::toDTO).toList();
 
     }
 

@@ -58,5 +58,6 @@ public interface InsuredRepository extends JpaRepository<Insured, Long> {
 
 
     List<Insured> findBySubscriptionDateBetween( LocalDate startDate, LocalDate endDate);
+    List<Insured> findByUserIdAndSubscriptionDateBetween( Long userId, LocalDate startDate, LocalDate endDate);
 
 }

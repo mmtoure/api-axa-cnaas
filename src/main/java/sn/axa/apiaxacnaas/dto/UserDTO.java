@@ -23,7 +23,6 @@ public class UserDTO {
     private Role role;
     private Long partnerId;
     private String partnerName;
-    private LocalDate subscriptionDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

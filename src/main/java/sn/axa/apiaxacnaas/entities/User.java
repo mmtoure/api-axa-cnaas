@@ -26,29 +26,20 @@ public class User {
     private String email;
     private String password;
     private String phoneNumber;
-
     @Column(updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
-
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
     private Boolean isActive;
-
     private String activationToken;
     private String profileImageUrl;
-
     @ManyToOne
     @JoinColumn(name = "partner_id", referencedColumnName = "id")
     private Partner partner;
-
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private Role role;
-
-
-
     @ManyToOne
     @JoinColumn(name = "agence_id", referencedColumnName = "id")
     private Agence agence;
