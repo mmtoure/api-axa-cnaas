@@ -197,7 +197,7 @@ public class InsuredService {
             }
 
         }
-        else if(currentUser.getRole().getName().equals(RoleEnum.ADMIN)){
+        else {
             if(startDate != null && endDate != null) {
                 listInsureds = insuredRepository.findBySubscriptionDateBetween(startDate, endDate);
             }
