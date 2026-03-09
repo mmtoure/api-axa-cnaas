@@ -2,7 +2,7 @@ package sn.axa.apiaxacnaas.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import sn.axa.apiaxacnaas.util.GarantieEnum;
+
 import sn.axa.apiaxacnaas.util.StatusContract;
 import sn.axa.apiaxacnaas.util.TypeContractEnum;
 

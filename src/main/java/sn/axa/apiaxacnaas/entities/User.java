@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import sn.axa.apiaxacnaas.util.PartenaireEnum;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -25,6 +26,7 @@ public class User {
     private String email;
     private String password;
     private String phoneNumber;
+
     @Column(updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;

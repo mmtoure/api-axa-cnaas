@@ -70,6 +70,7 @@ public class GroupService {
                 insured.setGroup(savedGroup);
                 insured.setPartner(currentPartner);
                 insured.setUser(currentUser);
+                insured.setSubscriptionDate(LocalDate.now());
                 insuredRepository.save(insured);
                 contractService.createContract(insured);
             });
@@ -86,6 +87,7 @@ public class GroupService {
                 insured.setGroup(savedGroup);
                 insured.setPartner(currentPartner);
                 insured.setUser(currentUser);
+                insured.setSubscriptionDate(LocalDate.now());
                 insuredRepository.save(insured);
                 contractService.createContract(insured);
             });

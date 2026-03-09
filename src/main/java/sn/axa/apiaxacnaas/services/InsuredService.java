@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -53,6 +54,7 @@ public class InsuredService {
         insured.setPartner(currentPartner);
         insured.setCategory(insuredDTO.getCategory());
         insured.setStatus(InsuredStatus.ACTIF);
+        insured.setSubscriptionDate(LocalDate.now());
         if(insured.getBeneficiary()!=null){
             insured.getBeneficiary().setInsured(insured);
         }
@@ -180,14 +182,16 @@ public class InsuredService {
 
     }
 
-    public List<InsuredDTO> filterInsureds(FilterDTO filter){
-        User currentUser = userService.getCurrentUser();
-        List<Insured> listInsureds = insuredRepository.findByCreatedAtBetween(
-                filter.getStartDate(), filter.getEndDate()
-        );
+
+
+    public List<InsuredDTO> filter(LocalDate startDate, LocalDate endDate){
+        List<Insured> listInsureds = new ArrayList<>();
+        if(startDate != null && endDate != null) {
+            listInsureds = insuredRepository.findBySubscriptionDateBetween(startDate, endDate);
+            return listInsureds.stream().map(insuredMapper::toDTO).toList();
+        }
+        listInsureds = insuredRepository.findAll();
         return listInsureds.stream().map(insuredMapper::toDTO).toList();
-
-
     }
 
 

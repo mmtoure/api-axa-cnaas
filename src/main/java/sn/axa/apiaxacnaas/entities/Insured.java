@@ -29,6 +29,7 @@ public class Insured {
     private String email;
     private String address;
     private LocalDate dateOfBirth;
+    private LocalDate subscriptionDate;
     @Enumerated(EnumType.STRING)
     private InsuredStatus status= InsuredStatus.ACTIF;
 
