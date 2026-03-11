@@ -28,7 +28,7 @@ public class Group {
     private String phoneNumber;
     private LocalDate dateOfBirth;
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Insured> insureds = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)

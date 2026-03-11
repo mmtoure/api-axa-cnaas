@@ -56,10 +56,10 @@ public class Insured {
     @Enumerated(EnumType.STRING)
     private PartnerCategory category; // STANDARD / GOLD / ARGENT
 
-    @OneToOne(mappedBy = "insured")
+    @OneToOne(mappedBy = "insured",cascade = CascadeType.ALL, orphanRemoval = true)
     private Contract contract;
 
-    @OneToMany(mappedBy = "insured")
+    @OneToMany(mappedBy = "insured", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Claim> claims = new HashSet<>();
 
     @ManyToOne(optional = false)

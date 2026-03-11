@@ -99,9 +99,8 @@ public class ContractService {
                 .findByIdWithGaranties(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Contrat introuvable"));
-        ContractDTO contractDTO = contractMapper.toDTO(contract);
-        InsuredDTO insuredDTO = insuredMapper.toDTO(contract.getInsured());
-        return  contractPdfService.generateAndSavePdf(contractDTO,insuredDTO,"contract");
+
+        return  contractPdfService.generateAndSavePdf(contract.getInsured(),"contract");
     }
 
     public Page<ContractDTO> getContracts(int page, int size){

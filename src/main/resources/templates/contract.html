@@ -68,11 +68,11 @@
     <body>
         <div class="logo">
             <div class="logo-axa">
-                <img th:src="${logoAxa}" alt="logo axa" style="height:80px"/>
+                <img th:src="${logoAxa}" alt="logo axa" style="height:60px"/>
 
             </div>
             <div class="logo-cnaas">
-                <img th:src="${logoCnaas}" alt="logo cnaas" style="height:80px"/>
+                <img th:src="${logoCnaas}" alt="logo cnaas" style="height:60px"/>
             </div>
         </div>
         <div class="container">
@@ -95,7 +95,6 @@
             <div th:if="${insured.beneficiary != null}">
                 <p><u><strong><i>Informations</i> du bénéficiaire :</strong></u></p>
                 <p>*Bénéficiaire désigné en cas de décès accidentel : <strong><span th:text="${insured.beneficiary.firstName + ' ' + insured.beneficiary.lastName}"></span></strong></p>
-                <p>*Lien de parenté : <strong><span th:text="${insured.beneficiary.lienParente}"></span></strong></p>
                 <p>*Date et lieu de naissance : <strong><span th:text="${#temporals.format(insured.beneficiary.dateOfBirth, 'dd MMMM yyyy')}"></span></strong></p>
                 <p>*Téléphone:  <strong><span th:text="${insured.beneficiary.phoneNumber}"></span></strong></p>
             </div>
@@ -123,7 +122,7 @@
                 </table>
             </div>
 
-            <p style="margin-bottom: 20px; margin-top: 20px" class="date-contrat">Fait à ……………………………………………, le ……………………………</p>
+            <p style="margin-bottom: 20px; margin-top: 20px" class="date-contrat">Fait à DAKAR, le <span th:text="${#temporals.format(insured.subscriptionDate, 'dd MMMM yyyy')}"></span></p>
 
             <div class="signature">
                 <div class="signature-assure">

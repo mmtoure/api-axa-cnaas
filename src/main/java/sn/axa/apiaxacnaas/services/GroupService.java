@@ -9,23 +9,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import sn.axa.apiaxacnaas.controllers.TestController;
-import sn.axa.apiaxacnaas.dto.ContractDTO;
 import sn.axa.apiaxacnaas.dto.GroupDTO;
-import sn.axa.apiaxacnaas.dto.InsuredDTO;
 import sn.axa.apiaxacnaas.entities.*;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
-import sn.axa.apiaxacnaas.mappers.ContractMapper;
 import sn.axa.apiaxacnaas.mappers.GroupMapper;
 import sn.axa.apiaxacnaas.mappers.InsuredMapper;
 import sn.axa.apiaxacnaas.repositories.GroupRepository;
@@ -33,15 +24,11 @@ import sn.axa.apiaxacnaas.repositories.InsuredRepository;
 import sn.axa.apiaxacnaas.util.RoleEnum;
 
 import java.io.*;
-import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.lang.Math.log;
 
 @Slf4j
 @Service
@@ -273,7 +260,7 @@ public class GroupService {
                  .findFirst()
                  .orElseThrow(()->new ResourceNotFoundException("Aucun contrat trouvé pour ce group"));
 
-        byte[] logoBytesAxa = new ClassPathResource("static/logo-axa.png")
+        byte[] logoBytesAxa = new ClassPathResource("static/logo-axa2.png")
                 .getInputStream()
                 .readAllBytes();
 
@@ -334,5 +321,6 @@ public class GroupService {
         return nbGroups;
 
     }
+
 
 }
