@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sn.axa.apiaxacnaas.dto.FilterDTO;
 import sn.axa.apiaxacnaas.dto.InsuredDTO;
+import sn.axa.apiaxacnaas.services.ContractPdfService;
 import sn.axa.apiaxacnaas.services.ExcelExportService;
 import sn.axa.apiaxacnaas.services.InsuredService;
 
@@ -25,6 +26,7 @@ import java.util.List;
 public class InsuredController {
     private final InsuredService insuredService;
     private final ExcelExportService excelExportService;
+    private final ContractPdfService contractPdfService;
 
     @PostMapping
     public ResponseEntity<InsuredDTO> createInsured(@RequestBody InsuredDTO insuredDTODTO){
@@ -65,7 +67,7 @@ public class InsuredController {
 
     @GetMapping("/{id}/pdf")
     public ResponseEntity<byte[]> generateContractPdf(@PathVariable Long id) throws IOException {
-        byte[] pdf = insuredService.generateContractByInsured(id);
+        byte[] pdf = contractPdfService.generatePdfForInsured(id);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=contrat-" + id + ".pdf")
                 .contentType(MediaType.APPLICATION_PDF)

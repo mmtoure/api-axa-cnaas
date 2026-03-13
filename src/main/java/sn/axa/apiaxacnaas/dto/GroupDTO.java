@@ -21,6 +21,7 @@ public class GroupDTO {
     private String lastName;
     private String phoneNumber;
     private LocalDate dateOfBirth;
+    private LocalDate subscriptionDate;
     private Set<InsuredDTO> insureds;
     private UserDTO user;
     private BigDecimal montantPrimeTtc;

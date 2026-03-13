@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jasperReport
+        xmlns="http://jasperreports.sourceforge.net/jasperreports"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
+        http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+        name="simple_report"
+        pageWidth="595"
+        pageHeight="842">
+    <parameter name="contractDTO" class="sn.axa.apiaxacnaas.dto.ContractDTO"/>
+
+    <title>
+        <band height="80">
+            <staticText>
+                <reportElement x="150" y="20" width="300" height="30"/>
+                <text><![CDATA[CONTRAT D'ASSURANCE]]></text>
+            </staticText>
+        </band>
+    </title>
+
+</jasperReport>

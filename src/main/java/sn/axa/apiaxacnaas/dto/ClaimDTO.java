@@ -29,11 +29,17 @@ public class ClaimDTO {
     private Integer probableDuration;
     private Double compensationAmount;
     private ClaimStatus status;
+    private Long numberNuitsHospitalisation;
     private List<ClaimDocument> claimDocuments;
     private Long insuredId;
     private String firstName;
     private String lastName;
+    private String phoneNumber;
     private UserDTO user;
+
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
+
+
 }

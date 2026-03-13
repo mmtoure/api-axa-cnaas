@@ -38,6 +38,7 @@ public class Claim {
     private GarantieEnum sinisterType;
     private Integer probableDuration;
     private Double compensationAmount;
+    private Long numberNuitsHospitalisation;
     @Enumerated(EnumType.STRING)
     private ClaimStatus status;
 
@@ -58,4 +59,22 @@ public class Claim {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    // utilisateur qui crée
+    @ManyToOne
+    @JoinColumn(name = "created_by")
+    private User createdBy;
+    // utilisateur qui valide
+    @ManyToOne
+    @JoinColumn(name = "validated_by")
+    private User validatedBy;
+
+    private LocalDateTime validatedAt;
+
+    // utilisateur qui rejette
+    @ManyToOne
+    @JoinColumn(name = "rejected_by")
+    private User rejectedBy;
+
+    private LocalDateTime rejectedAt;
 }

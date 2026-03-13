@@ -12,6 +12,8 @@ import sn.axa.apiaxacnaas.mappers.ClaimMapper;
 import sn.axa.apiaxacnaas.repositories.*;
 import sn.axa.apiaxacnaas.util.*;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -38,12 +40,12 @@ public class ClaimService {
             if(contract.getCapitalDejaVerse()>=contract.getCapitalMax()){
                 throw  new ResourceNotFoundException("Capital MAX est atteint");
             }
-            if(contract.getNuitsRestantes()<=0 || getNuitsHospitalisation(claimDTO)>=30){
+            if(contract.getNuitsRestantes()<=0 || getNuitsHospitalisation(claimDTO.getHospitalizationStartDate(),claimDTO.getHospitalizationEndDate())>=30){
                 throw  new ResourceNotFoundException("Plafond nuit hospitalisation atteint");
             }
-            Double montantVerse = GlobalConstants.MONTANT_VERSEMENT_PAR_NUIT*getNuitsHospitalisation(claimDTO);
+            Double montantVerse = GlobalConstants.MONTANT_VERSEMENT_PAR_NUIT*getNuitsHospitalisation(claimDTO.getHospitalizationStartDate(),claimDTO.getHospitalizationEndDate());
             contract.setCapitalDejaVerse(contract.getCapitalDejaVerse()+montantVerse);
-            contract.setNuitsRestantes(contract.getNuitsRestantes()-getNuitsHospitalisation(claimDTO));
+            contract.setNuitsRestantes(contract.getNuitsRestantes()-getNuitsHospitalisation(claimDTO.getHospitalizationStartDate(),claimDTO.getHospitalizationEndDate()));
             contractRepository.save(contract);
         }
         if(claimDTO.getSinisterType()==GarantieEnum.INVALIDITE){
@@ -94,7 +96,6 @@ public class ClaimService {
         if(contract.getStatus()!=StatusContract.ACTIVE){
             throw  new ResourceNotFoundException("Pas de sinistre car contrat n'est pas actif");
         }
-
         List<ClaimDTO> claimDTOList = dto.getClaims();
         Map<String,List<DocumentPayload>> docsByClaimType =getDocumentsByClaimType(files,types, claimTypes);
         claimDTOList.forEach((claimDTO -> {
@@ -102,26 +103,29 @@ public class ClaimService {
             Claim newClaim = new Claim();
             newClaim.setInsured(insured);
             newClaim.setUser(currentUser);
+            newClaim.setCreatedBy(currentUser);
+            newClaim.setValidatedBy(currentUser);
             newClaim.setNumeroSinistre(generateNumeroSinistre());
             newClaim.setStatus(ClaimStatus.EN_COURS);
             newClaim.setHospitalizationStartDate(claimDTO.getHospitalizationStartDate());
             newClaim.setHospitalizationEndDate(claimDTO.getHospitalizationEndDate());
+            if(claimDTO.getHospitalizationStartDate()!=null && claimDTO.getHospitalizationEndDate()!=null){
+                newClaim.setNumberNuitsHospitalisation(getNuitsHospitalisation(claimDTO.getHospitalizationStartDate(), claimDTO.getHospitalizationEndDate()));
+            }
+
             newClaim.setSinisterType(claimDTO.getSinisterType());
             Claim savedClaim = claimRepository.save(newClaim);
             List<DocumentPayload> documents = docsByClaimType
                     .getOrDefault(savedClaim.getSinisterType().name(), List.of());
-
             for(DocumentPayload doc: documents){
                 claimDocumentService.uploadSingleDocument(savedClaim.getId(), doc.file(),doc.type());
             }
-
-
         }));
         List<Claim> claims = claimRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
         return claims.stream().map(claimMapper::toDTO).toList();
-
-
     }
+
+
     public ClaimDTO getClaimById(Long claimId){
         Claim existingClaim = claimRepository.findById(claimId)
                 .orElseThrow(() -> new ResourceNotFoundException("Sinistre avec cette  (id=" + claimId + ") est introuvable"));
@@ -145,17 +149,17 @@ public class ClaimService {
 
     public String generateNumeroSinistre(){
         Long seq = claimRepository.getNextSequence();
-        return "SN-" + Year.now().getValue()+ "-" +String.format("%06d",seq);
+        return "SIN-" + Year.now().getValue()+ "-" +String.format("%06d",seq);
     }
 
-    public Long getNuitsHospitalisation(ClaimDTO  claimDTO){
-        return (ChronoUnit.DAYS.between(claimDTO.getHospitalizationStartDate(),claimDTO.getHospitalizationEndDate()));
+    public Long getNuitsHospitalisation(LocalDate startDate, LocalDate endDate){
+        return (ChronoUnit.DAYS.between(startDate,endDate)-1);
     }
 
     public Double getMontantVerse(ClaimDTO claimDTO, Contract contract){
         Double montantVerse=0.0;
         if(claimDTO.getSinisterType()==GarantieEnum.HOSPICASH){
-            Long nightHospicash = getNuitsHospitalisation((claimDTO));
+            Long nightHospicash = getNuitsHospitalisation(claimDTO.getHospitalizationStartDate(),claimDTO.getHospitalizationEndDate());
             montantVerse += GlobalConstants.MONTANT_VERSEMENT_PAR_NUIT*nightHospicash;
         }
         if(claimDTO.getSinisterType()==GarantieEnum.INVALIDITE){
@@ -201,6 +205,7 @@ public class ClaimService {
         }
         return nbOpenClaims;
     }
+
     public Long getNbAcceptedClaim(){
         User currentUser = userService.getCurrentUser();
         RoleEnum roleAdmin = currentUser.getRole().getName();
@@ -212,6 +217,31 @@ public class ClaimService {
             nbAcceptedClaims = claimRepository.countAcceptedClaimsForCurrentUser(currentUser.getId());
         }
         return nbAcceptedClaims;
+    }
+
+    public ClaimDTO validateClaim(Long claimId){
+        System.out.println("CLAIMID" +claimId);
+        User currentUser = userService.getCurrentUser();
+        RoleEnum roleAdmin = currentUser.getRole().getName();
+        Claim claim = claimRepository.findById(claimId)
+                .orElseThrow(()-> new ResourceNotFoundException("Sinistre not found"));
+            claim.setStatus(ClaimStatus.ACCEPTE);
+            claim.setValidatedBy(currentUser);
+            claim.setValidatedAt(LocalDateTime.now());
+            Claim savedClaim = claimRepository.save(claim);
+            return claimMapper.toDTO(savedClaim);
+    }
+
+    public ClaimDTO rejectClaim(Long claimId){
+        User currentUser = userService.getCurrentUser();
+        System.out.println("CLAIMID" +claimId);
+        Claim claim = claimRepository.findById(claimId)
+                .orElseThrow(()-> new ResourceNotFoundException("Sinistre not found++"));
+        claim.setStatus(ClaimStatus.REJETE);
+        claim.setRejectedAt(LocalDateTime.now());
+        claim.setRejectedBy(currentUser);
+        Claim savedClaim = claimRepository.save(claim);
+        return claimMapper.toDTO(savedClaim);
     }
 
 }

@@ -27,6 +27,7 @@ public class Group {
     private String lastName;
     private String phoneNumber;
     private LocalDate dateOfBirth;
+    private LocalDate subscriptionDate;
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Insured> insureds = new HashSet<>();

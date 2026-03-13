@@ -10,6 +10,7 @@ public interface ClaimMapper {
     @Mapping(source = "insured.id", target = "insuredId")
     @Mapping(source = "insured.firstName", target = "firstName")
     @Mapping(source = "insured.lastName", target = "lastName")
+    @Mapping(source = "insured.phoneNumber", target = "phoneNumber")
     ClaimDTO toDTO(Claim entity);
     Claim toEntity(ClaimDTO dto);
 

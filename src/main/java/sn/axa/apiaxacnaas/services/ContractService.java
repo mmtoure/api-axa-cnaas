@@ -56,7 +56,7 @@ public class ContractService {
         contract.setPartner(partner);
         contract.setPoliceNumber(generatePoliceContract());
         contract.setStartDate(LocalDate.now());
-        contract.setEndDate(LocalDate.now().plusYears(1));
+        contract.setEndDate(LocalDate.now().plusYears(1).minusDays(1));
         contract.setStatus(StatusContract.ACTIVE);
 
 
@@ -94,14 +94,7 @@ public class ContractService {
                         new ResourceNotFoundException("Contrat introuvable"));
         return contractMapper.toDTO(contract);
     }
-    public byte[] generateContractPdf(Long id) throws IOException {
-        Contract contract = contractRepository
-                .findByIdWithGaranties(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Contrat introuvable"));
 
-        return  contractPdfService.generateAndSavePdf(contract.getInsured(),"contract");
-    }
 
     public Page<ContractDTO> getContracts(int page, int size){
         Pageable pageable = PageRequest.of(page,size);

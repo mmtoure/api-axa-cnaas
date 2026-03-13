@@ -120,7 +120,7 @@ public class InsuredService {
         context.setVariable("insured", insured);
         context.setVariable("contract", contract);
 
-        byte[] logoBytesAxa = new ClassPathResource("static/logo-axa.png")
+        byte[] logoBytesAxa = new ClassPathResource("static/images/logo-axa.png")
                 .getInputStream()
                 .readAllBytes();
 

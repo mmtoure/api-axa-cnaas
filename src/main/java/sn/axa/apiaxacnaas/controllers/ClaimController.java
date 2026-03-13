@@ -61,6 +61,17 @@ public class ClaimController {
         return ResponseEntity.status(HttpStatus.OK).body(claimDTOList);
     }
 
+    @GetMapping("/{id}/valider")
+    public ResponseEntity<ClaimDTO> validateClaim(@PathVariable Long id){
+        ClaimDTO claimDTO = claimService.validateClaim(id);
+        return ResponseEntity.status(HttpStatus.OK).body(claimDTO);
+    }
+    @GetMapping("/{id}/rejeter")
+    public ResponseEntity<ClaimDTO> rejectClaim(@PathVariable Long id){
+        ClaimDTO claimDTO = claimService.rejectClaim(id);
+        return ResponseEntity.status(HttpStatus.OK).body(claimDTO);
+    }
+
 
 
 }

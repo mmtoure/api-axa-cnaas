@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sn.axa.apiaxacnaas.dto.GroupDTO;
 import sn.axa.apiaxacnaas.dto.InsuredDTO;
+import sn.axa.apiaxacnaas.services.ContractPdfService;
 import sn.axa.apiaxacnaas.services.GroupService;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.util.List;
 
 public class GroupController {
     private final GroupService groupService;
+    private final ContractPdfService contractPdfService;
 
     @PostMapping
     public ResponseEntity<GroupDTO> createGroup(@RequestBody GroupDTO groupDTO){
@@ -57,9 +59,10 @@ public class GroupController {
     }
     @GetMapping("/{id}/pdf")
     public ResponseEntity<byte[]> generateContractPdf(@PathVariable Long id) throws IOException {
-        byte[] pdf = groupService.generateContractByGroup(id);
+        byte[] pdf = contractPdfService.generatePdfForGroup(id);
+        String fileName = "fiche_adhesion_group" + id + ".pdf";
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=contrat-" + id + ".pdf")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdf);
     }

@@ -26,7 +26,6 @@ public class InsuredDTO {
     private PartnerCategory category;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate subscriptionDate;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate dateOfBirth;
     private BeneficiaryDTO beneficiary;
     private Set<ClaimDTO> claims;

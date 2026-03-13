@@ -8,7 +8,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sn.axa.apiaxacnaas.dto.ContractDTO;
+import sn.axa.apiaxacnaas.entities.Insured;
+import sn.axa.apiaxacnaas.services.ContractPdfService;
 import sn.axa.apiaxacnaas.services.ContractService;
+import sn.axa.apiaxacnaas.services.InsuredService;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,6 +21,7 @@ import java.util.List;
 @RequestMapping("/contracts")
 public class ContractController {
     private final ContractService contractService;
+    private final ContractPdfService contractPdfService;
 
     @GetMapping("all")
     public ResponseEntity<List<ContractDTO>> getAllContracts(){
@@ -31,20 +35,25 @@ public class ContractController {
         return ResponseEntity.status(HttpStatus.OK).body(contractDTO);
     }
 
-    @GetMapping("/{id}/pdf")
-    public ResponseEntity<byte[]> generateContractPdf(@PathVariable Long id) throws IOException {
-        byte[] pdf = contractService.generateContractPdf(id);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=contrat-" + id + ".pdf")
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdf);
-    }
+
     @GetMapping
     public ResponseEntity<Page<ContractDTO>> getContracts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         return ResponseEntity.ok(contractService.getContracts(page, size));
+    }
+
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> generateContract(@PathVariable Long id) throws Exception {
+        ContractDTO contract = contractService.getContractById(id);
+        Long insuredId = contract.getInsuredId();
+        byte[] pdf = contractPdfService.generatePdfForInsured(insuredId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=contract_" + contract.getPoliceNumber() + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
 }

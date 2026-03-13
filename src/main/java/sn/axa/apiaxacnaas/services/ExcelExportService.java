@@ -31,6 +31,7 @@ public class ExcelExportService {
         headerRow.createCell(3).setCellValue("phoneNumber");
         headerRow.createCell(4).setCellValue("Status");
         headerRow.createCell(5).setCellValue("Date Souscription");
+        headerRow.createCell(6).setCellValue("Créé par");
 
         int rowIdx = 1;
 
@@ -43,6 +44,7 @@ public class ExcelExportService {
             row.createCell(3).setCellValue(insured.getPhoneNumber());
             row.createCell(4).setCellValue(insured.getStatus().toString());
             row.createCell(5).setCellValue(insured.getSubscriptionDate().format(formatter));
+            row.createCell(6).setCellValue(insured.getUser().getFirstName()+" "+insured.getUser().getLastName());
 
         }
 
