@@ -2,6 +2,7 @@ package sn.axa.apiaxacnaas.dto;
 
 import lombok.*;
 import sn.axa.apiaxacnaas.entities.ClaimDocument;
+import sn.axa.apiaxacnaas.entities.ClaimHistory;
 import sn.axa.apiaxacnaas.util.ClaimStatus;
 import sn.axa.apiaxacnaas.util.GarantieEnum;
 
@@ -36,9 +37,13 @@ public class ClaimDTO {
     private String lastName;
     private String phoneNumber;
     private UserDTO user;
-
+    private UserDTO validatedBy;
+    private UserDTO paidBy;
+    private UserDTO createdBy;
+    private UserDTO rejectedBy;
+    private List<ClaimHistoryDTO> histories;
+    private String rejectReason;
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
 
 

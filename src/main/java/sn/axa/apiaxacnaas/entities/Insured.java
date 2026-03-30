@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import sn.axa.apiaxacnaas.util.InsuredStatus;
 import sn.axa.apiaxacnaas.util.PartnerCategory;
+import sn.axa.apiaxacnaas.util.SubscriptionTypeEnum;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,13 +31,12 @@ public class Insured {
     private String address;
     private LocalDate dateOfBirth;
     private LocalDate subscriptionDate;
-    @Enumerated(EnumType.STRING)
-    private InsuredStatus status= InsuredStatus.ACTIF;
 
-    private String firstNameBeneficiaire;
-    private String lastNameBeneficiaire;
-    private String phoneNumberBeneficiaire;
-    private String lienParente;
+    @Enumerated(EnumType.STRING)
+    private SubscriptionTypeEnum subscriptionType;
+
+    @Enumerated(EnumType.STRING)
+    private InsuredStatus status;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -46,6 +46,15 @@ public class Insured {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", referencedColumnName = "id")
+    private User createdBy;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "validated_by", referencedColumnName = "id")
+    private User validatedBy;
+    private LocalDateTime validatedAt;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(

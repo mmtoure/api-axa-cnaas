@@ -115,4 +115,6 @@ public class ContractService {
     public Long getNbContractActive(){
         return  contractRepository.countActiveContracts();
     }
+
+
 }

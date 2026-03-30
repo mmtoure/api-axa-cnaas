@@ -23,6 +23,7 @@ import sn.axa.apiaxacnaas.mappers.InsuredMapper;
 import sn.axa.apiaxacnaas.repositories.InsuredRepository;
 import sn.axa.apiaxacnaas.util.InsuredStatus;
 import sn.axa.apiaxacnaas.util.RoleEnum;
+import sn.axa.apiaxacnaas.util.SubscriptionTypeEnum;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -44,6 +45,7 @@ public class InsuredService {
     private final TemplateEngine templateEngine;
     @Value("${app.pdf.storage-path}")
     private String storagePath;
+    private final NotificationService notificationService;
 
     public InsuredDTO createInsured(InsuredDTO insuredDTO){
         User currentUser = userService.getCurrentUser();
@@ -53,13 +55,17 @@ public class InsuredService {
         insured.setPartner(currentPartner);
         insured.setCategory(insuredDTO.getCategory());
         insured.setStatus(InsuredStatus.ACTIF);
+        insured.setSubscriptionType(SubscriptionTypeEnum.INDIVIDUELLE);
+        insured.setCreatedBy(currentUser);
         insured.setSubscriptionDate(LocalDate.now());
         if(insured.getBeneficiary()!=null){
             insured.getBeneficiary().setInsured(insured);
         }
         Insured savedInsured = insuredRepository.save(insured);
         contractService.createContract(savedInsured);
-        return insuredMapper.toDTO(savedInsured);
+        InsuredDTO insuredMapperDTO = insuredMapper.toDTO(savedInsured);
+        notificationService.notifyNewInsured(insuredMapperDTO);
+        return insuredMapperDTO;
     }
 
     public InsuredDTO getInsuredById(Long id){
@@ -206,6 +212,19 @@ public class InsuredService {
 
         }
         return listInsureds.stream().map(insuredMapper::toDTO).toList();
+
+    }
+
+    public InsuredDTO ActiveInsured(Long insuredId){
+        Insured existingInsured = insuredRepository.findById(insuredId)
+                .orElseThrow(()->new ResourceNotFoundException("Insured not found"));
+        existingInsured.setValidatedBy(existingInsured.getValidatedBy());
+        existingInsured.setValidatedAt(existingInsured.getValidatedAt());
+        existingInsured.setStatus(InsuredStatus.ACTIF);
+        insuredRepository.save(existingInsured);
+
+        return  insuredMapper.toDTO(existingInsured);
+
 
     }
 

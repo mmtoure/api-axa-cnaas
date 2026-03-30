@@ -66,9 +66,15 @@ public class ClaimController {
         ClaimDTO claimDTO = claimService.validateClaim(id);
         return ResponseEntity.status(HttpStatus.OK).body(claimDTO);
     }
-    @GetMapping("/{id}/rejeter")
-    public ResponseEntity<ClaimDTO> rejectClaim(@PathVariable Long id){
-        ClaimDTO claimDTO = claimService.rejectClaim(id);
+    @PutMapping("/{id}/rejeter")
+    public ResponseEntity<ClaimDTO> rejectClaim(@RequestBody String reason,@PathVariable Long id){
+        ClaimDTO claimDTO = claimService.rejectClaim(id,reason);
+        return ResponseEntity.status(HttpStatus.OK).body(claimDTO);
+    }
+
+    @GetMapping("/{id}/payer")
+    public ResponseEntity<ClaimDTO> paidClaim(@PathVariable Long id){
+        ClaimDTO claimDTO = claimService.paidClaim(id);
         return ResponseEntity.status(HttpStatus.OK).body(claimDTO);
     }
 

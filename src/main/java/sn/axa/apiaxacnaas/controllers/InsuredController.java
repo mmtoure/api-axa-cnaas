@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import sn.axa.apiaxacnaas.dto.ClaimDTO;
 import sn.axa.apiaxacnaas.dto.FilterDTO;
 import sn.axa.apiaxacnaas.dto.InsuredDTO;
 import sn.axa.apiaxacnaas.services.ContractPdfService;
@@ -103,6 +104,10 @@ public class InsuredController {
                 .body(new InputStreamResource(excel));
     }
 
-
+    @GetMapping("/{id}/valider")
+    public ResponseEntity<InsuredDTO> validateInsured(@PathVariable Long id){
+        InsuredDTO insuredDTO = insuredService.ActiveInsured(id);
+        return ResponseEntity.status(HttpStatus.OK).body(insuredDTO);
+    }
 
 }

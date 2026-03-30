@@ -15,13 +15,17 @@ import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import sn.axa.apiaxacnaas.dto.GroupDTO;
+import sn.axa.apiaxacnaas.dto.InsuredDTO;
 import sn.axa.apiaxacnaas.entities.*;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.GroupMapper;
 import sn.axa.apiaxacnaas.mappers.InsuredMapper;
 import sn.axa.apiaxacnaas.repositories.GroupRepository;
 import sn.axa.apiaxacnaas.repositories.InsuredRepository;
+import sn.axa.apiaxacnaas.util.GroupStatus;
+import sn.axa.apiaxacnaas.util.InsuredStatus;
 import sn.axa.apiaxacnaas.util.RoleEnum;
+import sn.axa.apiaxacnaas.util.SubscriptionTypeEnum;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -50,6 +54,9 @@ public class GroupService {
         Partner currentPartner = currentUser.getPartner();
         Group group = groupMapper.toEntity(groupDTO);
         group.setUser(currentUser);
+        group.setCreatedBy(currentUser);
+        group.setSubscriptionDate(LocalDate.now());
+        group.setStatus(GroupStatus.ACTIF);
         Set<Insured> insureds = parseExcel(file, group);
         Group savedGroup = groupRepository.save(group);
 
@@ -58,6 +65,10 @@ public class GroupService {
             insureds.forEach(insured -> {
                 insured.setGroup(savedGroup);
                 insured.setPartner(currentPartner);
+                insured.setStatus(InsuredStatus.ACTIF);
+                insured.setCreatedBy(currentUser);
+                insured.setSubscriptionType(SubscriptionTypeEnum.GROUPEMENT);
+                insured.setSubscriptionDate(LocalDate.now());
                 insured.setUser(currentUser);
                 insured.setSubscriptionDate(LocalDate.now());
                 insuredRepository.save(insured);
@@ -71,6 +82,9 @@ public class GroupService {
         Partner currentPartner = currentUser.getPartner();
         Group group = groupMapper.toEntity(groupDTO);
         group.setUser(currentUser);
+        group.setCreatedBy(currentUser);
+        group.setSubscriptionDate(LocalDate.now());
+        group.setStatus(GroupStatus.ACTIF);
         Group savedGroup = groupRepository.save(group);
 
         if(group.getInsureds()!=null){
@@ -78,6 +92,9 @@ public class GroupService {
                 insured.setGroup(savedGroup);
                 insured.setPartner(currentPartner);
                 insured.setUser(currentUser);
+                insured.setStatus(InsuredStatus.ACTIF);
+                insured.setCreatedBy(currentUser);
+                insured.setSubscriptionType(SubscriptionTypeEnum.GROUPEMENT);
                 insured.setSubscriptionDate(LocalDate.now());
                 insuredRepository.save(insured);
                 contractService.createContract(insured);
@@ -319,6 +336,28 @@ public class GroupService {
             nbGroups = groupRepository.countGroupsForCurrentUser(currentUser.getId());
         }
         return nbGroups;
+
+    }
+
+    public GroupDTO activeGroup(Long groupId){
+        User currentUser = userService.getCurrentUser();
+        Group existingGroup = groupRepository.findById(groupId)
+                .orElseThrow(()->new ResourceNotFoundException("Insured not found"));
+        existingGroup.setValidatedBy(currentUser);
+        existingGroup.setValidatedAt(LocalDateTime.now());
+        existingGroup.setStatus(GroupStatus.ACTIF);
+
+        existingGroup.getInsureds().forEach(insured -> {
+            if(insured.getStatus()==InsuredStatus.EN_ATTENTE){
+                insured.setValidatedBy(currentUser);
+                insured.setValidatedAt(LocalDateTime.now());
+                insured.setStatus(InsuredStatus.ACTIF);
+            }
+        });
+        groupRepository.save(existingGroup);
+        return groupMapper.toDTO(existingGroup);
+
+
 
     }
 

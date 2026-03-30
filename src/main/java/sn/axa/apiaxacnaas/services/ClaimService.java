@@ -27,6 +27,8 @@ public class ClaimService {
     private final ContractRepository contractRepository;
     private  final InsuredRepository insuredRepository;
     private final UserService userService;
+    private final ClaimHistoryService claimHistoryService;
+    private final NotificationService notificationService;
 
     public ClaimDTO createClaim(ClaimDTO claimDTO, List<MultipartFile> files, List<ClaimDocumentType> types) throws IOException {
         Insured insured = insuredRepository.findById(claimDTO.getInsuredId())
@@ -36,37 +38,10 @@ public class ClaimService {
             throw  new ResourceNotFoundException("Pas de sinistre car contrat n'est pas actif");
         }
 
-        if(claimDTO.getSinisterType()== GarantieEnum.HOSPICASH){
-            if(contract.getCapitalDejaVerse()>=contract.getCapitalMax()){
-                throw  new ResourceNotFoundException("Capital MAX est atteint");
-            }
-            if(contract.getNuitsRestantes()<=0 || getNuitsHospitalisation(claimDTO.getHospitalizationStartDate(),claimDTO.getHospitalizationEndDate())>=30){
-                throw  new ResourceNotFoundException("Plafond nuit hospitalisation atteint");
-            }
-            Double montantVerse = GlobalConstants.MONTANT_VERSEMENT_PAR_NUIT*getNuitsHospitalisation(claimDTO.getHospitalizationStartDate(),claimDTO.getHospitalizationEndDate());
-            contract.setCapitalDejaVerse(contract.getCapitalDejaVerse()+montantVerse);
-            contract.setNuitsRestantes(contract.getNuitsRestantes()-getNuitsHospitalisation(claimDTO.getHospitalizationStartDate(),claimDTO.getHospitalizationEndDate()));
-            contractRepository.save(contract);
-        }
-        if(claimDTO.getSinisterType()==GarantieEnum.INVALIDITE){
-            if(contract.getCapitalDejaVerse()>=contract.getCapitalMax()){
-                throw  new ResourceNotFoundException("Capital MAX est atteint");
-            }
-            if(claimDTO.getCompensationAmount()>= GlobalConstants.CAPITAL_MAX){
-                throw  new ResourceNotFoundException("Montant MAX dépassé");
-            }
-            contract.setCapitalDejaVerse(contract.getCapitalDejaVerse()+claimDTO.getCompensationAmount());
-            contractRepository.save(contract);
-        }
 
-        if(claimDTO.getSinisterType()==GarantieEnum.CAPITAL_FUNERAIRE){
-            if(contract.getCapitalDejaVerse()>=contract.getCapitalMax()){
-                throw  new ResourceNotFoundException("Capital MAX est atteint");
-            }
-            claimDTO.setCompensationAmount(contract.getCapitalMax()-contract.getCapitalDejaVerse());
-            contract.setCapitalDejaVerse(contract.getCapitalDejaVerse()+claimDTO.getCompensationAmount());
-            contractRepository.save(contract);
-        }
+
+
+
         if(types==null || files.size() != types.size()) {
             throw new ResourceNotFoundException("Chaque document doit avoir un type");
         }
@@ -115,6 +90,15 @@ public class ClaimService {
 
             newClaim.setSinisterType(claimDTO.getSinisterType());
             Claim savedClaim = claimRepository.save(newClaim);
+            ClaimDTO savedClaimDTO = claimMapper.toDTO(savedClaim);
+            notificationService.notifyNewClaim(savedClaimDTO);
+            claimHistoryService.saveHistory(
+                    savedClaim,
+                    currentUser,
+                    ClaimStatus.EN_COURS,
+                    "Création du sinistre"
+            );
+
             List<DocumentPayload> documents = docsByClaimType
                     .getOrDefault(savedClaim.getSinisterType().name(), List.of());
             for(DocumentPayload doc: documents){
@@ -147,10 +131,26 @@ public class ClaimService {
         return claims.stream().map(claimMapper::toDTO).toList();
     }
 
-    public String generateNumeroSinistre(){
+    public String generateNumeroSinistre1(){
         Long seq = claimRepository.getNextSequence();
         return "SIN-" + Year.now().getValue()+ "-" +String.format("%06d",seq);
     }
+
+    private String generateNumeroSinistre(){
+        int year = LocalDate.now().getYear();
+        int nextNumber = 1;
+        Optional<Claim> lastClaim = claimRepository.findTopByOrderByIdDesc();
+        if(lastClaim.isPresent()){
+            String lastInvoiceNumber = lastClaim.get().getNumeroSinistre();
+            String[] parts = lastInvoiceNumber.split("-");
+            int lastSequence = Integer.parseInt(parts[2]);
+            nextNumber = lastSequence+1;
+        }
+
+        return  String.format("SIN-%d-%05d", year, nextNumber);
+
+    }
+
 
     public Long getNuitsHospitalisation(LocalDate startDate, LocalDate endDate){
         return (ChronoUnit.DAYS.between(startDate,endDate)-1);
@@ -229,10 +229,16 @@ public class ClaimService {
             claim.setValidatedBy(currentUser);
             claim.setValidatedAt(LocalDateTime.now());
             Claim savedClaim = claimRepository.save(claim);
+        claimHistoryService.saveHistory(
+                savedClaim,
+                currentUser,
+                ClaimStatus.ACCEPTE,
+                "Sinistre validé"
+        );
             return claimMapper.toDTO(savedClaim);
     }
 
-    public ClaimDTO rejectClaim(Long claimId){
+    public ClaimDTO rejectClaim(Long claimId,String rejectReason){
         User currentUser = userService.getCurrentUser();
         System.out.println("CLAIMID" +claimId);
         Claim claim = claimRepository.findById(claimId)
@@ -240,8 +246,86 @@ public class ClaimService {
         claim.setStatus(ClaimStatus.REJETE);
         claim.setRejectedAt(LocalDateTime.now());
         claim.setRejectedBy(currentUser);
+        claim.setRejectReason(rejectReason);
         Claim savedClaim = claimRepository.save(claim);
+        ClaimHistoryDTO newHistory = claimHistoryService.saveHistory(
+                savedClaim,
+                currentUser,
+                ClaimStatus.ACCEPTE,
+                "Sinistre rejeté"
+        );
+
         return claimMapper.toDTO(savedClaim);
+    }
+
+    public ClaimDTO paidClaim(Long claimId){
+        User currentUser = userService.getCurrentUser();
+        System.out.println("CLAIMID" +claimId);
+        Claim claim = claimRepository.findById(claimId)
+                .orElseThrow(()-> new ResourceNotFoundException("Sinistre not found++"));
+        if(claim.getStatus().equals(ClaimStatus.ACCEPTE)){
+            claim.setStatus(ClaimStatus.PAYE);
+            claim.setPaidAt(LocalDateTime.now());
+            claim.setPaidBy(currentUser);
+            validateContractForClaim(claimId);
+            Claim savedClaim = claimRepository.save(claim);
+            claimHistoryService.saveHistory(
+                    savedClaim,
+                    currentUser,
+                    ClaimStatus.ACCEPTE,
+                    "Sinistre payé"
+            );
+            return claimMapper.toDTO(savedClaim);
+
+        }
+        else{
+            throw new RuntimeException("Sinistre must be accepted");
+        }
+
+    }
+
+    public void validateContractForClaim(Long claimId){
+        Claim claim = claimRepository.findById(claimId)
+                .orElseThrow(()-> new ResourceNotFoundException("Sinistre not found++"));
+        Contract contract = claim.getInsured().getContract();
+
+
+        if(contract.getCapitalDejaVerse()>=contract.getCapitalMax()){
+            throw  new ResourceNotFoundException("Capital MAX est atteint");
+        }
+
+        if(claim.getSinisterType()== GarantieEnum.HOSPICASH){
+
+            if(contract.getNuitsRestantes()<=0 || getNuitsHospitalisation(claim.getHospitalizationStartDate(),claim.getHospitalizationEndDate())>=30){
+                throw  new ResourceNotFoundException("Plafond nuit hospitalisation atteint");
+            }
+            Double montantVerse = GlobalConstants.MONTANT_VERSEMENT_PAR_NUIT*getNuitsHospitalisation(claim.getHospitalizationStartDate(),claim.getHospitalizationEndDate());
+            contract.setCapitalDejaVerse(contract.getCapitalDejaVerse()+montantVerse);
+            contract.setNuitsRestantes(contract.getNuitsRestantes()-getNuitsHospitalisation(claim.getHospitalizationStartDate(),claim.getHospitalizationEndDate()));
+            contractRepository.save(contract);
+        }
+        if(claim.getSinisterType()==GarantieEnum.INVALIDITE){
+            if(contract.getCapitalDejaVerse()>=contract.getCapitalMax()){
+                throw  new ResourceNotFoundException("Capital MAX est atteint");
+            }
+            if(claim.getCompensationAmount()>= GlobalConstants.CAPITAL_MAX){
+                throw  new ResourceNotFoundException("Montant MAX dépassé");
+            }
+            contract.setCapitalDejaVerse(contract.getCapitalDejaVerse()+claim.getCompensationAmount());
+            contractRepository.save(contract);
+        }
+
+        if(claim.getSinisterType()==GarantieEnum.CAPITAL_FUNERAIRE){
+            if(contract.getCapitalDejaVerse()>=contract.getCapitalMax()){
+                throw  new ResourceNotFoundException("Capital MAX est atteint");
+            }
+            claim.setCompensationAmount(contract.getCapitalMax()-contract.getCapitalDejaVerse());
+            contract.setCapitalDejaVerse(contract.getCapitalDejaVerse()+claim.getCompensationAmount());
+            contractRepository.save(contract);
+        }
+
+
+
     }
 
 }

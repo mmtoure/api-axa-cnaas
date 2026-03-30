@@ -1,6 +1,6 @@
 package sn.axa.apiaxacnaas.util;
 
-public enum InsuredStatus {
+public enum GroupStatus {
     EN_ATTENTE,
     ACTIF,
     INACTIF,

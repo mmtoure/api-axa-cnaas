@@ -77,4 +77,17 @@ public class Claim {
     private User rejectedBy;
 
     private LocalDateTime rejectedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "paid_by")
+    private User paidBy;
+
+    private LocalDateTime paidAt;
+
+
+    @OneToMany(mappedBy = "claim", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("actionDate ASC")
+    private List<ClaimHistory> histories;
+
+    private String rejectReason;
 }

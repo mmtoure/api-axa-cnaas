@@ -9,6 +9,7 @@ import sn.axa.apiaxacnaas.dto.SimpleClaimDTO;
 import sn.axa.apiaxacnaas.entities.Claim;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ClaimRepository extends JpaRepository<Claim, Long> {
 
@@ -59,5 +60,7 @@ public interface ClaimRepository extends JpaRepository<Claim, Long> {
       EXTRACT(MONTH FROM c.createdAt)
     """)
     List<ClaimMonthlyStatDTO> countAllClaimsByMonthForCurrentUser(Long userId);
+
+    Optional<Claim> findTopByOrderByIdDesc();
 
 }

@@ -67,6 +67,12 @@ public class GroupController {
                 .body(pdf);
     }
 
+    @GetMapping("/{id}/valider")
+    public ResponseEntity<GroupDTO> validateInsured(@PathVariable Long id){
+        GroupDTO groupDTO = groupService.activeGroup(id);
+        return ResponseEntity.status(HttpStatus.OK).body(groupDTO);
+    }
+
 
 
 }

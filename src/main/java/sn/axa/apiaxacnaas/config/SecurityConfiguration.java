@@ -33,9 +33,10 @@ class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .headers(headers -> headers
-                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
-                )
+        .headers(headers -> headers
+                .contentSecurityPolicy(csp -> csp
+                        .policyDirectives("frame-ancestors 'self' http://localhost:5173 http://172.20.90.39:82")
+                ))
                 .cors(Customizer.withDefaults())   // OBLIGATOIRE
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth

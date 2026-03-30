@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import sn.axa.apiaxacnaas.util.GroupStatus;
+import sn.axa.apiaxacnaas.util.InsuredStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -29,12 +31,24 @@ public class Group {
     private LocalDate dateOfBirth;
     private LocalDate subscriptionDate;
 
+    @Enumerated(EnumType.STRING)
+    private GroupStatus status;
+
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Insured> insureds = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", referencedColumnName = "id")
+    private User createdBy;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "validated_by", referencedColumnName = "id")
+    private User validatedBy;
+    private LocalDateTime validatedAt;
 
     @Column(updatable = false)
     @CreationTimestamp
