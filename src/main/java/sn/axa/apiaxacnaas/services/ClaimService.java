@@ -38,10 +38,6 @@ public class ClaimService {
             throw  new ResourceNotFoundException("Pas de sinistre car contrat n'est pas actif");
         }
 
-
-
-
-
         if(types==null || files.size() != types.size()) {
             throw new ResourceNotFoundException("Chaque document doit avoir un type");
         }
@@ -114,6 +110,15 @@ public class ClaimService {
         Claim existingClaim = claimRepository.findById(claimId)
                 .orElseThrow(() -> new ResourceNotFoundException("Sinistre avec cette  (id=" + claimId + ") est introuvable"));
         return claimMapper.toDTO(existingClaim);
+    }
+
+    public void deleteClaimById(Long claimId){
+        Claim existingClaim = claimRepository.findById(claimId)
+                .orElseThrow(()->new ResourceNotFoundException("Sinistre avec cette  (id=" + claimId + ") est introuvable"));
+        if(existingClaim.getStatus()==ClaimStatus.EN_COURS){
+            claimRepository.delete(existingClaim);
+        }
+
     }
 
     public List<ClaimDTO> getAllClaims(){

@@ -78,6 +78,12 @@ public class ClaimController {
         return ResponseEntity.status(HttpStatus.OK).body(claimDTO);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteClaimById(@PathVariable Long id){
+        claimService.deleteClaimById(id);
+        return ResponseEntity.status(HttpStatus.OK).body("Claim has been deleted");
+    }
+
 
 
 }

@@ -41,6 +41,7 @@ public class ClaimDocumentService {
 
             MultipartFile file = files.get(i);
             ClaimDocumentType type = documentTypes.get(i);
+            System.out.println("Type: " + type);
 
             String path = storageService.store(
                     file,

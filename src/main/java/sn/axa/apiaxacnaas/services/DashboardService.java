@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import sn.axa.apiaxacnaas.dto.ClaimMonthlyStatDTO;
 import sn.axa.apiaxacnaas.dto.DashboardMonthlyDTO;
 import sn.axa.apiaxacnaas.dto.InsuredMonthlyStatDTO;
+import sn.axa.apiaxacnaas.entities.Role;
+import sn.axa.apiaxacnaas.entities.User;
 import sn.axa.apiaxacnaas.repositories.ClaimRepository;
 import sn.axa.apiaxacnaas.repositories.InsuredRepository;
 
@@ -19,6 +21,7 @@ public class DashboardService {
     private final GroupService groupService;
     private final InsuredRepository insuredRepository;
     private final ClaimRepository claimRepository;
+    private final UserService userService;
 
     public Map<String, Object> getDashboardData(){
         Map<String, Object> returnValue = new LinkedHashMap<>();
@@ -36,33 +39,53 @@ public class DashboardService {
         return returnValue;
     }
     public List<DashboardMonthlyDTO>  getMonthlyStats() {
-        List<InsuredMonthlyStatDTO> dtoList = insuredRepository.countAllInsuredByMonth();
-        List<ClaimMonthlyStatDTO> claimList = claimRepository.countAllClaimsByMonth();
+        User currentUser = userService.getCurrentUser();
+        Role currentRole = currentUser.getRole();
+        List<ClaimMonthlyStatDTO> claimMonthlyStats = new ArrayList<>() ;
+        List<InsuredMonthlyStatDTO> insuredMonthlyStats= new ArrayList<>() ;
         Map<String, DashboardMonthlyDTO> map = new TreeMap<>();
-        for(InsuredMonthlyStatDTO item: dtoList){
-            String key = item.year()+"-"+item.month();
-            map.put(key, new DashboardMonthlyDTO(
-                    item.year(),
-                    item.month(),
-                    item.total(),
-                    0L
-            ));
+
+        if(currentRole.getName().name().equals("USER")){
+            insuredMonthlyStats = insuredRepository.countInsuredByMonthForCurrentuser(currentUser.getId());
+            claimMonthlyStats = claimRepository.countAllClaimsByMonthForCurrentUser(currentUser.getId());
 
         }
-        for(ClaimMonthlyStatDTO item : claimList){
-            String key = item.year()+"-"+item.month();
-            if(map.containsKey(key)){
+        else{
+            insuredMonthlyStats = insuredRepository.countAllInsuredByMonth();
+            claimMonthlyStats = claimRepository.countAllClaimsByMonth();
+        }
+
+
+        if(insuredMonthlyStats!=null){
+            for(InsuredMonthlyStatDTO item: insuredMonthlyStats){
+                String key = item.year()+"-"+item.month();
                 map.put(key, new DashboardMonthlyDTO(
                         item.year(),
                         item.month(),
-                        map.get(key).totalInsured(),
-                        item.total()
-
+                        item.total(),
+                        0L
                 ));
+
             }
-
-
         }
+
+        if(claimMonthlyStats!=null){
+            for(ClaimMonthlyStatDTO item : claimMonthlyStats){
+                String key = item.year()+"-"+item.month();
+                if(map.containsKey(key)){
+                    map.put(key, new DashboardMonthlyDTO(
+                            item.year(),
+                            item.month(),
+                            map.get(key).totalInsured(),
+                            item.total()
+
+                    ));
+                }
+
+
+            }
+        }
+
 
 
 

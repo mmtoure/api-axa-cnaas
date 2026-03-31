@@ -57,7 +57,7 @@ public interface ClaimRepository extends JpaRepository<Claim, Long> {
       EXTRACT(MONTH FROM c.createdAt)
     ORDER BY
       EXTRACT(YEAR FROM c.createdAt),
-      EXTRACT(MONTH FROM c.createdAt)
+      EXTRACT(MONTH FROM c.createdAt)                                           
     """)
     List<ClaimMonthlyStatDTO> countAllClaimsByMonthForCurrentUser(Long userId);
 
