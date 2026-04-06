@@ -4,19 +4,16 @@ import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import sn.axa.apiaxacnaas.dto.ContractDTO;
-import sn.axa.apiaxacnaas.dto.GroupDTO;
-import sn.axa.apiaxacnaas.dto.InsuredDTO;
-import sn.axa.apiaxacnaas.entities.Contract;
-import sn.axa.apiaxacnaas.entities.Group;
-import sn.axa.apiaxacnaas.entities.Insured;
+
+import sn.axa.apiaxacnaas.entities.*;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.repositories.GroupRepository;
 import sn.axa.apiaxacnaas.repositories.InsuredRepository;
@@ -24,13 +21,7 @@ import sn.axa.apiaxacnaas.repositories.InsuredRepository;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -44,15 +35,20 @@ public class ContractPdfService {
     private final GroupRepository groupRepository;
     private String logoAxaBase64;
     private String logoCnaasBase64;
+    private String logoLGBase64;
+    private final UserService userService;
 
     @PostConstruct
     public void init() throws IOException {
-
         byte[] logoBytesAxa = new ClassPathResource("static/images/logo-axa.png")
                 .getInputStream()
                 .readAllBytes();
 
         byte[] logoBytesCnaas = new ClassPathResource("static/images/logo-cnaas.png")
+                .getInputStream()
+                .readAllBytes();
+
+        byte[] logoBytesLG = new ClassPathResource("static/images/logo-lg.png")
                 .getInputStream()
                 .readAllBytes();
 
@@ -63,23 +59,45 @@ public class ContractPdfService {
         logoCnaasBase64 = Base64.getEncoder()
                 .encodeToString(logoBytesCnaas)
                 .replaceAll("\\s", "");
+
+        logoLGBase64 = Base64.getEncoder()
+                .encodeToString(logoBytesLG)
+                .replaceAll("\\s", "");
     }
 
     public byte[] generatePdfForInsured(Long id) throws IOException {
+        User currentUser = userService.getCurrentUser();
+        Partner currentPartner = currentUser.getPartner();
         Context context = new Context();
         Insured insured = insuredRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Insured not found"));
         Contract contract = insured.getContract();
         context.setVariable("insured", insured);
+        context.setVariable("partner", insured.getPartner());
         context.setVariable("contract", contract);
-        context.setVariable("logoAxa", "data:image/png;base64," + logoAxaBase64);
-        context.setVariable("logoCnaas", "data:image/png;base64," + logoCnaasBase64);
-        return generatePdf("contract", context);
+
+        byte[] generatePdf = null;
+        if(Objects.equals(currentPartner.getCode(), "CNAAS")){
+            context.setVariable("logoAxa", "data:image/png;base64," + logoAxaBase64);
+            context.setVariable("logoCnaas", "data:image/png;base64," + logoCnaasBase64);
+            generatePdf = generatePdf("contract", context);
+        }
+        if(Objects.equals(currentPartner.getCode(), "LG")) {
+            context.setVariable("logoAxa", "data:image/png;base64," + logoAxaBase64);
+            context.setVariable("logoLg", "data:image/png;base64," + logoLGBase64);
+            generatePdf= generatePdf("contract-lg", context);
+        }
+
+        return  generatePdf;
+
+
+
 
 
     }
 
     public byte[] generatePdfForGroup(Long id) throws IOException {
+
         Context context = new Context();
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No group found for insured id=" + id));
@@ -93,11 +111,10 @@ public class ContractPdfService {
         context.setVariable("logoAxa", "data:image/png;base64," + logoAxaBase64);
         context.setVariable("logoCnaas", "data:image/png;base64," + logoCnaasBase64);
         return generatePdf("contract-group", context);
-       
-
     }
 
     private byte[] generatePdf(String template, Context context) throws IOException {
+
         String htmlContent = templateEngine.process(template, context);
         try(ByteArrayOutputStream os = new ByteArrayOutputStream()){
             PdfRendererBuilder builder = new PdfRendererBuilder();

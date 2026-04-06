@@ -1,7 +1,10 @@
 package sn.axa.apiaxacnaas.services;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
@@ -46,6 +50,7 @@ public class InsuredService {
     @Value("${app.pdf.storage-path}")
     private String storagePath;
     private final NotificationService notificationService;
+    private final HibernateFilterService hibernateFilterService;
 
     public InsuredDTO createInsured(InsuredDTO insuredDTO){
         User currentUser = userService.getCurrentUser();
@@ -80,20 +85,13 @@ public class InsuredService {
         );
         return listInsureds.stream().map(insuredMapper::toDTO).toList();
     }
-    public Page<InsuredDTO> getInsureds(int page, int size){
-        Pageable pageable = PageRequest.of(page,size);
+
+    public List<InsuredDTO> getInsureds(){
+
         User currentUser = userService.getCurrentUser();
         RoleEnum roleAdmin = currentUser.getRole().getName();
-        Page<Insured> insuredPage;
-        if (roleAdmin.equals(RoleEnum.ADMIN)){
-            insuredPage = insuredRepository.findAllByOrderByCreatedAtDesc(pageable);
-        }
-        else {
-
-            insuredPage = insuredRepository.findByUserIdOrderByCreatedAtDesc(pageable, currentUser.getId());
-        }
-
-        return insuredPage.map(insuredMapper::toDTO);
+        List<Insured> insureds = insuredRepository.findAll();
+        return insureds.stream().map(insuredMapper::toDTO).toList();
 
     }
 
@@ -187,32 +185,18 @@ public class InsuredService {
 
     }
 
-
-
+    @Transactional
     public List<InsuredDTO> filter(LocalDate startDate, LocalDate endDate){
-        List<Insured> listInsureds = new ArrayList<>();
         User currentUser = userService.getCurrentUser();
-        if(currentUser.getRole().getName().equals(RoleEnum.USER)){
-            if(startDate != null && endDate != null) {
-                listInsureds = insuredRepository.findByUserIdAndSubscriptionDateBetween(currentUser.getId(),startDate, endDate);
+        hibernateFilterService.enablePartnerFilter(currentUser);
+        List<Insured> listInsureds;
 
-            }
-            else {
-                listInsureds = insuredRepository.findTop5ByUserIdOrderByCreatedAtDesc(currentUser.getId());
-            }
-
-        }
-        else {
-            if(startDate != null && endDate != null) {
-                listInsureds = insuredRepository.findBySubscriptionDateBetween(startDate, endDate);
-            }
-            else {
-                listInsureds = insuredRepository.findAll();
-            }
-
+        if(startDate != null && endDate != null) {
+            listInsureds = insuredRepository.findBySubscriptionDateBetween(startDate, endDate);
+        } else {
+            listInsureds = insuredRepository.findAll();
         }
         return listInsureds.stream().map(insuredMapper::toDTO).toList();
-
     }
 
     public InsuredDTO ActiveInsured(Long insuredId){

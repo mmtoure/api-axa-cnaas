@@ -45,4 +45,15 @@ public record UserDetailsImpl(User user) implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public Long getUserId() {
+        return user.getId();
+    }
+
+    public Long getPartnerId() {
+        return user.getPartner().getId();
+    }
+    public String getRole() {
+        return user.getRole().getName().name();
+    }
 }

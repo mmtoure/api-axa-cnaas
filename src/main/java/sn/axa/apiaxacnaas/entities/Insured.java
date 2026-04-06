@@ -1,9 +1,10 @@
 package sn.axa.apiaxacnaas.entities;
 
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Table;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.*;
 import sn.axa.apiaxacnaas.util.InsuredStatus;
 import sn.axa.apiaxacnaas.util.PartnerCategory;
 import sn.axa.apiaxacnaas.util.SubscriptionTypeEnum;
@@ -13,13 +14,16 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Table(name = "tbl_insureds")
+@Entity
+@FilterDef(name = "partnerFilter", parameters = @ParamDef(name = "partnerId", type = Long.class))
+@Filter(name = "partnerFilter", condition = "partner_id = :partnerId")
 public class Insured {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +35,9 @@ public class Insured {
     private String address;
     private LocalDate dateOfBirth;
     private LocalDate subscriptionDate;
+    private String identityCardNumber;
+    @Enumerated(EnumType.STRING)
+    private InsuredStatus insuredStatus;
 
     @Enumerated(EnumType.STRING)
     private SubscriptionTypeEnum subscriptionType;
@@ -71,9 +78,12 @@ public class Insured {
     @OneToMany(mappedBy = "insured", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Claim> claims = new HashSet<>();
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partner_id")
     private Partner partner;
+
+    @Column(name = "partner_id", insertable = false, updatable = false)
+    private Long partnerId;
 
     @Column(updatable = false)
     @CreationTimestamp

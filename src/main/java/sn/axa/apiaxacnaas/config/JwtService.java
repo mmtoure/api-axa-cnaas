@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import sn.axa.apiaxacnaas.entities.Partner;
+import sn.axa.apiaxacnaas.services.UserDetailsImpl;
 
 import java.security.Key;
 import java.util.Date;
@@ -42,6 +43,7 @@ public class JwtService {
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        UserDetailsImpl user = (UserDetailsImpl) userDetails;
         // Add roles as a custom claim
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -54,6 +56,7 @@ public class JwtService {
                 .toList();
         extraClaims.put("roles", roles);  // Key step: include roles in claims
         extraClaims.put("permissions", permissions);
+        extraClaims.put("partnerId", user.getPartnerId());
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
@@ -101,5 +104,8 @@ public class JwtService {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+    public Long extractPartnerId(String token) {
+        return extractClaim(token, claims -> claims.get("partnerId", Long.class));
     }
 }

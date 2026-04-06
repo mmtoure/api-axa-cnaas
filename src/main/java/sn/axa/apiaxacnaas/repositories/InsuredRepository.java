@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import sn.axa.apiaxacnaas.dto.InsuredMonthlyStatDTO;
 
 import sn.axa.apiaxacnaas.entities.Insured;
+import sn.axa.apiaxacnaas.entities.Partner;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -59,5 +60,8 @@ public interface InsuredRepository extends JpaRepository<Insured, Long> {
 
     List<Insured> findBySubscriptionDateBetween( LocalDate startDate, LocalDate endDate);
     List<Insured> findByUserIdAndSubscriptionDateBetween( Long userId, LocalDate startDate, LocalDate endDate);
+    List<Insured> findByUserIdAndPartnerIdOrderByCreatedAtDesc( Long userId, Long partnerId);
+    List<Insured> findByPartnerIdOrderByCreatedAtDesc(Long partnerId);
+
 
 }

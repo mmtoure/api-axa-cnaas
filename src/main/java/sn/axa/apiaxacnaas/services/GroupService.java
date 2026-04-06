@@ -53,23 +53,20 @@ public class GroupService {
         User currentUser = userService.getCurrentUser();
         Partner currentPartner = currentUser.getPartner();
         Group group = groupMapper.toEntity(groupDTO);
-        group.setUser(currentUser);
         group.setCreatedBy(currentUser);
+        group.setPartner(currentPartner);
         group.setSubscriptionDate(LocalDate.now());
         group.setStatus(GroupStatus.ACTIF);
         Set<Insured> insureds = parseExcel(file, group);
         Group savedGroup = groupRepository.save(group);
-
-
         if(!insureds.isEmpty()){
             insureds.forEach(insured -> {
                 insured.setGroup(savedGroup);
-                insured.setPartner(currentPartner);
                 insured.setStatus(InsuredStatus.ACTIF);
                 insured.setCreatedBy(currentUser);
                 insured.setSubscriptionType(SubscriptionTypeEnum.GROUPEMENT);
                 insured.setSubscriptionDate(LocalDate.now());
-                insured.setUser(currentUser);
+                insured.setPartner(currentPartner);
                 insured.setSubscriptionDate(LocalDate.now());
                 insuredRepository.save(insured);
                 contractService.createContract(insured);
@@ -90,7 +87,7 @@ public class GroupService {
         if(group.getInsureds()!=null){
             group.getInsureds().forEach(insured -> {
                 insured.setGroup(savedGroup);
-                insured.setPartner(currentPartner);
+
                 insured.setUser(currentUser);
                 insured.setStatus(InsuredStatus.ACTIF);
                 insured.setCreatedBy(currentUser);

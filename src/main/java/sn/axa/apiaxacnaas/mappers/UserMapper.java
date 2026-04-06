@@ -11,5 +11,6 @@ public interface UserMapper {
     @Mapping(source = "partner.id", target = "partnerId")
     @Mapping(source = "partner.name", target = "partnerName")
     UserDTO toDTO(User userEntity);
+
     User toEntity(UserCreateDTO userDTO);
 }

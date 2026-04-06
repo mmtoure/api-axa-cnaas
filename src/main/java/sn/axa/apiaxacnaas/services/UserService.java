@@ -39,6 +39,7 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final AgenceRepository agenceRepository;
     private final PartnerRepository partnerRepository;
+    private final HibernateFilterService hibernateFilterService;
 
 
     public UserDTO createUser(UserCreateDTO userDTO) {
@@ -101,6 +102,8 @@ public class UserService {
     }
 
     public List<UserDTO> getAllUsers(){
+        User currentUser = getCurrentUser();
+        hibernateFilterService.enablePartnerFilter(currentUser);
         List<User> users= userRepository.findAll();
         return users.stream().map(userMapper::toDTO).toList();
     }

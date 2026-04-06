@@ -44,6 +44,10 @@ public class Contract {
     @ManyToOne(optional = false)
     @JoinColumn(name = "partner_id")
     private Partner partner;
+
+    @Column(name = "partner_id", insertable = false, updatable = false)
+    private Long partnerId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;

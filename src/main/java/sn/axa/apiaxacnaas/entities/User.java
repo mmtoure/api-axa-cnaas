@@ -1,9 +1,9 @@
 package sn.axa.apiaxacnaas.entities;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.*;
 import sn.axa.apiaxacnaas.util.PartenaireEnum;
 
 import java.time.LocalDate;
@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Table(name = "tbl_users")
+
+@Filter(name = "partnerFilter", condition = "partner_id = :partnerId")
 public class User {
 
     @Id

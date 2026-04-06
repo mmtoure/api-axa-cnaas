@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Fiche adhésion assuré</title>
+    <style>
+        @page {
+           size: A4;
+           margin: 2cm 1.5cm 2.5cm 1.5cm;
+       }
+      .page-break {
+            page-break-before: always;
+        }
+       body {
+           font-family: Arial, sans-serif;
+           font-size: 12px;
+       }
+       .header {
+           text-align: center;
+           font-size: 18px;
+           font-weight: bold;
+           margin-bottom: 30px;
+           border: 2px solid black;
+          padding: 10px;
+          border-radius: 10px;
+       }
+       .title-table {
+           text-align: center;
+           margin-bottom: 10px;
+       }
+       table {
+           width: 100%;
+           border-collapse: collapse;
+       }
+       td, th {
+           border: 1px solid #ccc;
+           padding: 6px;
+       }
+       .section {
+           margin-top: 15px;
+           font-weight: bold;
+       }
+       .logo {
+
+       margin-bottom: 80px;
+       }
+      .logo-axa {
+          float: right;
+       }
+
+       .logo-cnaas {
+          float: left;
+       }
+       .date-contrat {
+       float: right;
+
+       }
+
+      .signature {
+       margin-top: 100px;
+       }
+      .signature-assure {
+          float: left;
+       }
+
+       .signature-assureur {
+          float: right;
+       }
+    </style>
+</head>
+<body>
+<div class="logo">
+    <div class="logo-axa">
+        <img th:src="${logoLg}" alt="logo LG" style="height:60px"/>
+
+    </div>
+    <div class="logo-cnaas">
+        <img th:src="${logoAxa}" alt="logo AXA" style="height:60px"/>
+    </div>
+</div>
+<div class="container">
+    <div class="header ">
+        BULLETIN D’ADHESION INDIVIDUEL <br/> ASSURANCE SANTE FAGARU
+    </div>
+    <p><strong>Entre AXA SENEGAL, sis 5 Place de l’Indépendance DAKAR </strong> avec délégation de signature spécialement donnée aux fins des présentes à la LG, <strong>sis à DAKAR à Rue Mz 56 Lot 23 Vdn Liberté 6 Ext Villa N*6</strong>, Ci-après dénommé l’Assureur, d’une part,</p>
+    <p> *Prénoms et Nom de l’assuré : <strong><span th:text="${insured.firstName + ' ' + insured.lastName}"></span></strong></p>
+    <p> *Date et lieu de naissance : <strong><span th:text="${#temporals.format(insured.dateOfBirth, 'dd MMMM yyyy')}"></span></strong> </p>
+    <p> *Téléphone(s): <strong><span th:text="${insured.phoneNumber}"></span></strong></p>
+    <p>Ci-après dénommé l’Adhérent, d’autre part.</p>
+    <p>Le présent Bulletin d’Adhésion est établi à effet du  <strong><span th:text="${#temporals.format(contract.startDate, 'dd MMMM yyyy')}"></span></strong> Au <strong><span th:text="${#temporals.format(contract.endDate, 'dd MMMM yyyy')}"></span></strong> </p>
+    <p>Conformément aux dispositions du Code CIMA pour garantir l’Adhérent à la police souscrite contre les risques énoncés ci-après : </p>
+    <ul>
+        <strong><li>Hospitalisation</li></strong>
+        <strong><li>Capital funéraire</li></strong>
+    </ul>
+    <div th:if="${insured.beneficiary != null}">
+        <p><u><strong><i>Informations</i> du bénéficiaire :</strong></u></p>
+        <p>*Bénéficiaire désigné en cas de décès accidentel : <strong><span th:text="${insured.beneficiary.firstName + ' ' + insured.beneficiary.lastName}"></span></strong></p>
+        <p>*Date et lieu de naissance : <strong><span th:text="${#temporals.format(insured.beneficiary.dateOfBirth, 'dd MMMM yyyy')}"></span></strong></p>
+        <p>*Téléphone:  <strong><span th:text="${insured.beneficiary.phoneNumber}"></span></strong></p>
+    </div>
+    <div class="mt-4">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>CATEGORIE</th>
+                <th>PRIME NETTE HT</th>
+                <th>ACCESSOIRES</th>
+                <th>TAXES</th>
+                <th>PRIME TTC</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td th:text="${insured.category}"></td>
+                <td th:text="${#numbers.formatDecimal(contract.montantPrime,1,0)}">3610</td>
+                <td th:text="${#numbers.formatDecimal(contract.accessoryCost,1,0)}">200</td>
+                <td th:text="${#numbers.formatDecimal(contract.tax,1,0)}">190</td>
+                <td th:text="${#numbers.formatDecimal(contract.montantPrimeTTC,1,0)}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p style="margin-bottom: 20px; margin-top: 20px" class="date-contrat">Fait à Dakar, le <span th:text="${#temporals.format(insured.subscriptionDate, 'dd MMMM yyyy')}"></span></p>
+    <div class="signature">
+        <div class="signature-assureur">
+            <i><strong>L’ASSUREUR</strong></i><br/>
+            <i><strong>Avec mention ‘’Lu et approuvé’’</strong></i><br/>
+        </div>
+        <div class="signature-assure">
+            <i><strong>L’ASSURE</strong></i><br/>
+            <i><strong>Par délégation à LG</strong></i><br/>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,11 +1,9 @@
 package sn.axa.apiaxacnaas.repositories;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import sn.axa.apiaxacnaas.dto.ClaimDTO;
 import sn.axa.apiaxacnaas.dto.ClaimMonthlyStatDTO;
-import sn.axa.apiaxacnaas.dto.InsuredMonthlyStatDTO;
-import sn.axa.apiaxacnaas.dto.SimpleClaimDTO;
 import sn.axa.apiaxacnaas.entities.Claim;
 
 import java.util.List;
@@ -13,9 +11,8 @@ import java.util.Optional;
 
 public interface ClaimRepository extends JpaRepository<Claim, Long> {
 
-    @Query(value = "SELECT  nextval ('claim_seq')",nativeQuery = true)
-    Long getNextSequence();
-    List<Claim> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    List<Claim> findByUserIdOrderByCreatedAtDesc(Long userId, Sort createdAt);
     List<Claim> findTop5ByUserIdOrderByCreatedAtDesc(Long userId);
 
     @Query("SELECT COUNT(c) FROM Claim c WHERE c.status = 'EN_COURS'")

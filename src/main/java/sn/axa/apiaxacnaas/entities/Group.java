@@ -42,6 +42,13 @@ public class Group {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "partner_id")
+    private Partner partner;
+
+    @Column(name = "partner_id", insertable = false, updatable = false)
+    private Long partnerId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", referencedColumnName = "id")
     private User createdBy;
 

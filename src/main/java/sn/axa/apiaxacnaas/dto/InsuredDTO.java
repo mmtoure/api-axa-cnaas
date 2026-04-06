@@ -2,7 +2,9 @@ package sn.axa.apiaxacnaas.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Column;
 import lombok.*;
+import sn.axa.apiaxacnaas.entities.BaseEntity;
 import sn.axa.apiaxacnaas.entities.Group;
 import sn.axa.apiaxacnaas.entities.User;
 import sn.axa.apiaxacnaas.util.InsuredStatus;
@@ -28,6 +30,9 @@ public class InsuredDTO {
     private PartnerCategory category;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate subscriptionDate;
+
+    @Column(unique = true, nullable = true)
+    private String identityCardNumber;
     private SubscriptionTypeEnum subscriptionType;
     private LocalDate dateOfBirth;
     private BeneficiaryDTO beneficiary;
@@ -35,7 +40,6 @@ public class InsuredDTO {
     private Long groupId;
     private String groupName;
     private UserDTO user;
-    private PartnerDTO partner;
     private Long partnerId;
     private String partnerName;
     private ContractDTO contract;

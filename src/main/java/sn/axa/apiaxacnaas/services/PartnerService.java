@@ -2,6 +2,8 @@ package sn.axa.apiaxacnaas.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sn.axa.apiaxacnaas.dto.PartnerDTO;
@@ -81,6 +83,14 @@ public class PartnerService {
         Partner partner = partnerRepository.findById(partnerId)
                 .orElseThrow(()-> new ResourceNotFoundException("Partenaire not found"));
         return partnerMapper.toDTO(partner);
+    }
+
+    public Long getCurrentUserPartnerId(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof UserDetailsImpl userDetails)) {
+            return null;
+        }
+        return  userDetails.getPartnerId();
     }
 
 }

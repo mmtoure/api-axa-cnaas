@@ -8,11 +8,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import sn.axa.apiaxacnaas.services.HibernateFilterService;
+import sn.axa.apiaxacnaas.services.UserDetailsImpl;
 
 import java.io.IOException;
 
@@ -22,26 +24,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
     private final JwtService jwtService;
+    private final HibernateFilterService hibernateFilterService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
+        Long partnerId = null;
         String email = null;
         String jwtToken = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwtToken = authHeader.substring(7);
             email = jwtService.extractUsername(jwtToken);
+            partnerId = jwtService.extractPartnerId(jwtToken);
+
         }
         if(email!=null && SecurityContextHolder.getContext().getAuthentication()==null){
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+           // UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            UserDetailsImpl userDetails =
+                    (UserDetailsImpl) userDetailsService.loadUserByUsername(email);
+
             if(jwtService.isTokenValid(jwtToken, userDetails)){
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                if (!partnerId.equals(userDetails.getPartnerId())) {
+                    throw new RuntimeException("Invalid partner access");
+                }
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
                 authentication.setDetails(new WebAuthenticationDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
         }
         filterChain.doFilter(request, response);
+
 
     }
 }

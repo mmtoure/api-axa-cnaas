@@ -42,11 +42,10 @@ public class InsuredController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<InsuredDTO>> getInsureds(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+    public ResponseEntity<List<InsuredDTO>> getInsureds(
+
     ) {
-        return ResponseEntity.ok(insuredService.getInsureds(page, size));
+        return ResponseEntity.ok(insuredService.getInsureds());
     }
 
 

@@ -33,10 +33,10 @@ public class ClaimDTO {
     private Long numberNuitsHospitalisation;
     private List<ClaimDocument> claimDocuments;
     private Long insuredId;
+    private Long partnerId;
     private String firstName;
     private String lastName;
     private String phoneNumber;
-    private UserDTO user;
     private UserDTO validatedBy;
     private UserDTO paidBy;
     private UserDTO createdBy;

@@ -27,6 +27,4 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
     Page<Contract> findByUserIdOrderByCreatedAtDesc(Pageable pageable, Long userId);
 
 
-
-
 }

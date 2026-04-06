@@ -29,6 +29,7 @@ public class ClaimService {
     private final UserService userService;
     private final ClaimHistoryService claimHistoryService;
     private final NotificationService notificationService;
+    private final HibernateFilterService hibernateFilterService;
 
     public ClaimDTO createClaim(ClaimDTO claimDTO, List<MultipartFile> files, List<ClaimDocumentType> types) throws IOException {
         Insured insured = insuredRepository.findById(claimDTO.getInsuredId())
@@ -61,6 +62,8 @@ public class ClaimService {
 
     public List<ClaimDTO> createAllClaims(CreateAllClaimsDTO dto, List<MultipartFile> files, List<ClaimDocumentType> types,List<String> claimTypes ) {
         User currentUser = userService.getCurrentUser();
+        Partner currentPartner = currentUser.getPartner();
+        System.out.println("Partner"+currentPartner.getId());
         Insured insured = insuredRepository.findById(dto.getInsuredId())
                 .orElseThrow(()->new ResourceNotFoundException("Assure n'existe pas"));
         Contract contract = insured.getContract();
@@ -73,9 +76,8 @@ public class ClaimService {
             System.out.println(claimDTO.getSinisterType());
             Claim newClaim = new Claim();
             newClaim.setInsured(insured);
-            newClaim.setUser(currentUser);
+            newClaim.setPartner(currentPartner);
             newClaim.setCreatedBy(currentUser);
-            newClaim.setValidatedBy(currentUser);
             newClaim.setNumeroSinistre(generateNumeroSinistre());
             newClaim.setStatus(ClaimStatus.EN_COURS);
             newClaim.setHospitalizationStartDate(claimDTO.getHospitalizationStartDate());
@@ -118,28 +120,20 @@ public class ClaimService {
         if(existingClaim.getStatus()==ClaimStatus.EN_COURS){
             claimRepository.delete(existingClaim);
         }
+        else {
+            throw new RuntimeException("Suppression pas possible siniste validé");
+        }
 
     }
 
     public List<ClaimDTO> getAllClaims(){
         User currentUser = userService.getCurrentUser();
-        RoleEnum roleAdmin = currentUser.getRole().getName();
-        List<Claim> claims;
-        if(roleAdmin.equals(RoleEnum.ADMIN)){
-            claims = claimRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
-        }
-        else {
-            claims = claimRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId());
-
-        }
-
+        hibernateFilterService.enablePartnerFilter(currentUser);
+        List<Claim> claims=claimRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
         return claims.stream().map(claimMapper::toDTO).toList();
     }
 
-    public String generateNumeroSinistre1(){
-        Long seq = claimRepository.getNextSequence();
-        return "SIN-" + Year.now().getValue()+ "-" +String.format("%06d",seq);
-    }
+
 
     private String generateNumeroSinistre(){
         int year = LocalDate.now().getYear();

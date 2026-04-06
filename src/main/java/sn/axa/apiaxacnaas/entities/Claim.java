@@ -3,6 +3,7 @@ package sn.axa.apiaxacnaas.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.UpdateTimestamp;
 import sn.axa.apiaxacnaas.util.ClaimStatus;
 import sn.axa.apiaxacnaas.util.GarantieEnum;
@@ -19,6 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Table(name = "tbl_claims")
+@Filter(name = "partnerFilter", condition = "partner_id = :partnerId")
 public class Claim {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,6 +54,13 @@ public class Claim {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "partner_id")
+    private Partner partner;
+
+    @Column(name = "partner_id", insertable = false, updatable = false)
+    private Long partnerId;
 
     @Column(updatable = false)
     @CreationTimestamp
