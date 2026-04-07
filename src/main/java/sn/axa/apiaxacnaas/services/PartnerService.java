@@ -33,8 +33,6 @@ public class PartnerService {
 
     @Value("${file.upload-dir}")
     private String uploadDir;
-
-
     public PartnerDTO createPartner(PartnerDTO partnerDTO, MultipartFile logoPartner) throws IOException {
         Partner partner = partnerMapper.toEntity(partnerDTO);
         if(logoPartner != null){
@@ -47,14 +45,10 @@ public class PartnerService {
             Files.copy(logoPartner.getInputStream(), filePath,
                     StandardCopyOption.REPLACE_EXISTING);
             partner.setLogoPartner("/uploads/partners/"+fileName);
-
         }
         partner.setActive(true);
         Partner savedPartner = partnerRepository.save(partner);
         return partnerMapper.toDTO(savedPartner);
-
-
-
     }
 
     public PartnerDTO createPartner( PartnerDTO partnerDTO){

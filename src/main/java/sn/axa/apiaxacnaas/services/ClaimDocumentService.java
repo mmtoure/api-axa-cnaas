@@ -15,8 +15,13 @@ import sn.axa.apiaxacnaas.repositories.ClaimRepository;
 import sn.axa.apiaxacnaas.util.ClaimDocumentType;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -43,22 +48,29 @@ public class ClaimDocumentService {
             ClaimDocumentType type = documentTypes.get(i);
             System.out.println("Type: " + type);
 
-            String path = storageService.store(
-                    file,
-                    "claims/" + claim.getId()
-            );
 
-            ClaimDocument doc = ClaimDocument.builder()
-                    .claim(claim)
-                    .fileName(file.getOriginalFilename())
-                    .fileType(file.getContentType())
-                    .fileSize(file.getSize())
-                    .filePath(path)
-                    .type(type)
-                    .createdAt(LocalDateTime.now())
-                    .build();
+            if(file != null){
+                String fileName = claim.getNumeroSinistre()+"_"+file.getOriginalFilename();
+                Path uploadPath = Paths.get(uploadDir, "claims");
+                if(!Files.exists(uploadPath)){
+                    Files.createDirectories(uploadPath);
+                }
+                Path filePath = uploadPath.resolve(fileName);
+                Files.copy(file.getInputStream(), filePath,
+                        StandardCopyOption.REPLACE_EXISTING);
+                ClaimDocument doc = ClaimDocument.builder()
+                        .claim(claim)
+                        .fileName(file.getOriginalFilename())
+                        .fileType(file.getContentType())
+                        .fileSize(file.getSize())
+                        .filePath("/uploads/claims/"+fileName)
+                        .type(type)
+                        .createdAt(LocalDateTime.now())
+                        .build();
 
-            claimDocumentRepository.save(doc);
+                claimDocumentRepository.save(doc);
+            }
+
         }
     }
 
@@ -66,21 +78,28 @@ public class ClaimDocumentService {
         Claim claim = claimRepository.findById(claimId)
                 .orElseThrow(() -> new ResourceNotFoundException("Claim introuvable"));
         try {
-            String path = storageService.store(
-                    file,
-                    "claims/" + claim.getId()
-            );
-            ClaimDocument doc = ClaimDocument.builder()
-                    .claim(claim)
-                    .fileName(file.getOriginalFilename())
-                    .fileType(file.getContentType())
-                    .fileSize(file.getSize())
-                    .filePath(path)
-                    .type(type)
-                    .createdAt(LocalDateTime.now())
-                    .build();
+            if(file != null){
+                String fileName = claim.getNumeroSinistre()+"_"+ UUID.randomUUID() + "_" + file.getOriginalFilename();
 
-            claimDocumentRepository.save(doc);
+                Path uploadPath = Paths.get(uploadDir, "claims");
+                if(!Files.exists(uploadPath)){
+                    Files.createDirectories(uploadPath);
+                }
+                Path filePath = uploadPath.resolve(fileName);
+                Files.copy(file.getInputStream(), filePath,
+                        StandardCopyOption.REPLACE_EXISTING);
+                ClaimDocument doc = ClaimDocument.builder()
+                        .claim(claim)
+                        .fileName(file.getOriginalFilename())
+                        .fileType(file.getContentType())
+                        .fileSize(file.getSize())
+                        .filePath("/uploads/claims/"+fileName)
+                        .type(type)
+                        .createdAt(LocalDateTime.now())
+                        .build();
+
+                claimDocumentRepository.save(doc);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
