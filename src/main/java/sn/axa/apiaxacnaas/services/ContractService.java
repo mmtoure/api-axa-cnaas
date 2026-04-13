@@ -101,13 +101,7 @@ public class ContractService {
         User currentUser = userService.getCurrentUser();
         RoleEnum roleAdmin = currentUser.getRole().getName();
         Page<Contract> contractPage = null;
-        if(roleAdmin.equals(RoleEnum.ADMIN)){
             contractPage = contractRepository.findAllByOrderByCreatedAtDesc(pageable);
-        }
-        else{
-            contractPage = contractRepository.findByUserIdOrderByCreatedAtDesc(pageable, currentUser.getId());
-        }
-
         return contractPage.map(contractMapper::toDTO);
 
     }

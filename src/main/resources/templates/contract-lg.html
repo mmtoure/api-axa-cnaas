@@ -82,7 +82,7 @@
     <div class="header ">
         BULLETIN D’ADHESION INDIVIDUEL <br/> ASSURANCE SANTE FAGARU
     </div>
-    <p><strong>Entre AXA SENEGAL, sis 5 Place de l’Indépendance DAKAR </strong> avec délégation de signature spécialement donnée aux fins des présentes à la LG, <strong>sis à DAKAR à Rue Mz 56 Lot 23 Vdn Liberté 6 Ext Villa N*6</strong>, Ci-après dénommé l’Assureur, d’une part,</p>
+
     <p> *Prénoms et Nom de l’assuré : <strong><span th:text="${insured.firstName + ' ' + insured.lastName}"></span></strong></p>
     <p> *Date et lieu de naissance : <strong><span th:text="${#temporals.format(insured.dateOfBirth, 'dd MMMM yyyy')}"></span></strong> </p>
     <p> *Téléphone(s): <strong><span th:text="${insured.phoneNumber}"></span></strong></p>
@@ -93,30 +93,33 @@
         <strong><li>Hospitalisation</li></strong>
         <strong><li>Capital funéraire</li></strong>
     </ul>
+    <br />
+    <br />
     <div th:if="${insured.beneficiary != null}">
-        <p><u><strong><i>Informations</i> du bénéficiaire :</strong></u></p>
+        <p><u><strong><i>Informations du bénéficiaire en cas de décès</i>:</strong></u></p>
         <p>*Bénéficiaire désigné en cas de décès accidentel : <strong><span th:text="${insured.beneficiary.firstName + ' ' + insured.beneficiary.lastName}"></span></strong></p>
         <p>*Date et lieu de naissance : <strong><span th:text="${#temporals.format(insured.beneficiary.dateOfBirth, 'dd MMMM yyyy')}"></span></strong></p>
         <p>*Téléphone:  <strong><span th:text="${insured.beneficiary.phoneNumber}"></span></strong></p>
     </div>
+    <br />
+    <br />
     <div class="mt-4">
+        <div class="title-table">
+            DECOMPTE DE LA PRIME (en FCFA)
+        </div>
         <table class="table table-striped">
             <thead>
             <tr>
                 <th>CATEGORIE</th>
-                <th>PRIME NETTE HT</th>
-                <th>ACCESSOIRES</th>
-                <th>TAXES</th>
-                <th>PRIME TTC</th>
+                <th>HOSPITALISATION</th>
+                <th>CAPITAL FUNERAIRE</th>
             </tr>
             </thead>
             <tbody>
             <tr>
                 <td th:text="${insured.category}"></td>
-                <td th:text="${#numbers.formatDecimal(contract.montantPrime,1,0)}">3610</td>
-                <td th:text="${#numbers.formatDecimal(contract.accessoryCost,1,0)}">200</td>
-                <td th:text="${#numbers.formatDecimal(contract.tax,1,0)}">190</td>
                 <td th:text="${#numbers.formatDecimal(contract.montantPrimeTTC,1,0)}"></td>
+                <td th:text="${#numbers.formatDecimal(contract.capitalMax,1,0)}"></td>
             </tr>
             </tbody>
         </table>

@@ -45,15 +45,9 @@ public class DashboardService {
         List<InsuredMonthlyStatDTO> insuredMonthlyStats= new ArrayList<>() ;
         Map<String, DashboardMonthlyDTO> map = new TreeMap<>();
 
-        if(currentRole.getName().name().equals("USER")){
-            insuredMonthlyStats = insuredRepository.countInsuredByMonthForCurrentuser(currentUser.getId());
-            claimMonthlyStats = claimRepository.countAllClaimsByMonthForCurrentUser(currentUser.getId());
 
-        }
-        else{
             insuredMonthlyStats = insuredRepository.countAllInsuredByMonth();
             claimMonthlyStats = claimRepository.countAllClaimsByMonth();
-        }
 
 
         if(insuredMonthlyStats!=null){

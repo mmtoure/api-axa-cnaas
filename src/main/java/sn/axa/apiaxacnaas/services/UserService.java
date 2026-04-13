@@ -50,7 +50,16 @@ public class UserService {
         User userEntity = userMapper.toEntity(userDTO);
         Agence agence = agenceRepository.findById(1L)
                 .orElseThrow(()->new RuntimeException("Agence not found"));
-        userEntity.setPassword(passwordEncoder.encode("axa@2026"));
+        if(partner.getCode().trim().equals("CNAAS")){
+            userEntity.setPassword(passwordEncoder.encode("cnaas@2026"));
+        }
+        else if(partner.getCode().trim().equals("LG")){
+            userEntity.setPassword(passwordEncoder.encode("lg@2026"));
+        }
+        else {
+            userEntity.setPassword(passwordEncoder.encode("axa@2026"));
+        }
+
         userEntity.setRole(role);
         userEntity.setAgence(agence);
         userEntity.setPartner(partner);

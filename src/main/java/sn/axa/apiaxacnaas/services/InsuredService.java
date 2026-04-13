@@ -172,15 +172,7 @@ public class InsuredService {
     }
 
     public Long getNbInsureds(){
-        User currentUser = userService.getCurrentUser();
-        RoleEnum roleAdmin = currentUser.getRole().getName();
-        Long nbInsureds = 0L;
-        if(roleAdmin.equals(RoleEnum.ADMIN)){
-            nbInsureds = insuredRepository.countAllInsureds();
-        }
-        else {
-            nbInsureds = insuredRepository.countInsuredsForCurrentUser(currentUser.getId());
-        }
+        Long nbInsureds = insuredRepository.countAllInsureds();
         return nbInsureds;
 
     }

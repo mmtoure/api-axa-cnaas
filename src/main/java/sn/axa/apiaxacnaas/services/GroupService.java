@@ -190,9 +190,7 @@ public class GroupService {
     }
 
     private Set<Insured> parseExcel(MultipartFile file, Group group) {
-
-
-
+        User currentUser = userService.getCurrentUser();
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Set<Insured> insureds = new HashSet<>();
             Sheet sheet = workbook.getSheetAt(0);
@@ -211,6 +209,7 @@ public class GroupService {
                 insured.setDateOfBirth(getCellValueAsLocalDate(row.getCell(2)));
                 insured.setPhoneNumber(getCellValueAsString(row.getCell(3)));
                 insured.setCreatedAt(LocalDateTime.now());
+                insured.setCreatedBy(currentUser);
                 insured.setBeneficiary(ben);
                 insureds.add(insured);
             }
@@ -287,9 +286,7 @@ public class GroupService {
         String logoAxaBase64 = Base64.getEncoder().encodeToString(logoBytesAxa);
 
         context.setVariable("logoAxa", "data:image/png;base64," + logoAxaBase64);
-
         context.setVariable("logoCnaas", "data:image/png;base64," + logoCnaasBase64);
-
         context.setVariable("group", group);
         context.setVariable("contract", contract);
         String fileName = "contract_group" + contract.getId() + ".pdf";
@@ -310,14 +307,7 @@ public class GroupService {
     }
     public List<GroupDTO> getGroups(){
         User currentUser = userService.getCurrentUser();
-       List<Group> groupList = new ArrayList<>();
-        if(currentUser.getRole().getName().equals(RoleEnum.USER)){
-            groupList = groupRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId());
-        }
-        else{
-            groupList = groupRepository.findAll();
-        }
-
+       List<Group> groupList = groupRepository.findAll();
         return groupList.stream().map(groupMapper::toDTO).toList();
 
     }
@@ -325,13 +315,7 @@ public class GroupService {
     public Long getNbGroups(){
         User currentUser = userService.getCurrentUser();
         RoleEnum roleAdmin = currentUser.getRole().getName();
-        Long nbGroups;
-        if(roleAdmin.equals(RoleEnum.ADMIN)){
-            nbGroups = groupRepository.countAllGroups();
-        }
-        else {
-            nbGroups = groupRepository.countGroupsForCurrentUser(currentUser.getId());
-        }
+        Long nbGroups = groupRepository.countAllGroups();
         return nbGroups;
 
     }
@@ -343,7 +327,6 @@ public class GroupService {
         existingGroup.setValidatedBy(currentUser);
         existingGroup.setValidatedAt(LocalDateTime.now());
         existingGroup.setStatus(GroupStatus.ACTIF);
-
         existingGroup.getInsureds().forEach(insured -> {
             if(insured.getStatus()==InsuredStatus.EN_ATTENTE){
                 insured.setValidatedBy(currentUser);
@@ -353,9 +336,6 @@ public class GroupService {
         });
         groupRepository.save(existingGroup);
         return groupMapper.toDTO(existingGroup);
-
-
-
     }
 
 

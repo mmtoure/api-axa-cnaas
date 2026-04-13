@@ -25,14 +25,14 @@ public class DataSeeder implements CommandLineRunner {
         Role roleAdmin = roleService.CreateRoleIfNotExist(RoleEnum.ADMIN);
         Role roleUser = roleService.CreateRoleIfNotExist(RoleEnum.USER);
         Role roleManger = roleService.CreateRoleIfNotExist(RoleEnum.MANAGER);
-        Partner partner = partnerService.createPartnerIfNotExist("CNAAS", "CNAAS Sénégal");
+        Partner partner = partnerService.createPartnerIfNotExist("AXA", "AXA");
         Agence agence = agenceService.createAgenceIfNotExist("Dakar", VilleEnum.DAKAR);
         userService.createAdminIfNotExists(
                 "Admin",
                 "Admin",
-                "admin@cnaas.sn",
-                "cnaas@2026",
-                "775505050",
+                "admin@axa.sn",
+                "Axa@2026",
+                "774544351",
                 partner,
                 roleAdmin,
                 agence

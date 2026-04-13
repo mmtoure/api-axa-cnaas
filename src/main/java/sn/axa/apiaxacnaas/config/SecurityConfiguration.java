@@ -37,13 +37,12 @@ class SecurityConfiguration {
                 .contentSecurityPolicy(csp -> csp
                         .policyDirectives("frame-ancestors 'self' http://localhost:5173 http://172.20.90.39:82")
                 ))
-                .cors(Customizer.withDefaults())   // OBLIGATOIRE
+                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
                         .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/v3/**").permitAll()
-                        .requestMatchers("/api/files/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/create-user", "/create-admin", "/register", "/activate", "/login", "/admin", "/users", "/create-chef-zone", "/status").permitAll()

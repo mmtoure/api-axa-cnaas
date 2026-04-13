@@ -193,15 +193,8 @@ public class ClaimService {
     }
 
     public Long getNbOpenClaim(){
-        User currentUser = userService.getCurrentUser();
-        RoleEnum roleAdmin = currentUser.getRole().getName();
-        Long nbOpenClaims ;
-        if(roleAdmin.equals(RoleEnum.ADMIN)){
-            nbOpenClaims = claimRepository.countOpenClaims();
-        }
-        else {
-            nbOpenClaims = claimRepository.countOpenClaimsForCurrentUser(currentUser.getId());
-        }
+
+        Long nbOpenClaims = claimRepository.countOpenClaims();
         return nbOpenClaims;
     }
 

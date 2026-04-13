@@ -137,14 +137,24 @@ public class ContractPdfService {
 
 
     private byte[] mergeWithConditions(byte[] contractPdf) throws Exception {
+        Partner currentPartner = userService.getCurrentUser().getPartner();
 
         PDFMergerUtility merger = new PDFMergerUtility();
         ByteArrayOutputStream mergedOutput = new ByteArrayOutputStream();
         merger.addSource(new ByteArrayInputStream(contractPdf));
-        merger.addSource(
-                new ClassPathResource("/static/pdf/complement_contrat_cnaas.pdf")
-                        .getInputStream()
-        );
+        if(Objects.equals(currentPartner.getCode(), "CNAAS")) {
+            merger.addSource(
+                    new ClassPathResource("/static/pdf/complement_contrat_cnaas.pdf")
+                            .getInputStream()
+            );
+        }
+
+        if(Objects.equals(currentPartner.getCode(), "LG")) {
+            merger.addSource(
+                    new ClassPathResource("/static/pdf/complement_bulletin_LG.pdf")
+                            .getInputStream()
+            );
+        }
 
         merger.setDestinationStream(mergedOutput);
         merger.mergeDocuments(null);
