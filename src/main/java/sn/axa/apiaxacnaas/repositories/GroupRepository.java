@@ -17,4 +17,7 @@ public interface GroupRepository extends JpaRepository<Group,Long> {
 
     @Query("SELECT COUNT(g) FROM Group g WHERE g.user.id =:userId")
     Long countGroupsForCurrentUser(Long userId);
+
+    List<Group> findByAgenceId(Long agenceId);
+    List<Group> findByZoneId(Long zoneId);
 }

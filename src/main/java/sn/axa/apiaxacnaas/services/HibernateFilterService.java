@@ -17,7 +17,7 @@ public class HibernateFilterService {
 
     public void enablePartnerFilter(User currentUser) {
         Session session = entityManager.unwrap(Session.class);
-        if(currentUser==null || currentUser.getRole().getName().equals(RoleEnum.ADMIN)){
+        if(currentUser==null || currentUser.getRole().getName().equals(RoleEnum.SUPER_ADMIN)){
             return;
         }
         if(currentUser.getPartner().getId()!=null){
@@ -27,7 +27,7 @@ public class HibernateFilterService {
 
     public void enableUserFilter(User currentUser) {
         Session session = entityManager.unwrap(Session.class);
-        if(currentUser==null || currentUser.getRole().getName().equals(RoleEnum.ADMIN)){
+        if(currentUser==null || currentUser.getRole().getName().equals(RoleEnum.SUPER_ADMIN)){
             return;
         }
         if(currentUser.getId()!=null){

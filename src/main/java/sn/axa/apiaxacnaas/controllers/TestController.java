@@ -15,6 +15,8 @@ import sn.axa.apiaxacnaas.dto.ContractDTO;
 import sn.axa.apiaxacnaas.dto.GroupDTO;
 import sn.axa.apiaxacnaas.services.GroupService;
 
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 public class TestController {
@@ -25,8 +27,11 @@ public class TestController {
             value = "/uploadExcel",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-    public ResponseEntity<?> uploadFileExcel(@RequestPart("group") GroupDTO groupDTO, @RequestPart("file") MultipartFile file) {
-        return ResponseEntity.status(HttpStatus.OK).body(groupService.subscribeGroup(groupDTO,file));
+    public ResponseEntity<?> uploadFileExcel(
+            @RequestPart("group") GroupDTO groupDTO,
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("proofPayment")  MultipartFile proofPayment) throws IOException {
+        return ResponseEntity.status(HttpStatus.OK).body(groupService.subscribeGroup(groupDTO,file,proofPayment));
 
     }
 }

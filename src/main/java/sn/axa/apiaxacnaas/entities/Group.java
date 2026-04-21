@@ -64,5 +64,13 @@ public class Group {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @ManyToOne
+    private Zone zone;
+
+    @ManyToOne
+    private Agence agence;
+
+    private String proofPayment;
+
 
 }

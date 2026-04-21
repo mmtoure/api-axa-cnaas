@@ -45,6 +45,8 @@ public class Insured {
     @Enumerated(EnumType.STRING)
     private InsuredStatus status;
 
+    private String proofPayment;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id", referencedColumnName = "id")
@@ -91,4 +93,9 @@ public class Insured {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+    @ManyToOne
+    private Zone zone;
+
+    @ManyToOne
+    private Agence agence;
 }

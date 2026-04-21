@@ -51,6 +51,9 @@ public record UserDetailsImpl(User user) implements UserDetails {
     }
 
     public Long getPartnerId() {
+        if(user.getPartner()==null){
+            return null;
+        }
         return user.getPartner().getId();
     }
     public String getRole() {

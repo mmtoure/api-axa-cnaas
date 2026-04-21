@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import sn.axa.apiaxacnaas.dto.GroupDTO;
 import sn.axa.apiaxacnaas.dto.InsuredDTO;
 import sn.axa.apiaxacnaas.services.ContractPdfService;
@@ -14,6 +15,8 @@ import sn.axa.apiaxacnaas.services.GroupService;
 
 import java.io.IOException;
 import java.util.List;
+
+
 
 @RestController
 @RequiredArgsConstructor
@@ -23,20 +26,26 @@ public class GroupController {
     private final GroupService groupService;
     private final ContractPdfService contractPdfService;
 
-    @PostMapping
-    public ResponseEntity<GroupDTO> createGroup(@RequestBody GroupDTO groupDTO){
-        GroupDTO newGroup = groupService.createGroup(groupDTO);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<GroupDTO> createGroup(
+            @RequestPart("group") GroupDTO groupDTO,
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("proofPayment")  MultipartFile proofPayment
+
+    ) throws IOException {
+        GroupDTO newGroup = groupService.subscribeGroup(groupDTO,file,proofPayment);
         return ResponseEntity.status(HttpStatus.CREATED).body(newGroup);
     }
 
-    @GetMapping("all")
+
+    @GetMapping
     public  ResponseEntity<List<GroupDTO>> getAllGroups(){
         List<GroupDTO> groups = groupService.getAllGroups();
         return ResponseEntity.status(HttpStatus.OK).body(groups);
     }
 
-    @GetMapping
-    public ResponseEntity<List<GroupDTO>> getInsureds(
+    @GetMapping("all")
+    public ResponseEntity<List<GroupDTO>> getGroups(
 
     ) {
         return ResponseEntity.ok(groupService.getGroups());

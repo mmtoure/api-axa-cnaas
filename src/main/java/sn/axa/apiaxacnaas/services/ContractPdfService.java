@@ -66,23 +66,23 @@ public class ContractPdfService {
     }
 
     public byte[] generatePdfForInsured(Long id) throws IOException {
-        User currentUser = userService.getCurrentUser();
-        Partner currentPartner = currentUser.getPartner();
         Context context = new Context();
         Insured insured = insuredRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Insured not found"));
+
+        Partner partner = insured.getPartner();
         Contract contract = insured.getContract();
         context.setVariable("insured", insured);
         context.setVariable("partner", insured.getPartner());
         context.setVariable("contract", contract);
 
         byte[] generatePdf = null;
-        if(Objects.equals(currentPartner.getCode(), "CNAAS")){
+        if(Objects.equals(partner.getCode(), "CNAAS")){
             context.setVariable("logoAxa", "data:image/png;base64," + logoAxaBase64);
             context.setVariable("logoCnaas", "data:image/png;base64," + logoCnaasBase64);
             generatePdf = generatePdf("contract", context);
         }
-        if(Objects.equals(currentPartner.getCode(), "LG")) {
+        if(Objects.equals(partner.getCode(), "LG")) {
             context.setVariable("logoAxa", "data:image/png;base64," + logoAxaBase64);
             context.setVariable("logoLg", "data:image/png;base64," + logoLGBase64);
             generatePdf= generatePdf("contract-lg", context);
@@ -114,7 +114,6 @@ public class ContractPdfService {
     }
 
     private byte[] generatePdf(String template, Context context) throws IOException {
-
         String htmlContent = templateEngine.process(template, context);
         try(ByteArrayOutputStream os = new ByteArrayOutputStream()){
             PdfRendererBuilder builder = new PdfRendererBuilder();
@@ -124,38 +123,22 @@ public class ContractPdfService {
             builder.run();
             byte[] contractPdf = os.toByteArray();
             return mergeWithConditions(contractPdf);
-
-
         } catch (IOException e) {
             throw new IOException(e);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
 
     private byte[] mergeWithConditions(byte[] contractPdf) throws Exception {
-        Partner currentPartner = userService.getCurrentUser().getPartner();
-
         PDFMergerUtility merger = new PDFMergerUtility();
         ByteArrayOutputStream mergedOutput = new ByteArrayOutputStream();
         merger.addSource(new ByteArrayInputStream(contractPdf));
-        if(Objects.equals(currentPartner.getCode(), "CNAAS")) {
             merger.addSource(
                     new ClassPathResource("/static/pdf/complement_contrat_cnaas.pdf")
                             .getInputStream()
             );
-        }
-
-        if(Objects.equals(currentPartner.getCode(), "LG")) {
-            merger.addSource(
-                    new ClassPathResource("/static/pdf/complement_bulletin_LG.pdf")
-                            .getInputStream()
-            );
-        }
-
         merger.setDestinationStream(mergedOutput);
         merger.mergeDocuments(null);
         return mergedOutput.toByteArray();

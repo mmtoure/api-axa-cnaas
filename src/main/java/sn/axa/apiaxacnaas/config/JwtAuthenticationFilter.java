@@ -44,9 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     (UserDetailsImpl) userDetailsService.loadUserByUsername(email);
 
             if(jwtService.isTokenValid(jwtToken, userDetails)){
-                if (!partnerId.equals(userDetails.getPartnerId())) {
-                    throw new RuntimeException("Invalid partner access");
-                }
+
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,

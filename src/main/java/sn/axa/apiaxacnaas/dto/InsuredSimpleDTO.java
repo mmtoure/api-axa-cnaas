@@ -17,4 +17,5 @@ public class InsuredSimpleDTO {
         private BeneficiaryDTO beneficiary;
         private ContractDTO contract;
         private SubscriptionTypeEnum subscriptionType;
+        private String proofPayment;
 }

@@ -20,16 +20,20 @@ import sn.axa.apiaxacnaas.entities.*;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.GroupMapper;
 import sn.axa.apiaxacnaas.mappers.InsuredMapper;
+import sn.axa.apiaxacnaas.repositories.AgenceRepository;
 import sn.axa.apiaxacnaas.repositories.GroupRepository;
 import sn.axa.apiaxacnaas.repositories.InsuredRepository;
+import sn.axa.apiaxacnaas.repositories.ZoneRepository;
 import sn.axa.apiaxacnaas.util.GroupStatus;
 import sn.axa.apiaxacnaas.util.InsuredStatus;
 import sn.axa.apiaxacnaas.util.RoleEnum;
 import sn.axa.apiaxacnaas.util.SubscriptionTypeEnum;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -48,15 +52,45 @@ public class GroupService {
     private final TemplateEngine templateEngine;
     @Value("${app.pdf.storage-path}")
     private String storagePath;
+    private final ZoneRepository zoneRepository;
+    private final AgenceRepository agenceRepository;
 
-    public GroupDTO subscribeGroup(GroupDTO groupDTO, MultipartFile file ){
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+    public GroupDTO subscribeGroup(GroupDTO groupDTO, MultipartFile file, MultipartFile proofPayment ) throws IOException {
         User currentUser = userService.getCurrentUser();
         Partner currentPartner = currentUser.getPartner();
+        if(currentPartner==null){
+            throw new ResourceNotFoundException("Partner introuvable");
+        }
+        Zone zone = zoneRepository.findById(currentUser.getZone().getId())
+                .orElseThrow(()-> new ResourceNotFoundException("Zone introuvable"));
+        Agence agence = agenceRepository.findById(currentUser.getAgence().getId())
+                .orElseThrow(()-> new ResourceNotFoundException("Agence introuvable"));
+
         Group group = groupMapper.toEntity(groupDTO);
         group.setCreatedBy(currentUser);
         group.setPartner(currentPartner);
         group.setSubscriptionDate(LocalDate.now());
         group.setStatus(GroupStatus.ACTIF);
+        if(zone!=null){
+            group.setZone(zone);
+        }
+        if(agence!=null){
+            group.setAgence(agence);
+        }
+        if(proofPayment!= null){
+            String fileName = group.getName()+"_"+proofPayment.getOriginalFilename();
+            Path uploadPath = Paths.get(uploadDir, "proofPayment/groups");
+            if(!Files.exists(uploadPath)){
+                Files.createDirectories(uploadPath);
+            }
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(proofPayment.getInputStream(), filePath,
+                    StandardCopyOption.REPLACE_EXISTING);
+            group.setProofPayment("/uploads/proofPayment/groups/"+fileName);
+        }
         Set<Insured> insureds = parseExcel(file, group);
         Group savedGroup = groupRepository.save(group);
         if(!insureds.isEmpty()){
@@ -68,6 +102,14 @@ public class GroupService {
                 insured.setSubscriptionDate(LocalDate.now());
                 insured.setPartner(currentPartner);
                 insured.setSubscriptionDate(LocalDate.now());
+                insured.setAgence(currentUser.getAgence());
+                if(zone!=null){
+                    insured.setZone(zone);
+                }
+                if(agence!=null){
+                    insured.setAgence(agence);
+                }
+
                 insuredRepository.save(insured);
                 contractService.createContract(insured);
             });
@@ -107,9 +149,21 @@ public class GroupService {
     }
 
     public List<GroupDTO> getAllGroups(){
-        List<Group> listGroups = groupRepository.findAll(
-                Sort.by(Sort.Direction.DESC, "createdAt")
-        );
+        User currentUser = userService.getCurrentUser();
+        List<Group> listGroups = new ArrayList<>();
+
+        if(currentUser.getRole().getName().name().equals("USER")){
+            listGroups = groupRepository.findByAgenceId(currentUser.getAgence().getId());
+        } else if (currentUser.getRole().getName().name().equals("MANAGER")) {
+            listGroups = groupRepository.findByZoneId(currentUser.getZone().getId());
+
+        }
+        else {
+            listGroups = groupRepository.findAll(
+                    Sort.by(Sort.Direction.DESC, "createdAt")
+            );
+        }
+
         return listGroups.stream().map(groupMapper::toDTO).toList();
     }
 

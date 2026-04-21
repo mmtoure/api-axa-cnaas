@@ -24,6 +24,7 @@ import sn.axa.apiaxacnaas.repositories.RoleRepository;
 import sn.axa.apiaxacnaas.repositories.UserRepository;
 import sn.axa.apiaxacnaas.util.RoleEnum;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,26 +44,24 @@ public class UserService {
 
 
     public UserDTO createUser(UserCreateDTO userDTO) {
-        Partner partner = partnerRepository.findById(userDTO.getPartnerId())
-                .orElseThrow(()->new ResourceNotFoundException("Partner not found"));
+        User currentUser = getCurrentUser();
+        Partner partner = resolvePartner(userDTO, currentUser);
+        System.out.println(currentUser.getPartner().getName());
+
         Role role = roleRepository.findByName(RoleEnum.valueOf(userDTO.getRoleName()))
                 .orElseThrow(() -> new RuntimeException("Role Not Found"));
         User userEntity = userMapper.toEntity(userDTO);
-        Agence agence = agenceRepository.findById(1L)
-                .orElseThrow(()->new RuntimeException("Agence not found"));
-        if(partner.getCode().trim().equals("CNAAS")){
-            userEntity.setPassword(passwordEncoder.encode("cnaas@2026"));
-        }
-        else if(partner.getCode().trim().equals("LG")){
-            userEntity.setPassword(passwordEncoder.encode("lg@2026"));
-        }
-        else {
-            userEntity.setPassword(passwordEncoder.encode("axa@2026"));
-        }
+
+        userEntity.setPassword(passwordEncoder.encode(getDefaultPassword(partner)));
 
         userEntity.setRole(role);
-        userEntity.setAgence(agence);
-        userEntity.setPartner(partner);
+        if(currentUser.getPartner()!=null){
+            userEntity.setPartner(currentUser.getPartner());
+        }
+        else{
+            userEntity.setPartner(partner);
+        }
+
         userEntity.setIsActive(true);
         User savedUserEntity = userRepository.save(userEntity);
         return userMapper.toDTO(savedUserEntity);
@@ -87,15 +86,14 @@ public class UserService {
         );
     }
 
-
+    public boolean hasRole(User user, String role) {
+        return user.getRole().getName().name().equals(role);
+    }
 
     public User getCurrentUser(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         return userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email" + authentication.getName()));
-
-
 
     }
     public UserDTO getPublicUser(String email){
@@ -113,7 +111,13 @@ public class UserService {
     public List<UserDTO> getAllUsers(){
         User currentUser = getCurrentUser();
         hibernateFilterService.enablePartnerFilter(currentUser);
-        List<User> users= userRepository.findAll();
+        List<User> users = new ArrayList<>();
+        if(currentUser.getRole().getName().equals(RoleEnum.MANAGER)){
+            users=userRepository.findByZoneIdAndIsActiveTrue(currentUser.getZone().getId());
+        }
+        else{
+            users= userRepository.findAll();
+        }
         return users.stream().map(userMapper::toDTO).toList();
     }
 
@@ -180,7 +184,7 @@ public class UserService {
 
     }
 
-    public void createAdminIfNotExists(String firstName, String lastName, String email, String password, String phoneNumber, Partner partner, Role role, Agence agence) {
+    public void createAdminIfNotExists(String firstName, String lastName, String email, String password, String phoneNumber, Role role) {
 
         if (userRepository.findByEmail(email).isPresent()) return;
 
@@ -189,14 +193,41 @@ public class UserService {
                 .lastName(lastName)
                 .email(email)
                 .password(passwordEncoder.encode(password))
-                .partner(partner)
                 .role(role)
-                .agence(agence)
                 .isActive(true)
                 .phoneNumber(phoneNumber)
                 .build();
 
         userRepository.save(admin);
+    }
+
+    public String getDefaultPassword(Partner partner){
+        if (partner == null || partner.getCode() == null) {
+            return "Axa@2026";
+        }
+
+        return switch (partner.getCode().trim()) {
+            case "CNAAS" -> "cnaas@2026";
+            case "LG" -> "lg@2026";
+            default -> "Axa@2026";
+        };
+    }
+
+    private Partner resolvePartner(UserCreateDTO dto, User currentUser) {
+
+        // 👑 SUPER_ADMIN → peut choisir le partner
+        if (hasRole(currentUser, "ROLE_SUPER_ADMIN")) {
+
+            if (dto.getPartnerId() == null) {
+                throw new RuntimeException("Partner is required");
+            }
+
+            return partnerRepository.findById(dto.getPartnerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Partner not found"));
+        }
+
+        // 🧑‍💼 ADMIN → forcé sur son partner
+        return currentUser.getPartner();
     }
 
 

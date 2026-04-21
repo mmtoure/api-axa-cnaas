@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import sn.axa.apiaxacnaas.dto.ClaimDTO;
 import sn.axa.apiaxacnaas.dto.FilterDTO;
 import sn.axa.apiaxacnaas.dto.InsuredDTO;
@@ -29,9 +30,9 @@ public class InsuredController {
     private final ExcelExportService excelExportService;
     private final ContractPdfService contractPdfService;
 
-    @PostMapping
-    public ResponseEntity<InsuredDTO> createInsured(@RequestBody InsuredDTO insuredDTODTO){
-        InsuredDTO newInsured = insuredService.createInsured(insuredDTODTO);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<InsuredDTO> createInsured(@RequestPart("insured")  InsuredDTO insured, MultipartFile proofPayment) throws IOException {
+        InsuredDTO newInsured = insuredService.createInsured(insured, proofPayment);
         return ResponseEntity.status(HttpStatus.CREATED).body(newInsured);
     }
 

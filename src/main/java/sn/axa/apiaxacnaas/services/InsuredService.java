@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
@@ -31,8 +32,10 @@ import sn.axa.apiaxacnaas.util.SubscriptionTypeEnum;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -52,9 +55,14 @@ public class InsuredService {
     private final NotificationService notificationService;
     private final HibernateFilterService hibernateFilterService;
 
-    public InsuredDTO createInsured(InsuredDTO insuredDTO){
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+    public InsuredDTO createInsured(InsuredDTO insuredDTO, MultipartFile proofPayment) throws IOException {
         User currentUser = userService.getCurrentUser();
         Partner currentPartner = currentUser.getPartner();
+        Agence agence = currentUser.getAgence();
+        Zone zone  = currentUser.getZone();
         Insured insured = insuredMapper.toEntity(insuredDTO);
         insured.setUser(currentUser);
         insured.setPartner(currentPartner);
@@ -62,9 +70,27 @@ public class InsuredService {
         insured.setStatus(InsuredStatus.ACTIF);
         insured.setSubscriptionType(SubscriptionTypeEnum.INDIVIDUELLE);
         insured.setCreatedBy(currentUser);
+         if(agence != null) {
+             insured.setAgence(agence);
+         }
+         if (zone != null) {
+             insured.setZone(zone);
+         }
         insured.setSubscriptionDate(LocalDate.now());
-        if(insured.getBeneficiary()!=null){
+        if (insured.getBeneficiary() != null) {
             insured.getBeneficiary().setInsured(insured);
+        }
+
+        if(proofPayment!= null){
+            String fileName = insuredDTO.getFirstName()+"_"+insuredDTO.getLastName()+"_"+proofPayment.getOriginalFilename();
+            Path uploadPath = Paths.get(uploadDir, "proofPayment/insureds");
+            if(!Files.exists(uploadPath)){
+                Files.createDirectories(uploadPath);
+            }
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(proofPayment.getInputStream(), filePath,
+                    StandardCopyOption.REPLACE_EXISTING);
+            insured.setProofPayment("/uploads/proofPayment/insureds/"+fileName);
         }
         Insured savedInsured = insuredRepository.save(insured);
         contractService.createContract(savedInsured);
@@ -73,20 +99,20 @@ public class InsuredService {
         return insuredMapperDTO;
     }
 
-    public InsuredDTO getInsuredById(Long id){
+    public InsuredDTO getInsuredById(Long id) {
         Insured existingInsured = insuredRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("Insured not found"));
-        return  insuredMapper.toDTO(existingInsured);
+                .orElseThrow(() -> new ResourceNotFoundException("Insured not found"));
+        return insuredMapper.toDTO(existingInsured);
     }
 
-    public List<InsuredDTO> getAllInsureds(){
+    public List<InsuredDTO> getAllInsureds() {
         List<Insured> listInsureds = insuredRepository.findAll(
                 Sort.by(Sort.Direction.DESC, "createdAt")
         );
         return listInsureds.stream().map(insuredMapper::toDTO).toList();
     }
 
-    public List<InsuredDTO> getInsureds(){
+    public List<InsuredDTO> getInsureds() {
 
         User currentUser = userService.getCurrentUser();
         RoleEnum roleAdmin = currentUser.getRole().getName();
@@ -95,9 +121,9 @@ public class InsuredService {
 
     }
 
-    public InsuredDTO updateInsured(InsuredDTO insuredDTO, Long id){
+    public InsuredDTO updateInsured(InsuredDTO insuredDTO, Long id) {
         Insured existingInsured = insuredRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("Insured not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Insured not found"));
         existingInsured.setFirstName(insuredDTO.getFirstName());
         existingInsured.setLastName(insuredDTO.getLastName());
         existingInsured.setPhoneNumber(insuredDTO.getPhoneNumber());
@@ -107,16 +133,16 @@ public class InsuredService {
 
     }
 
-    public void deleteInsured(Long id){
+    public void deleteInsured(Long id) {
         Insured existingInsured = insuredRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("Insured not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Insured not found"));
         insuredRepository.delete(existingInsured);
     }
 
     public byte[] generateContractByInsured(Long insuredId) throws IOException {
         Context context = new Context();
         Insured insured = insuredRepository.findById(insuredId)
-                .orElseThrow(()->new ResourceNotFoundException("Insured not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Insured not found"));
         Contract contract = insured.getContract();
         if (contract == null) {
             throw new ResourceNotFoundException("No contract found for insured id=" + insuredId);
@@ -138,9 +164,9 @@ public class InsuredService {
         String fileName = "contract_" + contract.getId() + ".pdf";
         Path pdfPath = Paths.get(storagePath, fileName);
         String htmlContent = templateEngine.process("contract", context);
-        try(ByteArrayOutputStream os = new ByteArrayOutputStream()){
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
-            builder.withHtmlContent(htmlContent,null);
+            builder.withHtmlContent(htmlContent, null);
             builder.toStream(os);
             builder.run();
             return os.toByteArray();
@@ -152,43 +178,47 @@ public class InsuredService {
     }
 
     // get latest 5 insureds for currentUser
-    public List<InsuredDTO> getLatest5InsuredsForCurrentUser(){
+    public List<InsuredDTO> getLatest5InsuredsForCurrentUser() {
         User currentUser = userService.getCurrentUser();
         List<Insured> listInsureds = insuredRepository.findTop5ByUserIdOrderByCreatedAtDesc(currentUser.getId());
         return listInsureds.stream().map(insuredMapper::toDTO).toList();
     }
 
-    public List<InsuredMonthlyStatDTO> getMonthlyStats(){
+    public List<InsuredMonthlyStatDTO> getMonthlyStats() {
         User currentUser = userService.getCurrentUser();
         RoleEnum roleAdmin = currentUser.getRole().getName();
         List<InsuredMonthlyStatDTO> monthlyStatDTOList;
-        if(roleAdmin.equals(RoleEnum.ADMIN)){
-            monthlyStatDTOList =insuredRepository.countAllInsuredByMonth();
-        }
-        else {
+        if (roleAdmin.equals(RoleEnum.ADMIN)) {
+            monthlyStatDTOList = insuredRepository.countAllInsuredByMonth();
+        } else {
             monthlyStatDTOList = insuredRepository.countInsuredByMonthForCurrentuser(currentUser.getId());
         }
         return monthlyStatDTOList;
     }
 
-    public Long getNbInsureds(){
+    public Long getNbInsureds() {
         Long nbInsureds = insuredRepository.countAllInsureds();
         return nbInsureds;
 
     }
 
     @Transactional
-    public List<InsuredDTO> filter(LocalDate startDate, LocalDate endDate){
+    public List<InsuredDTO> filter(LocalDate startDate, LocalDate endDate) {
         User currentUser = userService.getCurrentUser();
         hibernateFilterService.enablePartnerFilter(currentUser);
-        List<Insured> listInsureds;
-
-        if(startDate != null && endDate != null) {
-            listInsureds = insuredRepository.findBySubscriptionDateBetween(startDate, endDate);
-        } else {
+        List<Insured> listInsureds = new ArrayList<>();
+        if (currentUser.getRole().getName().equals(RoleEnum.USER)) {
+            listInsureds = insuredRepository.findByAgenceIdOrderByCreatedAtDesc(currentUser.getAgence().getId());
+        }
+        else if (currentUser.getRole().getName().equals(RoleEnum.MANAGER)) {
+            listInsureds = insuredRepository.findByZoneIdOrderByCreatedAtDesc(currentUser.getZone().getId());
+        }
+        else{
             listInsureds = insuredRepository.findAll();
         }
+
         return listInsureds.stream().map(insuredMapper::toDTO).toList();
+
     }
 
     public InsuredDTO ActiveInsured(Long insuredId){
@@ -198,7 +228,6 @@ public class InsuredService {
         existingInsured.setValidatedAt(existingInsured.getValidatedAt());
         existingInsured.setStatus(InsuredStatus.ACTIF);
         insuredRepository.save(existingInsured);
-
         return  insuredMapper.toDTO(existingInsured);
 
 

@@ -1,11 +1,10 @@
 package sn.axa.apiaxacnaas.entities;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import sn.axa.apiaxacnaas.util.VilleEnum;
+import sn.axa.apiaxacnaas.dto.AgenceDTO;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -17,32 +16,26 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "tbl_agences")
-public class Agence {
+@Table(name = "tbl_zones")
+public class Zone {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    @Enumerated(EnumType.STRING)
-    private VilleEnum ville;
-
-    @OneToMany(mappedBy = "agence", cascade = CascadeType.ALL)
-    private Set<User> users = new HashSet<>();
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "zone_id")
-    private Zone zone;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partner_id")
     private Partner partner;
 
+    @OneToMany(mappedBy = "zone", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Agence> agences = new HashSet<>();
+
     @ManyToOne
     private User createdBy;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chef_agence_id")
-    private User chefAgence;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chef_zone_id")
+    private User chefZone;
 
     @Column(updatable = false)
     @CreationTimestamp

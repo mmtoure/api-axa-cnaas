@@ -1,7 +1,9 @@
 package sn.axa.apiaxacnaas.dto;
 
 import lombok.*;
+import sn.axa.apiaxacnaas.entities.Agence;
 import sn.axa.apiaxacnaas.entities.Role;
+import sn.axa.apiaxacnaas.entities.Zone;
 import sn.axa.apiaxacnaas.util.PartenaireEnum;
 
 import java.time.LocalDate;
@@ -22,6 +24,8 @@ public class UserDTO {
     private Boolean isActive;
     private Role role;
     private Long partnerId;
+    private ZoneDTO zone;
+    private AgenceDTO agence;
     private String partnerName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

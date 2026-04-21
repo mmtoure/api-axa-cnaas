@@ -44,5 +44,11 @@ public class AgenceController {
         return ResponseEntity.status(HttpStatus.OK).body("Agence supprimée avec succés");
     }
 
+    @GetMapping("/zone/{zoneId}")
+    public ResponseEntity<List<AgenceDTO>> getAllAgencesByZoneId(@PathVariable Long zoneId) {
+        List<AgenceDTO> listAgences = agenceService.getAgencesByZoneId(zoneId);
+        return ResponseEntity.status(HttpStatus.OK).body(listAgences);
+    }
+
 
 }

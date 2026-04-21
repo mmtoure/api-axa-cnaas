@@ -62,6 +62,8 @@ public interface InsuredRepository extends JpaRepository<Insured, Long> {
     List<Insured> findByUserIdAndSubscriptionDateBetween( Long userId, LocalDate startDate, LocalDate endDate);
     List<Insured> findByUserIdAndPartnerIdOrderByCreatedAtDesc( Long userId, Long partnerId);
     List<Insured> findByPartnerIdOrderByCreatedAtDesc(Long partnerId);
+    List<Insured> findByAgenceIdOrderByCreatedAtDesc(Long agenceId);
+    List<Insured> findByZoneIdOrderByCreatedAtDesc(Long zoneId);
 
 
 }

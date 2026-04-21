@@ -45,5 +45,8 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "agence_id", referencedColumnName = "id")
     private Agence agence;
+    @ManyToOne
+    @JoinColumn(name = "zone_id", referencedColumnName = "id")
+    private Zone zone;
 
 }

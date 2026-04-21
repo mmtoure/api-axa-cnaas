@@ -22,20 +22,19 @@ public class DataSeeder implements CommandLineRunner {
     private final UserService userService;
     @Override
     public void run(String... args) throws Exception {
+        Role roleSuperAdmin = roleService.CreateRoleIfNotExist(RoleEnum.SUPER_ADMIN);
         Role roleAdmin = roleService.CreateRoleIfNotExist(RoleEnum.ADMIN);
         Role roleUser = roleService.CreateRoleIfNotExist(RoleEnum.USER);
         Role roleManger = roleService.CreateRoleIfNotExist(RoleEnum.MANAGER);
-        Partner partner = partnerService.createPartnerIfNotExist("AXA", "AXA");
-        Agence agence = agenceService.createAgenceIfNotExist("Dakar", VilleEnum.DAKAR);
         userService.createAdminIfNotExists(
                 "Admin",
                 "Admin",
                 "admin@axa.sn",
                 "Axa@2026",
                 "774544351",
-                partner,
-                roleAdmin,
-                agence
+
+                roleSuperAdmin
+
         );
 
         System.out.println("✅ Database initialized");

@@ -40,6 +40,9 @@ public class ContractService {
         }
         User currentUser = userService.getCurrentUser();
         Partner partner = insured.getPartner();
+        if(partner==null){
+            throw new ResourceNotFoundException("Partner introuvable");
+        }
         PartnerPricing pricing;
         if(partner.getCode().equals("LG")){
             pricing=partnerPricingRepository

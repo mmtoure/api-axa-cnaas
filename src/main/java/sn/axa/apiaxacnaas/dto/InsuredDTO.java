@@ -48,4 +48,5 @@ public class InsuredDTO {
     private UserDTO validatedBy;
     private LocalDateTime validatedAt;
     private UserDTO createdBy;
+    private String proofPayment;
 }

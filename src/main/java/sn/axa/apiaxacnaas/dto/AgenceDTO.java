@@ -19,6 +19,12 @@ public class AgenceDTO {
     private Long id;
     private String name;
     private VilleEnum ville;
+    private Long zoneId;
+    private Long partnerId;
+    private Long chefAgenceId;
+
+    @CreationTimestamp
     private LocalDateTime createdAt;
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 }
