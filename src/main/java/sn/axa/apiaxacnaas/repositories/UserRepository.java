@@ -12,6 +12,6 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findByEmailAndIsActiveTrue(String email);
     List<User> findByIsActiveTrue();
     List<User> findByZoneIdAndIsActiveTrue(Long zoneId);
-    List<User> findByAgenceIdAndIsActiveTrue(Long agenceId);
+    //List<User> findByAgenceIdAndIsActiveTrue(Long agenceId);
 
 }

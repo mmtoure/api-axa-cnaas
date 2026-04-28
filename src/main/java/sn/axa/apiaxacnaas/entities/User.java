@@ -1,6 +1,7 @@
 package sn.axa.apiaxacnaas.entities;
 
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Table;
 import lombok.*;
 import org.hibernate.annotations.*;
@@ -8,6 +9,7 @@ import sn.axa.apiaxacnaas.util.PartenaireEnum;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -42,11 +44,16 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private Role role;
-    @ManyToOne
-    @JoinColumn(name = "agence_id", referencedColumnName = "id")
-    private Agence agence;
-    @ManyToOne
-    @JoinColumn(name = "zone_id", referencedColumnName = "id")
+
+    @OneToMany(mappedBy = "chefAgence", cascade = CascadeType.ALL)
+    private List<Agence> agences;
+
+    @OneToOne(mappedBy = "chefZone")
     private Zone zone;
+
+    public void addAgence(Agence agence) {
+        agences.add(agence);
+        agence.setChefAgence(this);
+    }
 
 }

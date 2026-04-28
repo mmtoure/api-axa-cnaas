@@ -26,11 +26,8 @@ public class Agence {
     @Enumerated(EnumType.STRING)
     private VilleEnum ville;
 
-    @OneToMany(mappedBy = "agence", cascade = CascadeType.ALL)
-    private Set<User> users = new HashSet<>();
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "zone_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "zone_id", nullable = false)
     private Zone zone;
 
     @ManyToOne(fetch = FetchType.LAZY)

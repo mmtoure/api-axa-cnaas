@@ -22,9 +22,11 @@ import org.thymeleaf.context.Context;
 import sn.axa.apiaxacnaas.dto.InsuredDTO;
 import sn.axa.apiaxacnaas.dto.InsuredMonthlyStatDTO;
 
+import sn.axa.apiaxacnaas.dto.UserCreateDTO;
 import sn.axa.apiaxacnaas.entities.*;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.InsuredMapper;
+import sn.axa.apiaxacnaas.repositories.AgenceRepository;
 import sn.axa.apiaxacnaas.repositories.InsuredRepository;
 import sn.axa.apiaxacnaas.util.InsuredStatus;
 import sn.axa.apiaxacnaas.util.RoleEnum;
@@ -41,6 +43,8 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
+import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole;
+
 @Service
 @RequiredArgsConstructor
 public class InsuredService {
@@ -54,6 +58,7 @@ public class InsuredService {
     private String storagePath;
     private final NotificationService notificationService;
     private final HibernateFilterService hibernateFilterService;
+    private final AgenceRepository  agenceRepository;
 
 
     @Value("${file.upload-dir}")
@@ -61,8 +66,14 @@ public class InsuredService {
     public InsuredDTO createInsured(InsuredDTO insuredDTO, MultipartFile proofPayment) throws IOException {
         User currentUser = userService.getCurrentUser();
         Partner currentPartner = currentUser.getPartner();
-        Agence agence = currentUser.getAgence();
-        Zone zone  = currentUser.getZone();
+        /*if (currentUser.getAgences() == null || currentUser.getAgences().isEmpty()) {
+            throw new ResourceNotFoundException("L'utilisateur n'est rattaché à aucune agence");
+        }*/
+
+        Agence agence = resolveAngence(insuredDTO,currentUser);
+
+        //Agence agence = currentUser.getAgences().get(0);
+        Zone zone  = agence.getZone();
         Insured insured = insuredMapper.toEntity(insuredDTO);
         insured.setUser(currentUser);
         insured.setPartner(currentPartner);
@@ -70,9 +81,6 @@ public class InsuredService {
         insured.setStatus(InsuredStatus.ACTIF);
         insured.setSubscriptionType(SubscriptionTypeEnum.INDIVIDUELLE);
         insured.setCreatedBy(currentUser);
-         if(agence != null) {
-             insured.setAgence(agence);
-         }
          if (zone != null) {
              insured.setZone(zone);
          }
@@ -208,7 +216,7 @@ public class InsuredService {
         hibernateFilterService.enablePartnerFilter(currentUser);
         List<Insured> listInsureds = new ArrayList<>();
         if (currentUser.getRole().getName().equals(RoleEnum.USER)) {
-            listInsureds = insuredRepository.findByAgenceIdOrderByCreatedAtDesc(currentUser.getAgence().getId());
+            listInsureds = insuredRepository.findByAgenceIdOrderByCreatedAtDesc(currentUser.getAgences().get(0).getId());
         }
         else if (currentUser.getRole().getName().equals(RoleEnum.MANAGER)) {
             listInsureds = insuredRepository.findByZoneIdOrderByCreatedAtDesc(currentUser.getZone().getId());
@@ -231,6 +239,17 @@ public class InsuredService {
         return  insuredMapper.toDTO(existingInsured);
 
 
+    }
+
+    private Agence resolveAngence(InsuredDTO dto, User currentUser) {
+        if (userService.hasRole(currentUser, "ADMIN")) {
+            if (dto.getAgenceId() == null) {
+                throw new ResourceNotFoundException("Agence est obligatoire");
+            }
+            return agenceRepository.findById(dto.getAgenceId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Agence not found"));
+        }
+        return currentUser.getAgences().get(0);
     }
 
 

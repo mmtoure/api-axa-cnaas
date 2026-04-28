@@ -43,6 +43,8 @@ public class ClaimDTO {
     private UserDTO rejectedBy;
     private List<ClaimHistoryDTO> histories;
     private String rejectReason;
+    private Long agenceId;
+    private Long zoneId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import sn.axa.apiaxacnaas.dto.ChangePasswordDTO;
 import sn.axa.apiaxacnaas.dto.UserCreateDTO;
 import sn.axa.apiaxacnaas.dto.UserDTO;
 import sn.axa.apiaxacnaas.services.UserService;
@@ -50,5 +51,11 @@ public class UserController {
     public ResponseEntity<String> activateUser(@PathVariable Long id){
         userService.activateUser(id);
         return  ResponseEntity.status(HttpStatus.OK).body("Utilisateur activé avec succès");
+    }
+
+    @PutMapping("change-password/{id}")
+    public ResponseEntity<UserDTO> changePassword(@PathVariable Long id, @RequestBody ChangePasswordDTO dto){
+        UserDTO userDTO = userService.changePassword(dto,id);
+        return  ResponseEntity.status(HttpStatus.OK).body(userDTO);
     }
 }

@@ -30,6 +30,7 @@ public class ClaimService {
     private final ClaimHistoryService claimHistoryService;
     private final NotificationService notificationService;
     private final HibernateFilterService hibernateFilterService;
+    private final AgenceRepository agenceRepository;
 
     public ClaimDTO createClaim(ClaimDTO claimDTO, List<MultipartFile> files, List<ClaimDocumentType> types) throws IOException {
         Insured insured = insuredRepository.findById(claimDTO.getInsuredId())
@@ -38,6 +39,8 @@ public class ClaimService {
         if(contract.getStatus()!=StatusContract.ACTIVE){
             throw  new ResourceNotFoundException("Pas de sinistre car contrat n'est pas actif");
         }
+
+
 
         if(types==null || files.size() != types.size()) {
             throw new ResourceNotFoundException("Chaque document doit avoir un type");
@@ -63,13 +66,15 @@ public class ClaimService {
     public List<ClaimDTO> createAllClaims(CreateAllClaimsDTO dto, List<MultipartFile> files, List<ClaimDocumentType> types,List<String> claimTypes ) {
         User currentUser = userService.getCurrentUser();
         Partner currentPartner = currentUser.getPartner();
-        System.out.println("Partner"+currentPartner.getId());
+
         Insured insured = insuredRepository.findById(dto.getInsuredId())
                 .orElseThrow(()->new ResourceNotFoundException("Assure n'existe pas"));
         Contract contract = insured.getContract();
         if(contract.getStatus()!=StatusContract.ACTIVE){
             throw  new ResourceNotFoundException("Pas de sinistre car contrat n'est pas actif");
         }
+
+
         List<ClaimDTO> claimDTOList = dto.getClaims();
         Map<String,List<DocumentPayload>> docsByClaimType =getDocumentsByClaimType(files,types, claimTypes);
         claimDTOList.forEach((claimDTO -> {
@@ -78,6 +83,8 @@ public class ClaimService {
             newClaim.setInsured(insured);
             newClaim.setPartner(currentPartner);
             newClaim.setCreatedBy(currentUser);
+            newClaim.setAgence(insured.getAgence());
+            newClaim.setZone(insured.getZone());
             newClaim.setNumeroSinistre(generateNumeroSinistre());
             newClaim.setStatus(ClaimStatus.EN_COURS);
             newClaim.setHospitalizationStartDate(claimDTO.getHospitalizationStartDate());
@@ -107,7 +114,6 @@ public class ClaimService {
         return claims.stream().map(claimMapper::toDTO).toList();
     }
 
-
     public ClaimDTO getClaimById(Long claimId){
         Claim existingClaim = claimRepository.findById(claimId)
                 .orElseThrow(() -> new ResourceNotFoundException("Sinistre avec cette  (id=" + claimId + ") est introuvable"));
@@ -133,8 +139,6 @@ public class ClaimService {
         return claims.stream().map(claimMapper::toDTO).toList();
     }
 
-
-
     private String generateNumeroSinistre(){
         int year = LocalDate.now().getYear();
         int nextNumber = 1;
@@ -145,11 +149,9 @@ public class ClaimService {
             int lastSequence = Integer.parseInt(parts[2]);
             nextNumber = lastSequence+1;
         }
-
         return  String.format("SIN-%d-%05d", year, nextNumber);
 
     }
-
 
     public Long getNuitsHospitalisation(LocalDate startDate, LocalDate endDate){
         return (ChronoUnit.DAYS.between(startDate,endDate)-1);
@@ -318,6 +320,17 @@ public class ClaimService {
 
 
 
+    }
+
+    private Agence resolveClaim(ClaimDTO dto, User currentUser) {
+        if (!userService.hasRole(currentUser, "USER")) {
+            if (dto.getAgenceId() == null) {
+                throw new ResourceNotFoundException("Agence est obligatoire");
+            }
+            return agenceRepository.findById(dto.getAgenceId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Agence not found"));
+        }
+        return currentUser.getAgences().stream().findFirst().orElseThrow(() -> new ResourceNotFoundException("Agence not found"));
     }
 
 }

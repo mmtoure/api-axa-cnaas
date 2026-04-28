@@ -35,4 +35,7 @@ public class GroupDTO {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private Long agenceId;
+    private Long zoneId;
 }

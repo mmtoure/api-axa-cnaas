@@ -30,11 +30,14 @@ public class Zone {
     @OneToMany(mappedBy = "zone", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Agence> agences = new HashSet<>();
 
+    @OneToMany(mappedBy = "zone", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Insured> insureds = new HashSet<>();
+
     @ManyToOne
     private User createdBy;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chef_zone_id")
+    @JoinColumn(name = "chef_zone_id", nullable = true)
     private User chefZone;
 
     @Column(updatable = false)
@@ -43,4 +46,8 @@ public class Zone {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+    public void addAgence(Agence agence) {
+        agences.add(agence);
+        agence.setZone(this);
+    }
 }

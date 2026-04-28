@@ -40,20 +40,14 @@ public class AgenceService {
         agence.setPartner(currentUser.getPartner());
         agence.setZone(zone);
         agence.setChefAgence(chefAgence);
-        chefAgence.setAgence(agence);
+        chefAgence.addAgence(agence);
         chefAgence.setZone(zone);
+        agence.setCreatedBy(currentUser);
         Agence agenceCreated = agenceRepository.save(agence);
         return agenceMapper.toDTO(agenceCreated);
     }
 
-    public Agence createAgenceIfNotExist(String name, VilleEnum ville){
-        return agenceRepository.findByName(name).orElseGet(()->
-                agenceRepository.save(Agence.builder()
-                                .name(name)
-                                .ville(VilleEnum.DAKAR)
-                        .build())
-        );
-    }
+
 
     public AgenceDTO getAgenceById(Long id){
         Agence existingAgence = agenceRepository.findById(id)
@@ -81,12 +75,10 @@ public class AgenceService {
 
         User chefAgence = userRepository.findById(dto.getChefAgenceId())
                 .orElseThrow(()->new ResourceNotFoundException("Chef Agence Not Found"));
-
-
         updateAgence.setName(dto.getName());
         updateAgence.setZone(zone);
         updateAgence.setChefAgence(chefAgence);
-        chefAgence.setAgence(updateAgence);
+        chefAgence.addAgence(updateAgence);
         chefAgence.setZone(zone);
         updateAgence = agenceRepository.save(updateAgence);
         Agence saveAgence = agenceRepository.save(updateAgence);
@@ -97,6 +89,9 @@ public class AgenceService {
     public void deleteAgence(Long id){
         Agence existingAgence = agenceRepository.findById(id)
                 .orElseThrow(()->new RuntimeException("Agence not found"));
+        User chefAgence = existingAgence.getChefAgence();
+        existingAgence.setChefAgence(null);
+        existingAgence = agenceRepository.save(existingAgence);
         agenceRepository.delete(existingAgence);
     }
 

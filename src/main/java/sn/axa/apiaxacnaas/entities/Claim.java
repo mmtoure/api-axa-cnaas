@@ -99,4 +99,12 @@ public class Claim {
     private List<ClaimHistory> histories;
 
     private String rejectReason;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "agence_id")
+    private Agence agence;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "zone_id")
+    private Zone zone;
 }

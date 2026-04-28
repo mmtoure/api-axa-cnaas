@@ -49,4 +49,6 @@ public class InsuredDTO {
     private LocalDateTime validatedAt;
     private UserDTO createdBy;
     private String proofPayment;
+    private Long agenceId;
+    private Long zoneId;
 }

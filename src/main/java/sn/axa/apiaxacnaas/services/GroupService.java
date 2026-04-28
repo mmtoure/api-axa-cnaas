@@ -64,11 +64,9 @@ public class GroupService {
         if(currentPartner==null){
             throw new ResourceNotFoundException("Partner introuvable");
         }
-        Zone zone = zoneRepository.findById(currentUser.getZone().getId())
-                .orElseThrow(()-> new ResourceNotFoundException("Zone introuvable"));
-        Agence agence = agenceRepository.findById(currentUser.getAgence().getId())
-                .orElseThrow(()-> new ResourceNotFoundException("Agence introuvable"));
-
+        
+        Agence agence = resolveZone(groupDTO, currentUser);
+        Zone zone = agence.getZone();
         Group group = groupMapper.toEntity(groupDTO);
         group.setCreatedBy(currentUser);
         group.setPartner(currentPartner);
@@ -77,9 +75,7 @@ public class GroupService {
         if(zone!=null){
             group.setZone(zone);
         }
-        if(agence!=null){
-            group.setAgence(agence);
-        }
+        group.setAgence(agence);
         if(proofPayment!= null){
             String fileName = group.getName()+"_"+proofPayment.getOriginalFilename();
             Path uploadPath = Paths.get(uploadDir, "proofPayment/groups");
@@ -102,7 +98,6 @@ public class GroupService {
                 insured.setSubscriptionDate(LocalDate.now());
                 insured.setPartner(currentPartner);
                 insured.setSubscriptionDate(LocalDate.now());
-                insured.setAgence(currentUser.getAgence());
                 if(zone!=null){
                     insured.setZone(zone);
                 }
@@ -153,7 +148,7 @@ public class GroupService {
         List<Group> listGroups = new ArrayList<>();
 
         if(currentUser.getRole().getName().name().equals("USER")){
-            listGroups = groupRepository.findByAgenceId(currentUser.getAgence().getId());
+            listGroups = groupRepository.findByAgenceId(currentUser.getAgences().get(0).getId());
         } else if (currentUser.getRole().getName().name().equals("MANAGER")) {
             listGroups = groupRepository.findByZoneId(currentUser.getZone().getId());
 
@@ -222,7 +217,6 @@ public class GroupService {
         Set<Insured> insureds = new HashSet<>();
         Workbook workbook = WorkbookFactory.create(file);
         Sheet sheet = workbook.getSheetAt(0);
-
         sheet.forEach(row ->{
             if (row.getRowNum() == 0) {
                 return; // Skip header row
@@ -237,9 +231,6 @@ public class GroupService {
 
             Beneficiary ben = new Beneficiary();
             Insured savedInsured = insuredRepository.save(insured);
-
-
-
         });
     }
 
@@ -390,6 +381,17 @@ public class GroupService {
         });
         groupRepository.save(existingGroup);
         return groupMapper.toDTO(existingGroup);
+    }
+
+    private Agence resolveZone(GroupDTO dto, User currentUser) {
+        if (userService.hasRole(currentUser, "ADMIN")) {
+            if (dto.getAgenceId() == null) {
+                throw new ResourceNotFoundException("Agence est obligatoire");
+            }
+            return agenceRepository.findById(dto.getAgenceId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Agence not found"));
+        }
+        return currentUser.getAgences().get(0);
     }
 
 

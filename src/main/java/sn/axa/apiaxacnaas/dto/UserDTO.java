@@ -8,6 +8,7 @@ import sn.axa.apiaxacnaas.util.PartenaireEnum;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Getter
@@ -25,7 +26,7 @@ public class UserDTO {
     private Role role;
     private Long partnerId;
     private ZoneDTO zone;
-    private AgenceDTO agence;
+    private List<AgenceDTO> agences;
     private String partnerName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

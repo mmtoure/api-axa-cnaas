@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import sn.axa.apiaxacnaas.config.JwtService;
+import sn.axa.apiaxacnaas.dto.ChangePasswordDTO;
 import sn.axa.apiaxacnaas.dto.LoginDTO;
 import sn.axa.apiaxacnaas.dto.UserCreateDTO;
 import sn.axa.apiaxacnaas.dto.UserDTO;
@@ -46,7 +47,7 @@ public class UserService {
     public UserDTO createUser(UserCreateDTO userDTO) {
         User currentUser = getCurrentUser();
         Partner partner = resolvePartner(userDTO, currentUser);
-        System.out.println(currentUser.getPartner().getName());
+
 
         Role role = roleRepository.findByName(RoleEnum.valueOf(userDTO.getRoleName()))
                 .orElseThrow(() -> new RuntimeException("Role Not Found"));
@@ -55,13 +56,7 @@ public class UserService {
         userEntity.setPassword(passwordEncoder.encode(getDefaultPassword(partner)));
 
         userEntity.setRole(role);
-        if(currentUser.getPartner()!=null){
-            userEntity.setPartner(currentUser.getPartner());
-        }
-        else{
-            userEntity.setPartner(partner);
-        }
-
+        userEntity.setPartner(partner);
         userEntity.setIsActive(true);
         User savedUserEntity = userRepository.save(userEntity);
         return userMapper.toDTO(savedUserEntity);
@@ -185,9 +180,7 @@ public class UserService {
     }
 
     public void createAdminIfNotExists(String firstName, String lastName, String email, String password, String phoneNumber, Role role) {
-
         if (userRepository.findByEmail(email).isPresent()) return;
-
         User admin = User.builder()
                 .firstName(firstName)
                 .lastName(lastName)
@@ -205,7 +198,6 @@ public class UserService {
         if (partner == null || partner.getCode() == null) {
             return "Axa@2026";
         }
-
         return switch (partner.getCode().trim()) {
             case "CNAAS" -> "cnaas@2026";
             case "LG" -> "lg@2026";
@@ -214,20 +206,26 @@ public class UserService {
     }
 
     private Partner resolvePartner(UserCreateDTO dto, User currentUser) {
-
-        // 👑 SUPER_ADMIN → peut choisir le partner
-        if (hasRole(currentUser, "ROLE_SUPER_ADMIN")) {
-
+        if (hasRole(currentUser, "SUPER_ADMIN")) {
             if (dto.getPartnerId() == null) {
                 throw new RuntimeException("Partner is required");
             }
-
             return partnerRepository.findById(dto.getPartnerId())
                     .orElseThrow(() -> new ResourceNotFoundException("Partner not found"));
         }
-
-        // 🧑‍💼 ADMIN → forcé sur son partner
         return currentUser.getPartner();
+    }
+
+    // Change Password
+    public UserDTO changePassword(ChangePasswordDTO dto, Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if(!passwordEncoder.matches(dto.getOldPassword(), user.getPassword())){
+            throw new ResourceNotFoundException("Old Password not match");
+        }
+        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        userRepository.save(user);
+        return userMapper.toDTO(user);
     }
 
 

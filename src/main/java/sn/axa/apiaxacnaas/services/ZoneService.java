@@ -22,17 +22,18 @@ public class ZoneService {
     private final UserRepository userRepository;
 
     public ZoneDTO createZone(ZoneDTO dto) {
+        User currentUser = userService.getCurrentUser();
         User chefZone = userRepository.findById(dto.getChefZoneId())
                 .orElseThrow(()-> new ResourceNotFoundException("Chef Zone Not Found"));
-
-        User currentUser = userService.getCurrentUser();
+        if(chefZone.getZone()!=null){
+            throw new ResourceNotFoundException("Chef réseau est deja affecté");
+        }
         Zone zone = new Zone();
         zone.setName(dto.getName());
         zone.setPartner(currentUser.getPartner());
         zone.setCreatedBy(currentUser);
         zone.setChefZone(chefZone);
         chefZone.setZone(zone);
-
         return zoneMapper.toDTO(zoneRepository.save(zone));
     }
 
