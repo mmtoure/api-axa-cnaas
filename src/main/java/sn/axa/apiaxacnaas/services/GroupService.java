@@ -64,7 +64,7 @@ public class GroupService {
         if(currentPartner==null){
             throw new ResourceNotFoundException("Partner introuvable");
         }
-        
+
         Agence agence = resolveZone(groupDTO, currentUser);
         Zone zone = agence.getZone();
         Group group = groupMapper.toEntity(groupDTO);
@@ -384,14 +384,14 @@ public class GroupService {
     }
 
     private Agence resolveZone(GroupDTO dto, User currentUser) {
-        if (userService.hasRole(currentUser, "ADMIN")) {
+        if (!userService.hasRole(currentUser, "USER")) {
             if (dto.getAgenceId() == null) {
                 throw new ResourceNotFoundException("Agence est obligatoire");
             }
             return agenceRepository.findById(dto.getAgenceId())
                     .orElseThrow(() -> new ResourceNotFoundException("Agence not found"));
         }
-        return currentUser.getAgences().get(0);
+        return currentUser.getAgences().stream().findFirst().orElseThrow(()-> new ResourceNotFoundException("Agence not found"));
     }
 
 

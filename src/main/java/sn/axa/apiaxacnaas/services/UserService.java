@@ -54,7 +54,6 @@ public class UserService {
         User userEntity = userMapper.toEntity(userDTO);
 
         userEntity.setPassword(passwordEncoder.encode(getDefaultPassword(partner)));
-
         userEntity.setRole(role);
         userEntity.setPartner(partner);
         userEntity.setIsActive(true);
@@ -106,13 +105,7 @@ public class UserService {
     public List<UserDTO> getAllUsers(){
         User currentUser = getCurrentUser();
         hibernateFilterService.enablePartnerFilter(currentUser);
-        List<User> users = new ArrayList<>();
-        if(currentUser.getRole().getName().equals(RoleEnum.MANAGER)){
-            users=userRepository.findByZoneIdAndIsActiveTrue(currentUser.getZone().getId());
-        }
-        else{
-            users= userRepository.findAll();
-        }
+        List<User> users = users= userRepository.findAll();
         return users.stream().map(userMapper::toDTO).toList();
     }
 

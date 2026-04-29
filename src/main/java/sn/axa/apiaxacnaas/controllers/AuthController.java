@@ -21,7 +21,7 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/create-user")
-    public ResponseEntity<UserDTO> createChefAgence(@RequestBody UserCreateDTO request) {
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserCreateDTO request) {
         UserDTO newUser = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }

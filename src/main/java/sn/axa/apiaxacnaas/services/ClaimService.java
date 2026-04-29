@@ -79,12 +79,13 @@ public class ClaimService {
         Map<String,List<DocumentPayload>> docsByClaimType =getDocumentsByClaimType(files,types, claimTypes);
         claimDTOList.forEach((claimDTO -> {
             System.out.println(claimDTO.getSinisterType());
+            Agence agence = resolveClaim(claimDTO, currentUser);
             Claim newClaim = new Claim();
             newClaim.setInsured(insured);
             newClaim.setPartner(currentPartner);
             newClaim.setCreatedBy(currentUser);
-            newClaim.setAgence(insured.getAgence());
-            newClaim.setZone(insured.getZone());
+            newClaim.setAgence(agence);
+            newClaim.setZone(agence.getZone());
             newClaim.setNumeroSinistre(generateNumeroSinistre());
             newClaim.setStatus(ClaimStatus.EN_COURS);
             newClaim.setHospitalizationStartDate(claimDTO.getHospitalizationStartDate());
@@ -149,9 +150,11 @@ public class ClaimService {
             int lastSequence = Integer.parseInt(parts[2]);
             nextNumber = lastSequence+1;
         }
+
         return  String.format("SIN-%d-%05d", year, nextNumber);
 
     }
+
 
     public Long getNuitsHospitalisation(LocalDate startDate, LocalDate endDate){
         return (ChronoUnit.DAYS.between(startDate,endDate)-1);

@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/zones")
+@RequestMapping("/reseaux")
 public class ZoneController {
     private final ZoneService zoneService;
 

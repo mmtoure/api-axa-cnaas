@@ -214,17 +214,7 @@ public class InsuredService {
     public List<InsuredDTO> filter(LocalDate startDate, LocalDate endDate) {
         User currentUser = userService.getCurrentUser();
         hibernateFilterService.enablePartnerFilter(currentUser);
-        List<Insured> listInsureds = new ArrayList<>();
-        if (currentUser.getRole().getName().equals(RoleEnum.USER)) {
-            listInsureds = insuredRepository.findByAgenceIdOrderByCreatedAtDesc(currentUser.getAgences().get(0).getId());
-        }
-        else if (currentUser.getRole().getName().equals(RoleEnum.MANAGER)) {
-            listInsureds = insuredRepository.findByZoneIdOrderByCreatedAtDesc(currentUser.getZone().getId());
-        }
-        else{
-            listInsureds = insuredRepository.findAll();
-        }
-
+        List<Insured> listInsureds = insuredRepository.findAll();
         return listInsureds.stream().map(insuredMapper::toDTO).toList();
 
     }
@@ -242,14 +232,14 @@ public class InsuredService {
     }
 
     private Agence resolveAngence(InsuredDTO dto, User currentUser) {
-        if (userService.hasRole(currentUser, "ADMIN")) {
+        if (!userService.hasRole(currentUser, "USER")) {
             if (dto.getAgenceId() == null) {
                 throw new ResourceNotFoundException("Agence est obligatoire");
             }
             return agenceRepository.findById(dto.getAgenceId())
                     .orElseThrow(() -> new ResourceNotFoundException("Agence not found"));
         }
-        return currentUser.getAgences().get(0);
+        return currentUser.getAgences().stream().findFirst().orElseThrow(()->new ResourceNotFoundException("Agence not found"));
     }
 
 
