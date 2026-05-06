@@ -102,9 +102,9 @@ public class Claim {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "agence_id")
-    private Agence agence;
+    private Agency agence;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "zone_id")
-    private Zone zone;
+    private Network zone;
 }

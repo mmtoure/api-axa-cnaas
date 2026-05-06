@@ -95,10 +95,17 @@ public class Insured {
     private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "zone_id")
-    private Zone zone;
+    @JoinColumn(name = "network_id")
+    private Network network;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_id")
+    private Region region;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agence_id")
-    private Agence agence;
+    private Agency agence;
+    private String department;
+
+
 }

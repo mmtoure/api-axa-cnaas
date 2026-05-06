@@ -26,16 +26,17 @@ public class GroupDTO {
     private Set<InsuredSimpleDTO> insureds;
     private UserDTO user;
     private BigDecimal montantPrimeTtc;
-
     private UserDTO validatedBy;
     private LocalDateTime validatedAt;
     private UserDTO createdBy;
     private GroupStatus status;
     private String proofPayment;
+    private Long regionId;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     private Long agenceId;
-    private Long zoneId;
+    private Long networkId;
+    private String department;
 }

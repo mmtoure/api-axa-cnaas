@@ -14,7 +14,6 @@ import sn.axa.apiaxacnaas.util.*;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Year;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 @Service
@@ -30,7 +29,7 @@ public class ClaimService {
     private final ClaimHistoryService claimHistoryService;
     private final NotificationService notificationService;
     private final HibernateFilterService hibernateFilterService;
-    private final AgenceRepository agenceRepository;
+    private final AgencyRepository agenceRepository;
 
     public ClaimDTO createClaim(ClaimDTO claimDTO, List<MultipartFile> files, List<ClaimDocumentType> types) throws IOException {
         Insured insured = insuredRepository.findById(claimDTO.getInsuredId())
@@ -79,13 +78,13 @@ public class ClaimService {
         Map<String,List<DocumentPayload>> docsByClaimType =getDocumentsByClaimType(files,types, claimTypes);
         claimDTOList.forEach((claimDTO -> {
             System.out.println(claimDTO.getSinisterType());
-            Agence agence = resolveClaim(claimDTO, currentUser);
+           // Agency agence = resolveClaim(claimDTO, currentUser);
             Claim newClaim = new Claim();
             newClaim.setInsured(insured);
             newClaim.setPartner(currentPartner);
             newClaim.setCreatedBy(currentUser);
-            newClaim.setAgence(agence);
-            newClaim.setZone(agence.getZone());
+            //newClaim.setAgence(agence);
+            //newClaim.setZone(agence.getNetwork());
             newClaim.setNumeroSinistre(generateNumeroSinistre());
             newClaim.setStatus(ClaimStatus.EN_COURS);
             newClaim.setHospitalizationStartDate(claimDTO.getHospitalizationStartDate());
@@ -325,7 +324,7 @@ public class ClaimService {
 
     }
 
-    private Agence resolveClaim(ClaimDTO dto, User currentUser) {
+    private Agency resolveClaim(ClaimDTO dto, User currentUser) {
         if (!userService.hasRole(currentUser, "USER")) {
             if (dto.getAgenceId() == null) {
                 throw new ResourceNotFoundException("Agence est obligatoire");
@@ -333,7 +332,7 @@ public class ClaimService {
             return agenceRepository.findById(dto.getAgenceId())
                     .orElseThrow(() -> new ResourceNotFoundException("Agence not found"));
         }
-        return currentUser.getAgences().stream().findFirst().orElseThrow(() -> new ResourceNotFoundException("Agence not found"));
+        return currentUser.getAgencies().stream().findFirst().orElseThrow(() -> new ResourceNotFoundException("Agence not found"));
     }
 
 }

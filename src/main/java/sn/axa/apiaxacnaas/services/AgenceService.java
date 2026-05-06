@@ -2,64 +2,62 @@ package sn.axa.apiaxacnaas.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import sn.axa.apiaxacnaas.dto.AgenceDTO;
-import sn.axa.apiaxacnaas.entities.Agence;
+import sn.axa.apiaxacnaas.dto.AgencyDTO;
+import sn.axa.apiaxacnaas.entities.Agency;
+import sn.axa.apiaxacnaas.entities.Network;
 import sn.axa.apiaxacnaas.entities.User;
-import sn.axa.apiaxacnaas.entities.Zone;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.AgenceMapper;
-import sn.axa.apiaxacnaas.repositories.AgenceRepository;
+import sn.axa.apiaxacnaas.repositories.AgencyRepository;
 import sn.axa.apiaxacnaas.repositories.UserRepository;
-import sn.axa.apiaxacnaas.repositories.ZoneRepository;
+import sn.axa.apiaxacnaas.repositories.NetworkRepository;
 import sn.axa.apiaxacnaas.util.RoleEnum;
-import sn.axa.apiaxacnaas.util.VilleEnum;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AgenceService {
-    private final AgenceRepository agenceRepository;
-    private final ZoneRepository zoneRepository;
+    private final AgencyRepository agenceRepository;
+    private final NetworkRepository zoneRepository;
     private final AgenceMapper agenceMapper;
     private final UserService userService;
     private final UserRepository userRepository;
 
-    public AgenceDTO createAgence( AgenceDTO agenceDTO){
+    public AgencyDTO createAgence(AgencyDTO agenceDTO){
         User currentUser = userService.getCurrentUser();
-        Zone zone = zoneRepository.findById(agenceDTO.getZoneId())
+        Network zone = zoneRepository.findById(agenceDTO.getNetworkId())
                 .orElseThrow(()-> new IllegalArgumentException("Zone not found"));
 
-        User chefAgence = userRepository.findById(agenceDTO.getChefAgenceId())
+        User chefAgence = userRepository.findById(agenceDTO.getChefAgencyId())
                 .orElseThrow(()-> new ResourceNotFoundException("Chef Chef Agence Not Found"));
 
-        Agence agence = new Agence();
+        Agency agence = new Agency();
         agence.setName(agenceDTO.getName());
         agence.setPartner(currentUser.getPartner());
-        agence.setZone(zone);
-        agence.setChefAgence(chefAgence);
+        agence.setNetwork(zone);
+        agence.setChefAgency(chefAgence);
         chefAgence.addAgence(agence);
-        chefAgence.setZone(zone);
+        chefAgence.setNetwork(zone);
         agence.setCreatedBy(currentUser);
-        Agence agenceCreated = agenceRepository.save(agence);
+        Agency agenceCreated = agenceRepository.save(agence);
         return agenceMapper.toDTO(agenceCreated);
     }
 
 
 
-    public AgenceDTO getAgenceById(Long id){
-        Agence existingAgence = agenceRepository.findById(id)
+    public AgencyDTO getAgenceById(Long id){
+        Agency existingAgence = agenceRepository.findById(id)
                 .orElseThrow(()->new RuntimeException("Agence not found"));
         return  agenceMapper.toDTO(existingAgence);
     }
 
-    public List<AgenceDTO> getAllAgences(){
+    public List<AgencyDTO> getAllAgences(){
         User currentUser = userService.getCurrentUser();
-        List<Agence> listAgences = new ArrayList<>();
+        List<Agency> listAgences = new ArrayList<>();
         if(currentUser.getRole().getName().equals(RoleEnum.MANAGER)){
-            listAgences = agenceRepository.findByZoneId(currentUser.getZone().getId());
+            listAgences = agenceRepository.findByNetworkId(currentUser.getNetwork().getId());
         }
         else{
             listAgences = agenceRepository.findAll();
@@ -67,36 +65,36 @@ public class AgenceService {
         return listAgences.stream().map(agenceMapper::toDTO).toList();
     }
 
-    public AgenceDTO updateAgence(AgenceDTO dto, Long id){
-        Agence updateAgence = agenceRepository.findById(id)
+    public AgencyDTO updateAgence(AgencyDTO dto, Long id){
+        Agency updateAgence = agenceRepository.findById(id)
                 .orElseThrow(()->new RuntimeException("Agence not found"));
-        Zone zone = zoneRepository.findById(dto.getZoneId())
+        Network zone = zoneRepository.findById(dto.getNetworkId())
                 .orElseThrow(()->new ResourceNotFoundException("Zone not found"));
 
-        User chefAgence = userRepository.findById(dto.getChefAgenceId())
+        User chefAgence = userRepository.findById(dto.getChefAgencyId())
                 .orElseThrow(()->new ResourceNotFoundException("Chef Agence Not Found"));
         updateAgence.setName(dto.getName());
-        updateAgence.setZone(zone);
-        updateAgence.setChefAgence(chefAgence);
+        updateAgence.setNetwork(zone);
+        updateAgence.setChefAgency(chefAgence);
         chefAgence.addAgence(updateAgence);
-        chefAgence.setZone(zone);
+        chefAgence.setNetwork(zone);
         updateAgence = agenceRepository.save(updateAgence);
-        Agence saveAgence = agenceRepository.save(updateAgence);
+        Agency saveAgence = agenceRepository.save(updateAgence);
         return agenceMapper.toDTO(saveAgence);
 
     }
 
     public void deleteAgence(Long id){
-        Agence existingAgence = agenceRepository.findById(id)
+        Agency existingAgence = agenceRepository.findById(id)
                 .orElseThrow(()->new RuntimeException("Agence not found"));
-        User chefAgence = existingAgence.getChefAgence();
-        existingAgence.setChefAgence(null);
+        User chefAgence = existingAgence.getChefAgency();
+        existingAgence.setChefAgency(null);
         existingAgence = agenceRepository.save(existingAgence);
         agenceRepository.delete(existingAgence);
     }
 
-    public List<AgenceDTO> getAgencesByZoneId(Long id){
-        List<Agence> listAgences = agenceRepository.findByZoneId(id);
+    public List<AgencyDTO> getAgencesByZoneId(Long id){
+        List<Agency> listAgences = agenceRepository.findByNetworkId(id);
         System.out.println(listAgences);
         return listAgences.stream().map(agenceMapper::toDTO).toList();
     }

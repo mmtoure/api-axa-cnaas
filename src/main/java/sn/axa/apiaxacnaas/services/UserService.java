@@ -13,22 +13,14 @@ import sn.axa.apiaxacnaas.dto.ChangePasswordDTO;
 import sn.axa.apiaxacnaas.dto.LoginDTO;
 import sn.axa.apiaxacnaas.dto.UserCreateDTO;
 import sn.axa.apiaxacnaas.dto.UserDTO;
-import sn.axa.apiaxacnaas.entities.Agence;
-import sn.axa.apiaxacnaas.entities.Partner;
-import sn.axa.apiaxacnaas.entities.Role;
-import sn.axa.apiaxacnaas.entities.User;
+import sn.axa.apiaxacnaas.entities.*;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.UserMapper;
-import sn.axa.apiaxacnaas.repositories.AgenceRepository;
-import sn.axa.apiaxacnaas.repositories.PartnerRepository;
-import sn.axa.apiaxacnaas.repositories.RoleRepository;
-import sn.axa.apiaxacnaas.repositories.UserRepository;
+import sn.axa.apiaxacnaas.repositories.*;
 import sn.axa.apiaxacnaas.util.RoleEnum;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,26 +31,39 @@ public class UserService {
     private final UserMapper userMapper;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final AgenceRepository agenceRepository;
+    private final NetworkRepository networkRepository;
     private final PartnerRepository partnerRepository;
     private final HibernateFilterService hibernateFilterService;
+    private final RegionRepository regionRepository;
 
 
-    public UserDTO createUser(UserCreateDTO userDTO) {
+    public void createUser(UserCreateDTO userDTO) {
         User currentUser = getCurrentUser();
         Partner partner = resolvePartner(userDTO, currentUser);
-
-
         Role role = roleRepository.findByName(RoleEnum.valueOf(userDTO.getRoleName()))
                 .orElseThrow(() -> new RuntimeException("Role Not Found"));
         User userEntity = userMapper.toEntity(userDTO);
-
         userEntity.setPassword(passwordEncoder.encode(getDefaultPassword(partner)));
         userEntity.setRole(role);
         userEntity.setPartner(partner);
         userEntity.setIsActive(true);
         User savedUserEntity = userRepository.save(userEntity);
-        return userMapper.toDTO(savedUserEntity);
+
+        if(userDTO.getNetworkId() != null) {
+            Network network = networkRepository.findById(userDTO.getNetworkId())
+                    .orElseThrow(() -> new ResourceNotFoundException("No network with id " + userDTO.getNetworkId()));
+            network.setManager(savedUserEntity);
+            networkRepository.save(network);
+            savedUserEntity.setNetwork(network);
+        }
+        if(userDTO.getRegionIds() != null) {
+            List<Region> regions = regionRepository.findAllById(userDTO.getRegionIds()).stream().toList();
+            regions.forEach(region -> region.setUser(savedUserEntity));
+            regionRepository.saveAll(regions);
+            savedUserEntity.setRegions(regions);
+
+        }
+
 
     }
 

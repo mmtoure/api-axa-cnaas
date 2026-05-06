@@ -19,5 +19,6 @@ public interface GroupRepository extends JpaRepository<Group,Long> {
     Long countGroupsForCurrentUser(Long userId);
 
     List<Group> findByAgenceId(Long agenceId);
-    List<Group> findByZoneId(Long zoneId);
+   // List<Group> findByNetworkId(Long networkId);
+    List<Group> findByRegionId(Long regionId);
 }

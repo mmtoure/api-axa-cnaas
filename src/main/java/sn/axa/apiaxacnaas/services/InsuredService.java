@@ -1,17 +1,11 @@
 package sn.axa.apiaxacnaas.services;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,12 +16,12 @@ import org.thymeleaf.context.Context;
 import sn.axa.apiaxacnaas.dto.InsuredDTO;
 import sn.axa.apiaxacnaas.dto.InsuredMonthlyStatDTO;
 
-import sn.axa.apiaxacnaas.dto.UserCreateDTO;
 import sn.axa.apiaxacnaas.entities.*;
 import sn.axa.apiaxacnaas.exceptions.ResourceNotFoundException;
 import sn.axa.apiaxacnaas.mappers.InsuredMapper;
-import sn.axa.apiaxacnaas.repositories.AgenceRepository;
+import sn.axa.apiaxacnaas.repositories.AgencyRepository;
 import sn.axa.apiaxacnaas.repositories.InsuredRepository;
+import sn.axa.apiaxacnaas.repositories.RegionRepository;
 import sn.axa.apiaxacnaas.util.InsuredStatus;
 import sn.axa.apiaxacnaas.util.RoleEnum;
 import sn.axa.apiaxacnaas.util.SubscriptionTypeEnum;
@@ -39,11 +33,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-
-import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +49,8 @@ public class InsuredService {
     private String storagePath;
     private final NotificationService notificationService;
     private final HibernateFilterService hibernateFilterService;
-    private final AgenceRepository  agenceRepository;
+    private final AgencyRepository agenceRepository;
+    private final RegionRepository  regionRepository;
 
 
     @Value("${file.upload-dir}")
@@ -66,28 +58,28 @@ public class InsuredService {
     public InsuredDTO createInsured(InsuredDTO insuredDTO, MultipartFile proofPayment) throws IOException {
         User currentUser = userService.getCurrentUser();
         Partner currentPartner = currentUser.getPartner();
-        /*if (currentUser.getAgences() == null || currentUser.getAgences().isEmpty()) {
-            throw new ResourceNotFoundException("L'utilisateur n'est rattaché à aucune agence");
-        }*/
-
-        Agence agence = resolveAngence(insuredDTO,currentUser);
+        //Agency agence = resolveAngence(insuredDTO,currentUser);
+        Region region = regionRepository.findById(insuredDTO.getRegionId()).orElseThrow(
+                () -> new ResourceNotFoundException("Region not found"));
 
         //Agence agence = currentUser.getAgences().get(0);
-        Zone zone  = agence.getZone();
+        Network network  = currentUser.getNetwork();
         Insured insured = insuredMapper.toEntity(insuredDTO);
         insured.setUser(currentUser);
         insured.setPartner(currentPartner);
         insured.setCategory(insuredDTO.getCategory());
+        insured.setDepartment(insuredDTO.getDepartment());
         insured.setStatus(InsuredStatus.ACTIF);
         insured.setSubscriptionType(SubscriptionTypeEnum.INDIVIDUELLE);
+        insured.setRegion(region);
+        insured.setNetwork(region.getNetwork());
         insured.setCreatedBy(currentUser);
-         if (zone != null) {
-             insured.setZone(zone);
-         }
+
         insured.setSubscriptionDate(LocalDate.now());
         if (insured.getBeneficiary() != null) {
             insured.getBeneficiary().setInsured(insured);
         }
+
 
         if(proofPayment!= null){
             String fileName = insuredDTO.getFirstName()+"_"+insuredDTO.getLastName()+"_"+proofPayment.getOriginalFilename();
@@ -231,7 +223,7 @@ public class InsuredService {
 
     }
 
-    private Agence resolveAngence(InsuredDTO dto, User currentUser) {
+    private Agency resolveAngence(InsuredDTO dto, User currentUser) {
         if (!userService.hasRole(currentUser, "USER")) {
             if (dto.getAgenceId() == null) {
                 throw new ResourceNotFoundException("Agence est obligatoire");
@@ -239,7 +231,7 @@ public class InsuredService {
             return agenceRepository.findById(dto.getAgenceId())
                     .orElseThrow(() -> new ResourceNotFoundException("Agence not found"));
         }
-        return currentUser.getAgences().stream().findFirst().orElseThrow(()->new ResourceNotFoundException("Agence not found"));
+        return currentUser.getAgencies().stream().findFirst().orElseThrow(()->new ResourceNotFoundException("Agence not found"));
     }
 
 

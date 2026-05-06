@@ -1,12 +1,10 @@
 package sn.axa.apiaxacnaas.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.JoinColumn;
 import lombok.*;
-import sn.axa.apiaxacnaas.entities.Agence;
 import sn.axa.apiaxacnaas.entities.Role;
-import sn.axa.apiaxacnaas.entities.Zone;
-import sn.axa.apiaxacnaas.util.PartenaireEnum;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,8 +23,10 @@ public class UserDTO {
     private Boolean isActive;
     private Role role;
     private Long partnerId;
-    private ZoneDTO zone;
-    private List<AgenceDTO> agences;
+    private Long networkId;
+    private List<RegionDTO> regions;
+    private List<Long> regionIds;
+    private NetworkDTO network;
     private String partnerName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

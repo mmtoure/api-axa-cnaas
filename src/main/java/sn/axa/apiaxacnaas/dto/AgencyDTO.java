@@ -1,27 +1,26 @@
 package sn.axa.apiaxacnaas.dto;
 
-import jakarta.persistence.Column;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import sn.axa.apiaxacnaas.entities.User;
-import sn.axa.apiaxacnaas.util.VilleEnum;
-
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AgenceDTO {
+public class AgencyDTO {
     private Long id;
     private String name;
-    private VilleEnum ville;
-    private Long zoneId;
+    private Long networkId;
+    private String networkName;
+    private Long chefAgencyId;
+    private String chefAgencyName;
     private Long partnerId;
-    private Long chefAgenceId;
+    private String partnerName;
+    private List<RegionDTO> regions;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

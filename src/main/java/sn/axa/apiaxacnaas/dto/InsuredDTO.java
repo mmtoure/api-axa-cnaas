@@ -50,5 +50,9 @@ public class InsuredDTO {
     private UserDTO createdBy;
     private String proofPayment;
     private Long agenceId;
-    private Long zoneId;
+    private Long networkId;
+    private Long regionId;
+    private String regionName;
+    private String department;
+
 }

@@ -8,8 +8,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import sn.axa.apiaxacnaas.util.VilleEnum;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -18,17 +16,15 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @Table(name = "tbl_agences")
-public class Agence {
+public class Agency {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    @Enumerated(EnumType.STRING)
-    private VilleEnum ville;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "zone_id", nullable = false)
-    private Zone zone;
+    @JoinColumn(name = "network_id", nullable = false)
+    private Network network;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partner_id")
@@ -38,8 +34,8 @@ public class Agence {
     private User createdBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chef_agence_id")
-    private User chefAgence;
+    @JoinColumn(name = "chef_agency_id")
+    private User chefAgency;
 
     @Column(updatable = false)
     @CreationTimestamp

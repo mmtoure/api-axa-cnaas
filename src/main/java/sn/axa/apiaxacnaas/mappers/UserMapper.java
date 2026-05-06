@@ -10,6 +10,8 @@ import sn.axa.apiaxacnaas.entities.User;
 public interface UserMapper {
     @Mapping(source = "partner.id", target = "partnerId")
     @Mapping(source = "partner.name", target = "partnerName")
+    @Mapping(source = "network.id", target = "networkId")
+
     UserDTO toDTO(User userEntity);
 
     User toEntity(UserCreateDTO userDTO);

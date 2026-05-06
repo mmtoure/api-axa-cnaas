@@ -1,13 +1,12 @@
 package sn.axa.apiaxacnaas.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Table;
 import lombok.*;
 import org.hibernate.annotations.*;
-import sn.axa.apiaxacnaas.util.PartenaireEnum;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -45,15 +44,19 @@ public class User {
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private Role role;
 
-    @OneToMany(mappedBy = "chefAgence", cascade = CascadeType.ALL)
-    private List<Agence> agences;
+    @OneToMany(mappedBy = "chefAgency", cascade = CascadeType.ALL)
+    private List<Agency> agencies;
 
-    @OneToOne(mappedBy = "chefZone")
-    private Zone zone;
+    @OneToOne(mappedBy = "manager")
+    private Network network;
 
-    public void addAgence(Agence agence) {
-        agences.add(agence);
-        agence.setChefAgence(this);
+    @OneToMany(mappedBy = "user")
+    @JsonManagedReference
+    private List<Region> regions;
+
+    public void addAgence(Agency agence) {
+        agencies.add(agence);
+        agence.setChefAgency(this);
     }
 
 }

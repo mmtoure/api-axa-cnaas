@@ -45,7 +45,7 @@ class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/v3/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/create-user", "/create-admin", "/register", "/activate", "/login", "/admin", "/users", "/create-chef-zone", "/status").permitAll()
+                        .requestMatchers("/create-user", "/login").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/v1.0/login").permitAll()
                         // All other endpoints require authentication

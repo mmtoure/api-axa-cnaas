@@ -5,9 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import sn.axa.apiaxacnaas.util.GroupStatus;
-import sn.axa.apiaxacnaas.util.InsuredStatus;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -65,14 +63,19 @@ public class Group {
     private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "zone_id")
-    private Zone zone;
+    @JoinColumn(name = "network_id")
+    private Network network;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agence_id")
-    private Agence agence;
+    private Agency agence;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_id")
+    private Region region;
 
     private String proofPayment;
+    private String department;
 
 
 }

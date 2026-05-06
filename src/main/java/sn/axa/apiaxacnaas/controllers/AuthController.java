@@ -21,9 +21,9 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/create-user")
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserCreateDTO request) {
-        UserDTO newUser = userService.createUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+    public ResponseEntity<String> createUser(@RequestBody UserCreateDTO request) {
+        userService.createUser(request);
+        return ResponseEntity.ok("Utilisateur créé avec succès");
     }
 
     @PostMapping("/login")
